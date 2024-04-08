@@ -1,11 +1,13 @@
 import Link from 'next/link';
 
+import "./header.scss"
+
 const Header: React.FC = () => {
   return (
-    <header>
-      <h1>Dog Dating Site</h1>
+    <header className="header">
+      <p>Dog Dating Site</p>
       <nav>
-        <ul>
+        <ul className="navLinks">
           <li>
             <Link href="/">
               Home
@@ -14,11 +16,6 @@ const Header: React.FC = () => {
           <li>
             <Link href="/register">
               Register
-            </Link>
-          </li>
-          <li>
-            <Link href="/login">
-              Login
             </Link>
           </li>
         </ul>
