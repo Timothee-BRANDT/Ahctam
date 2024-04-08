@@ -1,12 +1,7 @@
 #!/bin/bash
 
-# On debian based/Ubuntu:
-# sudo apt install postgresql postgresql-contrib libpq-dev
-# sudo systemctl postgresql start
-# sudo -u postgres psql
-# sudo apt install python3-dev build-essential
-
 # To automatically activate the venv after the script, run source init.sh
+
 VENV="matcha_venv"
 
 python3 -m venv $VENV

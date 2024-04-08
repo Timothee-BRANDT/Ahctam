@@ -3,8 +3,10 @@ Teem
 
 ## Flask
 ### Requirements
-Having at least python3.10 available
-Install postgresql
+Having at least python3.10 available.
+
+Install postgresql.
+
 #### On debian based/Ubuntu:
 ```
 sudo apt install postgresql postgresql-contrib libpq-dev
