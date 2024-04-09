@@ -6,6 +6,7 @@ VENV="matcha_venv"
 
 python3 -m venv $VENV
 source $VENV/bin/activate
+echo "Virtual environment created and activated."
 
 if [ ! -f .gitignore ]; then
     touch .gitignore
