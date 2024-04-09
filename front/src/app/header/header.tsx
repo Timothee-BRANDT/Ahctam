@@ -5,7 +5,7 @@ import "./header.scss"
 const Header: React.FC = () => {
   return (
     <header className="header">
-      <p>Dog Dating Site</p>
+      <p>Guinea Pig Dating Site</p>
       <nav>
         <ul className="navLinks">
           <li>
