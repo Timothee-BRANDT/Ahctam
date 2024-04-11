@@ -1,14 +1,17 @@
-import Link from "next/link";
+import React from 'react';
 import Header from "./header/header";
 import Footer from "./footer/footer"
 import Authentification from "./authentification/authentification";
+import { AuthProvider } from './authContext';
 
 export default function Home() {
   return (
-    <main>
-      <Header />
-      <Authentification />
-      <Footer />
-    </main>
+    <AuthProvider>
+      <main>
+        <Header />
+        <Authentification />
+        <Footer />
+      </main>
+    </AuthProvider>
   );
 }
