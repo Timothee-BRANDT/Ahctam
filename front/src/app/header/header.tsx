@@ -13,11 +13,6 @@ const Header: React.FC = () => {
               Home
             </Link>
           </li>
-          <li>
-            <Link href="/register">
-              Register
-            </Link>
-          </li>
         </ul>
       </nav>
     </header>
