@@ -1,0 +1,23 @@
+@import '../styles/variables';
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: var(--primary-color);
+    padding: 16px;
+  }
+  
+  .navLinks {
+    display: flex;
+    list-style: none;
+  }
+  
+  .navLinks li {
+    margin-right: 8px;
+  }
+  
+  .navLinks a {
+    color: var(--secondary-color);
+    text-decoration: none;
+}
