@@ -32,4 +32,15 @@ def register():
             host='localhost',
             port='5432'
         )
-    # return jsonify({'username': username, 'password': hashed_password})
+        cursor = conn.cursor()
+        # We parametrize the query to prevent SQL injection
+        sql = f"INSERT INTO users (username, password, email) VALUES (%s, %s, %s)"
+
+        cursor.execute(sql, (username, hashed_password, email))
+        conn.commit()
+        cursor.close()
+        conn.close()
+        return jsonify({'message': 'Registration successful'})
+
+    except Exception as e:
+        return jsonify({'error': str(e)})

@@ -1,3 +1,4 @@
+import os
 from flask import Flask
 from dotenv import load_dotenv
 from .routes.main import main as main_blueprint
@@ -11,5 +12,11 @@ def create_app():
 
     app.register_blueprint(main_blueprint)
     app.register_blueprint(api_blueprint, url_prefix='/api')
+
+    # Global secret key for the app
+    app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
+    # JWT secret key
+    app.config['JWT_SECRET_KEY'] = os.getenv('JWT_SECRET_KEY')
+
 
     return app
