@@ -3,3 +3,4 @@ matcha_venv
 back/.env
 back/.env
 front/node_modules
+front/.next
