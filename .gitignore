@@ -1,2 +1,42 @@
-__pycache__/
-matcha_venv
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# ************* BACK ***************
+# Python cache
+back/__pycache__/
+back/matcha_venv
+
+# ************* FRONT ***************
+# Dependencies
+front/node_modules
+front/.pnp
+front/.pnp.js
+front/.yarn/install-state.gz
+
+# Testing
+front/coverage
+
+# Next.js build outputs
+front/.next/
+front/out/
+
+# Production build output
+front/build
+
+# Miscellaneous files
+front/.DS_Store
+front/*.pem
+
+# Debug logs
+front/npm-debug.log*
+front/yarn-debug.log*
+front/yarn-error.log*
+
+# Local environment files
+front/.env*.local
+
+# Vercel deployment files
+front/.vercel
+
+# TypeScript files
+front/*.tsbuildinfo
+front/next-env.d.ts
