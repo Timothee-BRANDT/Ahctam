@@ -68,15 +68,6 @@ const Authentification: React.FC = () => {
 		// 	console.log('Server response:', data);
 		// 1) log success, response is a JSON with the user info, mock the api response with myPig
 		// mocked data from the API response
-		
-
-
-
-
-
-
-
-
 		const myPig = {
 			id: 12,
 			userName: 'JuJu',
@@ -96,12 +87,6 @@ const Authentification: React.FC = () => {
 		}
 		setUser(myPig);
 		login(myPig);
-
-
-
-
-
-
 		// 2) ERROR FROM THE API CALL
 		// } catch (error) {
 		// 	console.error('Error sending data to the server:', error);
@@ -111,8 +96,6 @@ const Authentification: React.FC = () => {
 		// setTimeout(() => {
 		// 	setIsBadCredentials(false);
 		//   }, 2000);
-		// Need a pop-up with "Bad credentials"
-		// 
 		};
   return (
 	<>

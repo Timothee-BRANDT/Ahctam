@@ -13,8 +13,35 @@
     list-style: none;
   }
   
-  .navLinks li {
-    margin-right: 80px;
+  .home-button-user-logged-in {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    text-transform: uppercase;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-right: 140px;
+    &:hover {
+      background-color: var(--secondary-color);
+    }
+  }
+
+   
+  .home-button-user-logged-out {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    text-transform: uppercase;
+    font-weight: bold;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-right: 20px;
+    &:hover {
+      background-color: var(--secondary-color);
+    }
   }
   
   .navLinks a {

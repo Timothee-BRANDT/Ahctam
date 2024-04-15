@@ -7,18 +7,17 @@ import Link from 'next/link';
 import "./header.scss"
 
 const Header: React.FC = () => {
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   return (
     <header className="header">
       <p>Guinea Pig Dating Site</p>
       <nav>
         <ul className="navLinks">
-          <li>
+          <li className={user.firstName ? "home-button-user-logged-in" : "home-button-user-logged-out"}>
             <Link href="/">
               Home
             </Link>
           </li>
-          {/* <button onClick={logout}>Logout</button> */}
         </ul>
       </nav>
     </header>
