@@ -18,7 +18,7 @@ const Header: React.FC = () => {
               Home
             </Link>
           </li>
-          <button onClick={logout}>Logout</button>
+          {/* <button onClick={logout}>Logout</button> */}
         </ul>
       </nav>
     </header>

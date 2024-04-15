@@ -13,7 +13,10 @@ export interface User {
     biography: string;
     interests: string;
     created_at: string;  
-    // login variable ? true => user logged, false => user logged out
-    logged: boolean;
+}
 
+export enum State {
+    initial = "initial",
+    loading = "loading",
+    done = "done"
 }
