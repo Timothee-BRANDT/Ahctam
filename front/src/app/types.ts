@@ -12,7 +12,8 @@ export interface User {
     sexual_preferences: string;
     biography: string;
     interests: string;
-    created_at: string;  
+    created_at: string;
+    firstTimeLogged: boolean;
 }
 
 export enum State {

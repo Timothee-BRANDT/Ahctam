@@ -1,42 +1,21 @@
 'use client'
 
 import React from 'react';
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import './authentification.scss'
 import Link from 'next/link';
-import { User, State } from '../types';
+import { State } from '../types';
 import { useAuth } from '../authContext';
 
-const initialPig: User = {
-	id: 1,
-	userName: '',
-	firstName: '',
-	lastName: '',
-	email: '',
-	password_hash: '',
-	is_active: false,
-	registration_token: '',
-	jwt_token: '',
-	gender: '',
-	sexual_preferences: '',
-	biography: '',
-	interests: '',
-	created_at: '',
-};
-
 const Authentification: React.FC = () => {
-	// const [myUser, setMyUser] = useState<User>(initialPig);
-	const {login, logout, setCookie, deleteCookie, isJwtInCookie, user, setUser } = useAuth();
-	// const [ isUserLogged, setIsUserLogged ] = useState<boolean>(false);
-	const [ status, setStatus ] = useState<State>(State.initial);
+	const {login, logout, isJwtInCookie, user, setUser } = useAuth();
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
+	const [ status, setStatus ] = useState<State>(State.initial);
+	const [ isBadCredentials, setIsBadCredentials] = useState<boolean>(false);
 
 	useEffect(() => {
-		console.log('rwetyu')
 		if (status == State.initial && !user?.userName && isJwtInCookie('jwtToken')) {
-			console.log("IN THE IF")
-			// setIsUserLogged(true);
 			// CALL ENDPOINT TO GET THE USER INFORMATIONS
 			// GET METHOD WITH THE JWT IN HEADER
 			// FOR NOW myPIG IS A MOCK :D
@@ -55,35 +34,17 @@ const Authentification: React.FC = () => {
 				biography: 'osef',
 				interests: 'osef',
 				created_at: '1234567876543',
+				firstTimeLogged: false,
 			}
 			setUser(myPig);
 			login(myPig);
 		}
-		// else {
-		// 	setIsUserLogged(false);
-		// }
 		setStatus(State.done)
 	  }, []);
 	
 	const submit = async (event: any) => {
 		event.preventDefault();
-		// mocked data from the API response
-		const myPig = {
-			id: 12,
-			userName: 'Julie',
-			firstName: 'Brandt',
-			lastName: 'Juju',
-			email: email,
-			password_hash: password,
-			is_active: true,
-			registration_token: 'qwertyuiop',
-			jwt_token: '123456789asdsfgbvncxvbn',
-			gender: 'female',
-			sexual_preferences: 'male',
-			biography: 'osef',
-			interests: 'osef',
-			created_at: '1234567876543',
-		}
+
 		// ************ LOGIC TO MAKE THE LOGIN API CALL ************** //
 		// const url = '/api/login';
 		// const payload = {
@@ -106,20 +67,56 @@ const Authentification: React.FC = () => {
 		// 	const data = await response.json();
 		// 	console.log('Server response:', data);
 		// 1) log success, response is a JSON with the user info, mock the api response with myPig
-			setUser(myPig);
-			login(myPig);
-			// setIsUserLogged(true);
+		// mocked data from the API response
+		
+
+
+
+
+
+
+
+
+		const myPig = {
+			id: 12,
+			userName: 'JuJu',
+			firstName: 'Julie',
+			lastName: 'Juliette',
+			email: email,
+			password_hash: password,
+			is_active: true,
+			registration_token: 'qwertyuiop',
+			jwt_token: '123456789asdsfgbvncxvbn',
+			gender: 'female',
+			sexual_preferences: 'male',
+			biography: 'osef',
+			interests: 'osef',
+			created_at: '1234567876543',
+			firstTimeLogged: true,
+		}
+		setUser(myPig);
+		login(myPig);
+
+
+
+
+
+
 		// 2) ERROR FROM THE API CALL
-		//  setIsUserLogged(false);
 		// } catch (error) {
 		// 	console.error('Error sending data to the server:', error);
 		// }
-		// 2) log failed, JSON with a logFailed value
+		// 3) log failed, JSON with a logFailed value
+		// setIsBadCredentials(true)
+		// setTimeout(() => {
+		// 	setIsBadCredentials(false);
+		//   }, 2000);
 		// Need a pop-up with "Bad credentials"
 		// 
 		};
   return (
 	<>
+		{isBadCredentials && <p className="bad-credentials">Bad credentials</p>}
 		{!user.firstName && status != State.initial ? (
 		<div className="form-container">
 			<form onSubmit={submit} className="form">
@@ -154,12 +151,13 @@ const Authentification: React.FC = () => {
 			</form>
 		</div>
 		) : (
-			status != State.initial && (
-				<>
+			<>
+				{user?.firstName && <div className="user-card">
 					<p>Welcome {user?.firstName}</p>
-					<button onClick={logout}>Logout</button>
-				</>
-			)
+					<img className="profile-picture" src="https://cdn4.volusion.store/kapts-nrbqf/v/vspfiles/photos/GUINEAPIGONEDRESSED-2.jpg?v-cache=1590745950"></img>
+				</div>}
+				<button className="button-logout" onClick={logout}>Logout</button>
+			</>
 		)}
 	</>
   );

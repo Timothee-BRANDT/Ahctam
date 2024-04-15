@@ -18,6 +18,7 @@ const initialPig: User = {
 	biography: '',
 	interests: '',
 	created_at: '',
+  firstTimeLogged: true,
 };
 
 interface AuthContextType {
@@ -78,7 +79,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 	}
 
   const login = (user: User) => {
-      setCookie('jwtToken', user.jwt_token, 7);
+    setCookie('jwtToken', user.jwt_token, 7);
   }
 
   const logout = () => {

@@ -72,3 +72,29 @@
   .link a:hover {
     background-color: var(--secondary-color);
   }
+
+  .button-logout {
+    position: fixed;
+    top: 16px;
+    right: 20px;
+    color: var(--primary-color);
+  }
+
+  .bad-credentials {
+    position: fixed;
+    top: 160px;
+    margin-left: 630px;
+    color: red;
+  }
+
+  .user-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .profile-picture {
+    border-radius: 40px;
+    margin-top: 18px;
+  }
