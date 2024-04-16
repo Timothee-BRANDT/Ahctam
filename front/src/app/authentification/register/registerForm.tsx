@@ -11,6 +11,9 @@ import Button from '../../components/button';
 const RegisterForm: React.FC = () => {
 	const {login, logout, isJwtInCookie, user, setUser } = useAuth();
 	const [email, setEmail] = useState('');
+	const [username, setUsername] = useState('');
+	const [lastname, setLastname] = useState('');
+	const [firstname, setFirstname] = useState('');
 	const [password, setPassword] = useState('');
 	const [ status, setStatus ] = useState<State>(State.initial);
 	const [ isBadCredentials, setIsBadCredentials] = useState<boolean>(false);
@@ -22,6 +25,9 @@ const RegisterForm: React.FC = () => {
 		// const url = '/api/login';
 		// const payload = {
 		// 	email: email,
+        //  username: username,
+        //  lastname: lastname,
+        //  firstname: firstname,
 		// 	password: password
 		// };
 		// try {
@@ -43,9 +49,9 @@ const RegisterForm: React.FC = () => {
 		// mocked data from the API response
 		const myPig = {
 			id: 12,
-			userName: 'JuJu',
-			firstName: 'Julie',
-			lastName: 'Juliette',
+			userName: username,
+			firstName: firstname,
+			lastName: lastname,
 			email: email,
 			password_hash: password,
 			is_active: true,
@@ -86,6 +92,39 @@ const RegisterForm: React.FC = () => {
 					/>
 				</div>
 				<div>
+					<label>Username</label>
+					<input
+						type="username"
+						id="username"
+						value={username}
+						onChange={(e) => setUsername(e.target.value)}
+						required
+						autoComplete="new-password"
+					/>
+				</div>
+                <div>
+					<label>Last Name</label>
+					<input
+						type="last-name"
+						id="last-name"
+						value={lastname}
+						onChange={(e) => setLastname(e.target.value)}
+						required
+						autoComplete="new-password"
+					/>
+				</div>
+                <div>
+					<label>First Name</label>
+					<input
+						type="first-name"
+						id="first-name"
+						value={firstname}
+						onChange={(e) => setFirstname(e.target.value)}
+						required
+						autoComplete="new-password"
+					/>
+				</div>
+                <div>
 					<label htmlFor="password">Password</label>
 					<input
 						type="password"

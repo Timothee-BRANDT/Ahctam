@@ -80,6 +80,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = (user: User) => {
     setCookie('jwtToken', user.jwt_token, 7);
+    console.log(user)
   }
 
   const logout = () => {
