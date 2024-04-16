@@ -37,25 +37,28 @@ body .button-logout {
   right: 16px;
 }
 
-.link {
+.new_member {
   display: block;
   width: 100%;
   padding: 10px;
-  background-color: var(--primary-color);
-  text-transform: uppercase;
-  font-weight: bold;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  cursor: pointer;
+  // background-color: var(--primary-color);
+  //   text-transform: uppercase;
+  //   font-weight: bold;
+  // color: #fff;
   text-align: center;
   text-decoration: none;
   margin-top: 8px;
-  &:hover {
-    background-color: var(--secondary-color);
-  }
 }
 
+.new_member-question {
+  color: var(--secondary-color);
+}
+
+.new_member-creation {
+  color: var(--primary-color);
+  font-weight: bold;
+  text-decoration: underline;
+}
 
 .bad-credentials {
   position: fixed;

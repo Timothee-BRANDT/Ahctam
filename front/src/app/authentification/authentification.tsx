@@ -127,8 +127,9 @@ const Authentification: React.FC = () => {
 					/>
 				</div>
 				<Button title="Log in" type="submit" onClick={() => {}}/>
-					<div className="link">
-						<Link className="new-account" href="/register">
+					<div className="new_member">
+						<p className="new_member-question">Not a member yet ?</p>
+						<Link className="new_member-creation" href="/register">
 							Create an account
 						</Link>
 					</div>
