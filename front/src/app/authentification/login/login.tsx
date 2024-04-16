@@ -144,7 +144,6 @@ const Authentification: React.FC<AuthentificationProps> = ({ register = false })
 				{user?.firstName && <div className="user-card">
 					<p>Welcome {user?.firstName}</p>
 					<img className="profile-picture" src="https://cdn4.volusion.store/kapts-nrbqf/v/vspfiles/photos/GUINEAPIGONEDRESSED-2.jpg?v-cache=1590745950"></img>
-					<Button title="Logout" className="button-logout" onClick={logout} />
 				</div>}
 			</>
 		)}
