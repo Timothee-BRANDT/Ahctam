@@ -5,6 +5,7 @@ import { useAuth } from '../authContext';
 import Link from 'next/link';
 
 import "./header.scss"
+import Button from '../components/button';
 
 const Header: React.FC = () => {
   const { logout, user } = useAuth();
@@ -13,11 +14,12 @@ const Header: React.FC = () => {
       <p>PiggyDate</p>
       <nav>
         <ul className="navLinks">
-          <li className={user.firstName ? "home-button-user-logged-in" : "home-button-user-logged-out"}>
+          <li className={"home"} >
             <Link href="/">
               Home
             </Link>
           </li>
+          {user.firstName && <Button title="Logout" onClick={logout} />}
         </ul>
       </nav>
     </header>
