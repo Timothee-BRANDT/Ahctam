@@ -6,6 +6,7 @@ import './authentification.scss'
 import Link from 'next/link';
 import { State } from '../types';
 import { useAuth } from '../authContext';
+import Button from '../components/button';
 
 const Authentification: React.FC = () => {
 	const {login, logout, isJwtInCookie, user, setUser } = useAuth();
@@ -125,7 +126,7 @@ const Authentification: React.FC = () => {
 						autoComplete="new-password"
 					/>
 				</div>
-				<button type="submit">Log in</button>
+				<Button title="Log in" type="submit" onClick={() => {}}/>
 					<div className="link">
 						<Link className="new-account" href="/register">
 							Create an account
@@ -138,8 +139,8 @@ const Authentification: React.FC = () => {
 				{user?.firstName && <div className="user-card">
 					<p>Welcome {user?.firstName}</p>
 					<img className="profile-picture" src="https://cdn4.volusion.store/kapts-nrbqf/v/vspfiles/photos/GUINEAPIGONEDRESSED-2.jpg?v-cache=1590745950"></img>
+					<Button title="Logout" className="button-logout" onClick={logout} />
 				</div>}
-				<button className="button-logout" onClick={logout}>Logout</button>
 			</>
 		)}
 	</>
