@@ -21,16 +21,18 @@ def home():
 
 @main.route('/register', methods=['POST'])
 def register():
+    print('coucou')
     data = request.get_json()
+    print('coucou2')
     username = data['username']
     password = data['password']
     email = data['email']
     hashed_password = generate_password_hash(password)
-    sql = "INSERT INTO users (username, password, email) VALUES (%s, %s, %s)"
 
+    sql = "INSERT INTO users (username, password, email) VALUES (%s, %s, %s)"
+    conn = get_db_connection()
+    cur = conn.cursor()
     try:
-        conn = get_db_connection()
-        cur = conn.cursor()
         cur.execute(sql, (username, hashed_password, email))
         conn.commit()
     except Exception as e:
