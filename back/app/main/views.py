@@ -5,7 +5,7 @@ from flask import (
     jsonify
 )
 import os
-import psycopg2
+from ..database import get_db_connection
 from werkzeug.security import generate_password_hash, check_password_hash
 
 main = Blueprint('main', __name__)
@@ -23,24 +23,16 @@ def register():
     password = data['password']
     email = data['email']
     hashed_password = generate_password_hash(password)
+    sql = "INSERT INTO users (username, password, email) VALUES (%s, %s, %s)"
 
     try:
-        conn = psycopg2.connect(
-            dbname=os.getenv('POSTGRES_DB'),
-            user=os.getenv('POSTGRES_USER'),
-            password=os.getenv('POSTGRES_PASSWORD'),
-            host='localhost',
-            port='5432'
-        )
-        cursor = conn.cursor()
-        # We parametrize the query to prevent SQL injection
-        sql = f"INSERT INTO users (username, password, email) VALUES (%s, %s, %s)"
-
-        cursor.execute(sql, (username, hashed_password, email))
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute(sql, (username, hashed_password, email))
         conn.commit()
-        cursor.close()
-        conn.close()
-        return jsonify({'message': 'Registration successful'})
-
     except Exception as e:
         return jsonify({'error': str(e)})
+    finally:
+        cur.close()
+        conn.close()
+    return jsonify({'message': 'Registration successful'})

@@ -18,11 +18,11 @@ class RegisterForm(FlaskForm):
             raise ValueError('Username must be at least 3 characters long')
         if len(field.data) > 20:
             raise ValueError('Username must be less than 20 characters long')
-        conn = get_db_connection()
-        cur = conn.cursor()
         query = 'SELECT * FROM users WHERE username = %s'
         # The comma is mandatory to make it a tuple, expected by psycopg2
         try:
+            conn = get_db_connection()
+            cur = conn.cursor()
             cur.execute(query, (field.data,))
             user = cur.fetchone()
         except Exception as e:
@@ -47,3 +47,16 @@ class RegisterForm(FlaskForm):
         regex = r'^\w+@\w+\.\w+$'
         if not re.match(regex, field.data):
             raise ValueError('Invalid email address')
+        try:
+            conn = get_db_connection()
+            cur = conn.cursor()
+            cur.execute('SELECT * FROM users WHERE email = %s', (field.data,))
+            user = cur.fetchone()
+        except Exception as e:
+            raise ValueError(f"An error occurred: {e}")
+        else:
+            if user:
+                raise ValueError('Email already exists')
+        finally:
+            cur.close()
+            conn.close()
