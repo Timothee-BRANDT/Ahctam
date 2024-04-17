@@ -1,8 +1,8 @@
 import os
 from flask import Flask
 from dotenv import load_dotenv
-from .routes.main import main as main_blueprint
-from .routes.api import api as api_blueprint
+from .main.views import main as main_blueprint
+from .api.views import api as api_blueprint
 
 load_dotenv()
 
