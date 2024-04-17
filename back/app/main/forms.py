@@ -10,6 +10,7 @@ from ..database import get_db_connection
 class RegisterForm(FlaskForm):
     username = StringField('Username')
     password = PasswordField('Password')
+    password2 = PasswordField('Confirm Password')
     email = EmailField('Email')
     submit = SubmitField('Sign Up')
 

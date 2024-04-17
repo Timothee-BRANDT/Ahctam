@@ -4,9 +4,12 @@ from flask import (
     request,
     jsonify
 )
-import os
 from ..database import get_db_connection
-from werkzeug.security import generate_password_hash, check_password_hash
+from werkzeug.security import (
+    generate_password_hash,
+    # check_password_hash
+)
+from .forms import RegisterForm
 
 main = Blueprint('main', __name__)
 
@@ -36,3 +39,11 @@ def register():
         cur.close()
         conn.close()
     return jsonify({'message': 'Registration successful'})
+
+
+@main.route('/register', methods=['GET'])
+def register_page():
+    context = {
+        'form': RegisterForm()
+    }
+    return render_template('register.html', **context)
