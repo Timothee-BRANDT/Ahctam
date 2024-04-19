@@ -47,7 +47,7 @@ one digit and one special character
             raise ValueError('Passwords do not match')
 
     def validate_email(self, field):
-        regex = r'^\w+@\w+\.\w+$'
+        regex = r'^[\w\.-]+@[\w\.-]+\.\w+$'
         if not re.match(regex, field.data):
             raise ValueError('Invalid email address')
 

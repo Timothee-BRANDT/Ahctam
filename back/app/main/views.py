@@ -4,12 +4,12 @@ from flask import (
     request,
     jsonify
 )
-from ..database import get_db_connection
 from werkzeug.security import (
     generate_password_hash,
     # check_password_hash
 )
 from .forms import RegisterForm
+from ..database import get_db_connection
 
 main = Blueprint('main', __name__)
 
