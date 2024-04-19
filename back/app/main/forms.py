@@ -21,9 +21,9 @@ class RegisterForm(FlaskForm):
             raise ValueError('Username must be less than 20 characters long')
         query = 'SELECT * FROM users WHERE username = %s'
         # The comma is mandatory to make it a tuple, expected by psycopg2
+        conn = get_db_connection()
+        cur = conn.cursor()
         try:
-            conn = get_db_connection()
-            cur = conn.cursor()
             cur.execute(query, (field.data,))
             user = cur.fetchone()
         except Exception as e:
@@ -39,18 +39,21 @@ class RegisterForm(FlaskForm):
         regex = r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,20}$'
         if not re.match(regex, field.data):
             raise ValueError("""
-                Password must contain at least 1 lowercase letter,
-                1 uppercase letter, 1 digit, 1 special character
-                and be between 8 and 20 characters long
+Password must be between 8 and 20 characters long,
+contain at least one uppercase letter, one lowercase letter,
+one digit and one special character
             """)
+        if field.data != self.password2.data:
+            raise ValueError('Passwords do not match')
 
     def validate_email(self, field):
         regex = r'^\w+@\w+\.\w+$'
         if not re.match(regex, field.data):
             raise ValueError('Invalid email address')
+
+        conn = get_db_connection()
+        cur = conn.cursor()
         try:
-            conn = get_db_connection()
-            cur = conn.cursor()
             cur.execute('SELECT * FROM users WHERE email = %s', (field.data,))
             user = cur.fetchone()
         except Exception as e:

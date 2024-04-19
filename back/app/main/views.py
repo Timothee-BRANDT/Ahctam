@@ -21,9 +21,13 @@ def home():
 
 @main.route('/register', methods=['POST'])
 def register():
-    print('coucou')
     data = request.get_json()
-    print('coucou2')
+    form = RegisterForm(data=data)
+    try:
+        form.validate()
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400
+
     username = data['username']
     password = data['password']
     email = data['email']
@@ -36,7 +40,7 @@ def register():
         cur.execute(sql, (username, hashed_password, email))
         conn.commit()
     except Exception as e:
-        return jsonify({'error': str(e)})
+        return jsonify({'error': str(e)}), 500
     finally:
         cur.close()
         conn.close()
