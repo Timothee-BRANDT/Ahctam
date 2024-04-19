@@ -65,12 +65,16 @@ For debug and live-server behavior:
 flask --app hello run --debug
 ```
 
-Use escape() to prevent injections
+### Tips - Cheatsheet
 
-It renders input as text
+Use escape() to prevent injections. It renders input as text
 
 ```python
 from markupsafe import escape
 def hello(name):
     return f"Hello, {escape(name)}"
 ```
+
+1. Create app.py file
+2. Create structure
+2. Make everything modular

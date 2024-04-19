@@ -1,31 +1,29 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title></title>
-    <link
-      href="{{ url_for('static', filename='css/style.css') }}"
-      rel="stylesheet"
-    />
-  </head>
 
-  <body>
-    <div class="container">
-      <h1>Register</h1>
-      {% from 'form_macros.html' import render_field %}
-      <form id="registerForm" method="POST">
-        {{ form.hidden_tag() }}
-        {{ render_field(form.username) }}
-        {{ render_field(form.email) }}
-        {{ render_field(form.password) }}
-        {{ render_field(form.password2) }}
-        <button type="submit">{{ form.submit.label }}</button>
-      </form>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title></title>
+  <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet" />
+</head>
+
+<body>
+  <div class="container">
+    <h1>Register</h1>
+    {% from 'form_macros.html' import render_field %}
+    <form id="registerForm" method="POST">
+      {{ form.hidden_tag() }}
+      {{ render_field(form.username) }}
+      {{ render_field(form.email) }}
+      {{ render_field(form.password) }}
+      {{ render_field(form.password2) }}
+      <button type="submit">{{ form.submit.label }}</button>
+    </form>
 
     <script>
-      document.getElementById('registerForm').addEventListener('submit', function(e) {
-        e.preventDefault(); // Empêcher la soumission standard du formulaire
+      document.getElementById('registerForm').addEventListener('submit', function (e) {
+        e.preventDefault();
         const formData = new FormData(this);
         const jsonData = {
           username: formData.get('username'),
@@ -41,10 +39,11 @@
           },
           body: JSON.stringify(jsonData)
         })
-        .then(response => response.json())
-        .then(data => console.log(data))
-        .catch(error => console.error('Error:', error));
+          .then(response => response.json())
+          .then(data => console.log(data))
+          .catch(error => console.error('Error:', error));
       });
     </script>
-  </body>
+</body>
+
 </html>
