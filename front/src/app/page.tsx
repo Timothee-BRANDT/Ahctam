@@ -1,17 +1,17 @@
 import React from 'react';
 import Header from "./header/header";
 import Footer from "./footer/footer"
-import Authentification from "./authentification/login/login";
-import { AuthProvider } from './authContext';
+import Login from './authentification/login/login';
+import RootLayout from './layout';
 
 export default function Home() {
   return (
-    <AuthProvider>
       <main>
         <Header />
-        <Authentification />
+        <Login />
         <Footer />
       </main>
-    </AuthProvider>
   );
 }
+
+Home.layout = RootLayout;

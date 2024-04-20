@@ -19,5 +19,6 @@ export interface User {
 export enum State {
     initial = "initial",
     loading = "loading",
-    done = "done"
+    done = "done",
+    redirect = "redirect",
 }

@@ -2,17 +2,21 @@
 
 import React from 'react';
 import { useEffect, useState } from 'react';
-import './login.scss'
 import Link from 'next/link';
-import { State } from '../../types';
-import { useAuth } from '../../authContext';
-import Button from '../../components/button';
+import { useAuth } from '@/app/authContext';
+import { State } from '@/app/types';
+import Button from '@/app/components/button';
+import { useRouter } from 'next/navigation';
 
-interface AuthentificationProps {
-	register: boolean;
-}
+import './login.scss'
 
-const Authentification: React.FC<AuthentificationProps> = ({ register = false }) => {
+// PERSONNAL DOC, I'M USING PASSWORD_HASH TO HANDLE ALL THE DIFFERENTS USE CASES
+// 1 => Log for the first time, redirect to information page
+// 2 => Log but not the first time, just setJwt and user
+// 3 => Bad credentials
+
+const Login: React.FC = () => {
+	const router = useRouter()
 	const {login, logout, isJwtInCookie, user, setUser } = useAuth();
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
@@ -45,7 +49,7 @@ const Authentification: React.FC<AuthentificationProps> = ({ register = false })
 			login(myPig);
 		}
 		setStatus(State.done)
-	  }, []);
+	  }, [user]);
 	
 	const submit = async (event: any) => {
 		event.preventDefault();
@@ -71,36 +75,70 @@ const Authentification: React.FC<AuthentificationProps> = ({ register = false })
 	  
 		// 	const data = await response.json();
 		// 	console.log('Server response:', data);
-		// 1) log success, response is a JSON with the user info, mock the api response with myPig
-		// mocked data from the API response
-		const myPig = {
-			id: 12,
-			userName: 'JuJu',
-			firstName: 'Julie',
-			lastName: 'Juliette',
-			email: email,
-			password_hash: password,
-			is_active: true,
-			registration_token: 'qwertyuiop',
-			jwt_token: '123456789asdsfgbvncxvbn',
-			gender: 'female',
-			sexual_preferences: 'male',
-			biography: 'osef',
-			interests: 'osef',
-			created_at: '1234567876543',
-			firstTimeLogged: true,
+
+
+
+		// if the user is logged for the first time;
+		if (password === '1') {
+			setStatus(State.redirect)
+			const myPig = {
+				id: 12,
+				userName: 'JuJu',
+				firstName: 'Julie',
+				lastName: 'Juliette',
+				email: email,
+				password_hash: password,
+				is_active: true,
+				registration_token: 'qwertyuiop',
+				jwt_token: '123456789asdsfgbvncxvbn',
+				gender: '',
+				sexual_preferences: '',
+				biography: '',
+				interests: '',
+				created_at: '1234567876543',
+				firstTimeLogged: true,
+			}
+			setUser(myPig);
+			login(myPig);
+			router.push('/informations');
 		}
-		setUser(myPig);
-		login(myPig);
-		// 2) ERROR FROM THE API CALL
+
+		// 2) logged success from API, but not the first time
+		if (password === '2') {
+			console.log('wertyu')
+			const myPig = {
+				id: 12,
+				userName: 'JuJu',
+				firstName: 'Julie',
+				lastName: 'Juliette',
+				email: email,
+				password_hash: password,
+				is_active: true,
+				registration_token: 'qwertyuiop',
+				jwt_token: '123456789asdsfgbvncxvbn',
+				gender: 'female',
+				sexual_preferences: 'male',
+				biography: 'osef',
+				interests: 'osef',
+				created_at: '1234567876543',
+				firstTimeLogged: true,
+			}
+			setUser(myPig);
+			login(myPig);
+		}
+
+		// 3) bad credentials 
+		if (password === '3') {
+			setIsBadCredentials(true)
+			setTimeout(() => {
+				setIsBadCredentials(false);
+			}, 2000);
+		}
+
+		// 4) ERROR FROM THE API CALL
 		// } catch (error) {
 		// 	console.error('Error sending data to the server:', error);
 		// }
-		// 3) log failed, JSON with a logFailed value
-		// setIsBadCredentials(true)
-		// setTimeout(() => {
-		// 	setIsBadCredentials(false);
-		//   }, 2000);
 		};
   return (
 	<>
@@ -141,7 +179,7 @@ const Authentification: React.FC<AuthentificationProps> = ({ register = false })
 		</div>
 		) : (
 			<>
-				{user?.firstName && <div className="user-card">
+				{user?.firstName && status !== State.redirect && <div className="user-card">
 					<p>Welcome {user?.firstName}</p>
 					<img className="profile-picture" src="https://cdn4.volusion.store/kapts-nrbqf/v/vspfiles/photos/GUINEAPIGONEDRESSED-2.jpg?v-cache=1590745950"></img>
 				</div>}
@@ -151,4 +189,4 @@ const Authentification: React.FC<AuthentificationProps> = ({ register = false })
   );
 }
 
-export default Authentification;
+export default Login;
