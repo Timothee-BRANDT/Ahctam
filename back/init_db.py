@@ -1,6 +1,5 @@
 import psycopg2
 import os
-import sys
 from dotenv import load_dotenv
 from psycopg2 import sql
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
@@ -26,7 +25,6 @@ def init_db():
         conn.close()
     except Exception as e:
         print(e)
-        sys.exit(1)
 
 
 def create_user_table():
@@ -64,7 +62,6 @@ def create_user_table():
         conn.close()
     except Exception as e:
         print(e)
-        sys.exit(1)
 
 
 if __name__ == '__main__':
