@@ -1,6 +1,7 @@
 'use client'
 import React, { createContext, useContext, ReactNode, useState } from 'react';
 import { User } from './types';
+import { useRouter } from 'next/navigation';
 
 
 const initialPig: User = {
@@ -50,6 +51,7 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User>(initialPig);
+  const router = useRouter()
   
   const setCookie = (name: string, value: string, days?: number) => {
     let expires = "";
@@ -80,12 +82,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = (user: User) => {
     setCookie('jwtToken', user.jwt_token, 7);
-    console.log(user)
   }
 
   const logout = () => {
     setUser(initialPig);
     deleteCookie('jwtToken');
+    router.push('/');
   };
 
   return (
