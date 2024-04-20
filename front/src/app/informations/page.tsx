@@ -74,7 +74,7 @@ export default function UserInformations() {
             ))}
           </div>
 
-          <Button title="Save" type="submit" onClick={() => {}} />
+          <Button className="button-info" title="Save" type="submit" onClick={() => {}} />
         </form>
       </div>
       <Footer />

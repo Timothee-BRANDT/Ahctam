@@ -51,7 +51,7 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User>(initialPig);
-  const router = useRouter()
+  const router = useRouter();
   
   const setCookie = (name: string, value: string, days?: number) => {
     let expires = "";
@@ -82,11 +82,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = (user: User) => {
     setCookie('jwtToken', user.jwt_token, 7);
+    if (typeof window !== "undefined") {
+      localStorage.setItem('user', JSON.stringify(user));
+    }
+    setUser(user);
   }
 
   const logout = () => {
     setUser(initialPig);
     deleteCookie('jwtToken');
+    localStorage.removeItem('user');
     router.push('/');
   };
 
@@ -96,3 +101,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     </AuthContext.Provider>
   );
 };
+
+
+function getUserFromLocalStorage() {
+  if (typeof window !== "undefined") {
+    const userString = localStorage.getItem('user');
+    return userString ? JSON.parse(userString) : null;
+  }
+  return null;
+}
