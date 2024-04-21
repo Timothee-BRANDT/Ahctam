@@ -3,6 +3,7 @@ import os
 from dotenv import load_dotenv
 from psycopg2 import sql
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
+from flask import current_app
 
 load_dotenv()
 
@@ -11,15 +12,15 @@ def init_db():
     try:
         conn = psycopg2.connect(
             dbname='postgres',
-            user=os.getenv('POSTGRES_USER'),
-            password=os.getenv('POSTGRES_PASSWORD'),
+            user=current_app.config['POSTGRES_USER'],
+            password=current_app.config['POSTGRES_PASSWORD'],
             host='localhost',
             port='5432'
         )
         conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
         cur = conn.cursor()
         cur.execute(sql.SQL('CREATE DATABASE {}').format(
-            sql.Identifier(os.getenv('POSTGRES_DB'))))
+            sql.Identifier(current_app.config['POSTGRES_DB'])))
         print('Database created successfully')
         cur.close()
         conn.close()
@@ -27,12 +28,12 @@ def init_db():
         print(e)
 
 
-def create_user_table():
+def create_user_table(config=None):
     try:
         conn = psycopg2.connect(
-            dbname=os.getenv('POSTGRES_DB'),
-            user=os.getenv('POSTGRES_USER'),
-            password=os.getenv('POSTGRES_PASSWORD'),
+            dbname=current_app.config['POSTGRES_DB'],
+            user=current_app.config['POSTGRES_USER'],
+            password=current_app.config['POSTGRES_PASSWORD'],
             host='localhost',
             port='5432'
         )
@@ -44,10 +45,9 @@ def create_user_table():
             firstname VARCHAR(50),
             lastname VARCHAR(50),
             email VARCHAR(50) NOT NULL,
-            password_hash VARCHAR(255) NOT NULL,
+            password VARCHAR(255) NOT NULL,
             is_active BOOLEAN NOT NULL DEFAULT FALSE,
             registration_token VARCHAR(255) UNIQUE,
-            jwt_token VARCHAR(255),
             gender VARCHAR(20),
             sexual_preferencees VARCHAR(50),
             biography TEXT,

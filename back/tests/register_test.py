@@ -6,6 +6,7 @@ def test_register_with_valid_username(client):
         'email': 'user@example.com'
     }
     response = client.post('/register', json=valid_data)
+    print(response.data)
     assert response.status_code == 200
 
 

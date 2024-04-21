@@ -20,6 +20,13 @@ def create_app(test_config=None):
     if test_config is not None:
         app.config.update(test_config)
     else:
-        app.config['DATABASE'] = os.getenv('POSTGRES_DB')
+        config = {
+            'POSTGRES_DB': os.getenv('POSTGRES_DB'),
+            'POSTGRES_USER': os.getenv('POSTGRES_USER'),
+            'POSTGRES_PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+            'DB_HOST': 'localhost',
+            'DB_PORT': 5432
+        }
+        app.config.update(config)
 
     return app
