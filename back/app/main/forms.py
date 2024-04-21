@@ -36,7 +36,8 @@ class RegisterForm(FlaskForm):
             conn.close()
 
     def validate_password(self, field):
-        regex = r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,20}$'
+        regex = r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&^[\]])[A-Za-z\d@$!%*?&^\[\]]{8,20}$'
+
         if not re.match(regex, field.data):
             raise ValueError("""
 Password must be between 8 and 20 characters long,

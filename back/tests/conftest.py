@@ -2,20 +2,11 @@ import pytest
 from app import create_app
 from app.database import get_db_connection
 from init_db import init_db, create_user_table
-import os
 
 
 @pytest.fixture(scope='session')
 def app():
-    app = create_app({
-        'TESTING': True,
-        'POSTGRES_DB': 'test_db',
-        'POSTGRES_USER': os.getenv('POSTGRES_USER'),
-        'POSTGRES_PASSWORD': os.getenv('POSTGRES_PASSWORD'),
-        'DB_HOST': 'localhost',
-        'DB_PORT': '5432',
-        'WTF_CSRF_ENABLED': False
-    })
+    app = create_app(test_config=True)
 
     with app.app_context():
         init_db()
