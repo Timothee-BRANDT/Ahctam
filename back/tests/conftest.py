@@ -22,17 +22,18 @@ def app():
         create_user_table()
 
     yield app
+
+
+@pytest.fixture(scope='function', autouse=True)
+def clean_db(app):
+    yield
     with app.app_context():
-        clean_db()
-
-
-def clean_db():
-    conn = get_db_connection()
-    cur = conn.cursor()
-    cur.execute('DELETE FROM users')
-    conn.commit()
-    cur.close()
-    conn.close()
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute('DELETE FROM users')
+        conn.commit()
+        cur.close()
+        conn.close()
 
 
 @pytest.fixture
