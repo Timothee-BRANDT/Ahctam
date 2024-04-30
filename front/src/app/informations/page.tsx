@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './index.scss';
 import Button from '../components/button';
 import Header from '../header/header';
@@ -7,12 +7,13 @@ import Footer from '../footer/footer';
 import RootLayout from '../layout';
 
 export default function UserInformations() {
+  const serverIP = process.env.CKOILENOM || "127.0.0.1";
   const [profile, setProfile] = useState({
     gender: '',
     sexualPreference: '',
     biography: '',
     interests: '',
-    photos: [],
+    photos: Array(5).fill(null)
   });
 
   const handleChange = (e: any) => {
@@ -23,12 +24,42 @@ export default function UserInformations() {
     });
   };
 
-  const handleSubmit = (e: any) => {
+  const handleImageChange = (index: any, e: any) => {
+    const file = e.target.files[0];
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      const newPhotos = [...profile.photos];
+      newPhotos[index] = reader.result as string;
+      setProfile({
+        ...profile,
+        photos: newPhotos,
+      });
+    };
+    if (file) {
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
     // send the data to the backend
     // redirect the user to /
+    const response = await fetch(`http://${serverIP}:3333/auth/first-log`, {
+      method: 'POST',
+      credentials: 'include',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+          profile,
+      })
+  })
     console.log(profile);
   };
+
+  useEffect(() => {
+    console.log(profile)
+  })
 
   return (
     <>
@@ -68,8 +99,16 @@ export default function UserInformations() {
           />
 
           <div className="photo-upload-container">
-            {Array.from({ length: 5 }).map((_, index) => (
-              <div key={index} className="photo-placeholder">
+            {profile.photos.map((photo, index) => (
+              <div onClick={() => document.getElementsByName(`photoUpload${index}`)[0].click()} key={index} className="photo-placeholder" style={{ backgroundImage: photo ? `url(${photo})` : 'none' }}>
+                <input
+                  type="file"
+                  name={`photoUpload${index}`}
+                  accept="image/*"
+                  onChange={(e) => handleImageChange(index, e)}
+                  style={{ display: 'none' }}
+                />
+                {!photo ? <div className="upload-text">Upload a picture</div>: ''}
               </div>
             ))}
           </div>
