@@ -1,5 +1,5 @@
 'use client'
-import React, { createContext, useContext, ReactNode, useState } from 'react';
+import React, { createContext, useContext, ReactNode, useState, useEffect } from 'react';
 import { User } from './types';
 import { useRouter } from 'next/navigation';
 
@@ -52,6 +52,21 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User>(initialPig);
   const router = useRouter();
+
+  useEffect(() => {
+    const userFromStorage = getUserFromLocalStorage();
+    if (userFromStorage) {
+      setUser(userFromStorage);
+    }
+  }, []);
+
+  function getUserFromLocalStorage() {
+    if (typeof window !== "undefined") {
+      const userString = localStorage.getItem('user');
+      return userString ? JSON.parse(userString) : null;
+    }
+    return null;
+  }
   
   const setCookie = (name: string, value: string, days?: number) => {
     let expires = "";
@@ -101,12 +116,3 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     </AuthContext.Provider>
   );
 };
-
-
-function getUserFromLocalStorage() {
-  if (typeof window !== "undefined") {
-    const userString = localStorage.getItem('user');
-    return userString ? JSON.parse(userString) : null;
-  }
-  return null;
-}
