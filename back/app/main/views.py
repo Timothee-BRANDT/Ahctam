@@ -47,7 +47,9 @@ def register():
     token = serializer.dumps(
         email, salt=current_app.config['SMTP_SECURITY_SALT'])
 
-    sql = "INSERT INTO users (username, password, email) VALUES (%s, %s, %s)"
+    sql = """
+INSERT INTO users (username, password, email) VALUES (%s, %s, %s)
+    """
     conn = get_db_connection()
     cur = conn.cursor()
 
