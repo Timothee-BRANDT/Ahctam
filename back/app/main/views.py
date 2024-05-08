@@ -11,6 +11,8 @@ from werkzeug.security import (
 )
 from itsdangerous import (
     URLSafeTimedSerializer,
+    SignatureExpired,
+    BadSignature
 )
 from .utils import send_confirmation_email
 from .forms import RegisterForm
@@ -26,7 +28,32 @@ def home():
 
 @main.route('/confirm_email/<token>', methods=['GET'])
 def confirm_email(token):
-    return jsonify({'message': 'Email confirmed'}), 200
+    serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+    try:
+        email = serializer.loads(
+            token, salt=current_app.config['SMTP_SECURITY_SALT'],
+            max_age=3600
+        )
+        print('Confirming the email:', email)
+    except SignatureExpired:
+        return jsonify({'error': 'Token expired'}), 400
+    except BadSignature:
+        return jsonify({'error': 'Invalid token'}), 400
+
+    conn = get_db_connection()
+    cur = conn.cursor()
+    sql = """
+UPDATE users SET is_active = TRUE WHERE email = %s
+"""
+    try:
+        cur.execute(sql, (email,))
+        conn.commit()
+        return jsonify({'message': 'Email confirmed'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+    finally:
+        cur.close()
+        conn.close()
 
 
 @main.route('/register', methods=['POST'])
@@ -46,6 +73,9 @@ def register():
     serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
     token = serializer.dumps(
         email, salt=current_app.config['SMTP_SECURITY_SALT'])
+    # Dumps allows us to serialize the email and generate a token based
+    # on the user email + a salt, giving each token a unique value
+    # We don't need to store the registration token in the database
 
     sql = """
 INSERT INTO users (username, password, email) VALUES (%s, %s, %s)

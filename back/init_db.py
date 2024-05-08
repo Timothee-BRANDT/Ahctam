@@ -47,7 +47,6 @@ def create_user_table(config=None):
             email VARCHAR(50) NOT NULL,
             password VARCHAR(255) NOT NULL,
             is_active BOOLEAN NOT NULL DEFAULT FALSE,
-            registration_token VARCHAR(255) UNIQUE,
             gender VARCHAR(20),
             sexual_preferencees VARCHAR(50),
             biography TEXT,
