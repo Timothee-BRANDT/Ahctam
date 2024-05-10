@@ -3,7 +3,8 @@ from flask import (
     # current_app,
     render_template,
     request,
-    jsonify
+    jsonify,
+    session
 )
 from werkzeug.security import (
     # generate_password_hash,
@@ -21,12 +22,13 @@ def login():
     cur = conn.cursor()
     try:
         form.validate()
-        cur.execute('SELECT password FROM users WHERE username = %s',
+        cur.execute('SELECT password, id FROM users WHERE username = %s',
                     (data['username'],))
         user = cur.fetchone()
         if not check_password_hash(user[0], form.password.data):
             raise ValueError('Invalid password')
-        # Here we handle the login
+        session['id'] = user[1]
+        session['username'] = data['username']
     except Exception as e:
         return jsonify({'error': str(e)}), 400
     finally:
