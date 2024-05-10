@@ -1,8 +1,0 @@
-{% for group in groups %}
-<h1>{{ group.name }}</h1>
-<ul>
-  {% for user in group.users %}
-  <li>{{ user.name }}</li>
-  {% endfor %}
-</ul>
-{% endfor %}

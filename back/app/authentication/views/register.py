@@ -1,5 +1,5 @@
+from .. import auth
 from flask import (
-    Blueprint,
     current_app,
     render_template,
     request,
@@ -15,18 +15,11 @@ from itsdangerous import (
     BadSignature
 )
 from .utils import send_confirmation_email
-from .forms import RegisterForm
-from ..database import get_db_connection
-
-main = Blueprint('main', __name__)
+from ..forms import RegisterForm
+from ...database import get_db_connection
 
 
-@main.route('/')
-def home():
-    return render_template('index.html')
-
-
-@main.route('/confirm_email/<token>', methods=['GET'])
+@auth.route('/confirm_email/<token>', methods=['GET'])
 def confirm_email(token):
     serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
     try:
@@ -56,7 +49,7 @@ UPDATE users SET is_active = TRUE WHERE email = %s
         conn.close()
 
 
-@main.route('/register', methods=['POST'])
+@auth.route('/register', methods=['POST'])
 def register():
     data = request.get_json()
     form = RegisterForm(data=data)
@@ -95,7 +88,7 @@ INSERT INTO users (username, password, email) VALUES (%s, %s, %s)
     return jsonify({'message': 'Registration successful'}), 200
 
 
-@main.route('/register', methods=['GET'])
+@auth.route('/register', methods=['GET'])
 def register_page():
     context = {
         'form': RegisterForm()
