@@ -5,6 +5,7 @@ from wtforms import (
     PasswordField, EmailField,
 )
 from ..database import get_db_connection
+from psycopg2.extras import RealDictCursor
 
 
 class RegisterForm(FlaskForm):
@@ -66,6 +67,30 @@ one digit and one special character
         else:
             if user:
                 raise ValueError('Email already exists')
+        finally:
+            cur.close()
+            conn.close()
+
+
+class LoginForm(FlaskForm):
+    username = StringField('Username')
+    password = PasswordField('Password')
+    submit = SubmitField('Login!')
+
+    def validate_username(self, field):
+        query = 'SELECT * FROM users WHERE username = %s'
+        conn = get_db_connection()
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+        try:
+            cur.execute(query, (field.data,))
+            user = cur.fetchone()
+        except Exception as e:
+            raise ValueError(f"An error occurred: {e}")
+        else:
+            if not user:
+                raise ValueError('User does not exist')
+            if not user['is_active']:
+                raise ValueError('User is not active')
         finally:
             cur.close()
             conn.close()

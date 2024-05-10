@@ -27,7 +27,6 @@ def confirm_email(token):
             token, salt=current_app.config['SMTP_SECURITY_SALT'],
             max_age=3600
         )
-        print('Confirming the email:', email)
     except SignatureExpired:
         return jsonify({'error': 'Token expired'}), 400
     except BadSignature:

@@ -69,3 +69,25 @@ one digit and one special character
         finally:
             cur.close()
             conn.close()
+
+
+class LoginForm(FlaskForm):
+    username = StringField('Username')
+    password = PasswordField('Password')
+    submit = SubmitField('Login')
+
+    def validate_username(self, field):
+        query = 'SELECT * FROM users WHERE username = %s'
+        conn = get_db_connection()
+        cur = conn.cursor()
+        try:
+            cur.execute(query, (field.data,))
+            user = cur.fetchone()
+        except Exception as e:
+            raise ValueError(f"An error occurred: {e}")
+        else:
+            if not user:
+                raise ValueError('Invalid username')
+        finally:
+            cur.close()
+            conn.close()
