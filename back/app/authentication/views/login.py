@@ -7,11 +7,17 @@ from flask import (
     session
 )
 from werkzeug.security import (
-    # generate_password_hash,
+    generate_password_hash,
     check_password_hash
+)
+from itsdangerous import (
+    URLSafeTimedSerializer,
+    SignatureExpired,
+    BadSignature
 )
 from ..forms import LoginForm
 from ...database import get_db_connection
+from .utils import send_reset_password_email
 
 
 @auth.route('/login', methods=['POST'])
@@ -48,18 +54,20 @@ def login_page():
 
 @auth.route('/forgot_password', methods=['POST'])
 def forgot_password():
-    data = request.get_json()
-    conn = get_db_connection()
-    cur = conn.cursor()
     try:
-        cur.execute('SELECT email FROM users WHERE username = %s',
-                    (session['username'],))
-        email = cur.fetchone()[0]
-        if email != data['email']:
-            raise ValueError('Invalid email address')
-        # send email
+        data = request.get_json()
+        print('Data here is ', data)
+        conn = get_db_connection()
+        cur = conn.cursor()
+        cur.execute('SELECT username FROM users WHERE email = %s',
+                    (data['email'],))
+        user = cur.fetchone()
+        if not user:
+            raise ValueError('Email does not exist')
     except Exception as e:
         return jsonify({'error': str(e)}), 400
+    else:
+        send_reset_password_email(data['email'])
     finally:
         cur.close()
         conn.close()
@@ -70,4 +78,32 @@ def forgot_password():
 def forgot_password_page():
     return render_template('forgot_password.html'), 200
 
-# auth.route('/logout', methods=['POST'])
+
+@auth.route('/reset_password/<token>', methods=['POST'])
+def reset_password(token):
+    try:
+        serializer = URLSafeTimedSerializer(auth.config['SECRET_KEY'])
+        email = serializer.loads(token, salt=auth.config['SMTP_SECURITY_SALT'],
+                                 max_age=3600)
+    except SignatureExpired:
+        return jsonify({'error': 'Token expired'}), 400
+    except BadSignature:
+        return jsonify({'error': 'Invalid token'}), 400
+    else:
+        data = request.get_json()
+        if data['password'] != data['password2']:
+            return jsonify({'error': 'Passwords do not match'}), 400
+        hash = generate_password_hash(data['password'])
+        conn = get_db_connection()
+        cur = conn.cursor()
+        query = 'UPDATE users SET password = %s WHERE email = %s'
+        cur.execute(query, (hash, email))
+        conn.commit()
+    finally:
+        cur.close()
+        conn.close()
+
+
+@auth.route('/reset_password', methods=['GET'])
+def reset_password_page():
+    return render_template('reset_password.html'), 200

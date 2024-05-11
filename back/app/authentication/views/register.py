@@ -67,7 +67,7 @@ def register():
         email, salt=current_app.config['SMTP_SECURITY_SALT'])
     # Dumps allows us to serialize the email and generate a token based
     # on the user email + a salt, giving each token a unique value
-    # We don't need to store the registration token in the database
+    # So we don't need to store the registration token in the database
 
     sql = """
 INSERT INTO users (username, password, email) VALUES (%s, %s, %s)
