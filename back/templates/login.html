@@ -18,6 +18,9 @@
       {{ render_field(form.password) }}
       <button type="submit">{{ form.submit.label }}</button>
     </form>
+    <a href="{{ url_for('auth.register') }}">Register</a>
+    <a href="{{ url_for('auth.forgot_password') }}">Forgot Password?</a>
+
 
     <script>
       document.getElementById('loginForm').addEventListener('submit', function (e) {

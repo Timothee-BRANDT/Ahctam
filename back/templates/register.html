@@ -20,6 +20,8 @@
       {{ render_field(form.password2) }}
       <button type="submit">{{ form.submit.label }}</button>
     </form>
+    <a href="{{ url_for('auth.login') }}">Login</a>
+
 
     <script>
       document.getElementById('registerForm').addEventListener('submit', function (e) {

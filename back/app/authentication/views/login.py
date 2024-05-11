@@ -45,4 +45,29 @@ def login_page():
     }
     return render_template('login.html', **context), 200
 
+
+@auth.route('/forgot_password', methods=['POST'])
+def forgot_password():
+    data = request.get_json()
+    conn = get_db_connection()
+    cur = conn.cursor()
+    try:
+        cur.execute('SELECT email FROM users WHERE username = %s',
+                    (session['username'],))
+        email = cur.fetchone()[0]
+        if email != data['email']:
+            raise ValueError('Invalid email address')
+        # send email
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+    finally:
+        cur.close()
+        conn.close()
+    return jsonify({'message': 'Email sent'}), 200
+
+
+@auth.route('/forgot_password', methods=['GET'])
+def forgot_password_page():
+    return render_template('forgot_password.html'), 200
+
 # auth.route('/logout', methods=['POST'])
