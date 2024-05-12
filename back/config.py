@@ -3,6 +3,7 @@ import os
 
 class Config:
     SECRET_KEY = os.getenv('SECRET_KEY')
+    SESSION_COOKIE_SAMESITE = 'Lax'
     WTF_CSRF_SECRET = os.getenv('SECRET_KEY')
     JWT_SECRET_KEY = os.getenv('JWT_SECRET_KEY')
     SMTP_SECURITY_SALT = os.getenv('SMTP_SECURITY_SALT')

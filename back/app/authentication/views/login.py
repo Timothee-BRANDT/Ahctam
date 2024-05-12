@@ -2,6 +2,8 @@ from .. import auth
 from ..forms import LoginForm
 from flask import (
     # current_app,
+    redirect,
+    url_for,
     render_template,
     request,
     jsonify,
@@ -28,6 +30,8 @@ def login():
             raise ValueError('Invalid password')
         session['id'] = user[1]
         session['username'] = data['username']
+        # Here we can add a JWT token
+        # Here we handle first login with a form
     except Exception as e:
         return jsonify({'error': str(e)}), 400
     finally:
