@@ -20,7 +20,6 @@ from .utils import send_reset_password_email
 def forgot_password():
     try:
         data = request.get_json()
-        print('Data here is ', data)
         conn = get_db_connection()
         cur = conn.cursor()
         cur.execute('SELECT username FROM users WHERE email = %s',
@@ -49,7 +48,8 @@ def reset_password(token):
     cur = conn.cursor()
     try:
         serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
-        email = serializer.loads(token, salt=current_app.config['SMTP_SECURITY_SALT'],
+        email = serializer.loads(token,
+                                 salt=current_app.config['SMTP_SECURITY_SALT'],
                                  max_age=3600)
         data = request.get_json()
         form = ResetPasswordForm(data=data)
