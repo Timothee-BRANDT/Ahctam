@@ -1,6 +1,6 @@
 from .. import auth
 from flask import (
-    # current_app,
+    current_app,
     render_template,
     request,
     jsonify,
@@ -10,6 +10,7 @@ from itsdangerous import (
     SignatureExpired,
     BadSignature
 )
+from ..forms import ResetPasswordForm
 from werkzeug.security import generate_password_hash
 from ...database import get_db_connection
 from .utils import send_reset_password_email
@@ -44,10 +45,11 @@ def forgot_password_page():
 
 @auth.route('/reset_password/<token>', methods=['POST'])
 def reset_password(token):
-    from ..forms import ResetPasswordForm
+    conn = get_db_connection()
+    cur = conn.cursor()
     try:
-        serializer = URLSafeTimedSerializer(auth.config['SECRET_KEY'])
-        email = serializer.loads(token, salt=auth.config['SMTP_SECURITY_SALT'],
+        serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
+        email = serializer.loads(token, salt=current_app.config['SMTP_SECURITY_SALT'],
                                  max_age=3600)
         data = request.get_json()
         form = ResetPasswordForm(data=data)
@@ -62,19 +64,17 @@ def reset_password(token):
         if data['password'] != data['password2']:
             return jsonify({'error': 'Passwords do not match'}), 400
         hash = generate_password_hash(data['password'])
-        conn = get_db_connection()
-        cur = conn.cursor()
         query = 'UPDATE users SET password = %s WHERE email = %s'
         cur.execute(query, (hash, email))
         conn.commit()
     finally:
         cur.close()
         conn.close()
+    return jsonify({'message': 'Password reset successfully'}), 200
 
 
 @auth.route('/reset_password', methods=['GET'])
 def reset_password_page():
-    from app.authentication.forms import ResetPasswordForm
     context = {
         'form': ResetPasswordForm(),
     }

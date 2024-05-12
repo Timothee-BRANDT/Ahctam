@@ -1,4 +1,5 @@
 from .. import auth
+from ..forms import LoginForm
 from flask import (
     # current_app,
     render_template,
@@ -14,7 +15,6 @@ from ...database import get_db_connection
 
 @auth.route('/login', methods=['POST'])
 def login():
-    from ..forms import LoginForm
     data = request.get_json()
     form = LoginForm(data=data)
     conn = get_db_connection()
@@ -38,7 +38,6 @@ def login():
 
 @auth.route('/login', methods=['GET'])
 def login_page():
-    from ..forms import LoginForm
     context = {
         'form': LoginForm()
     }

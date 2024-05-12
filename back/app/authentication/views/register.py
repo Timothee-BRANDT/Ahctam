@@ -1,4 +1,5 @@
 from .. import auth
+from ..forms import RegisterForm
 from flask import (
     current_app,
     render_template,
@@ -49,7 +50,6 @@ UPDATE users SET is_active = TRUE WHERE email = %s
 
 @auth.route('/register', methods=['POST'])
 def register():
-    from ..forms import RegisterForm
     data = request.get_json()
     form = RegisterForm(data=data)
     try:
@@ -89,7 +89,6 @@ INSERT INTO users (username, password, email) VALUES (%s, %s, %s)
 
 @auth.route('/register', methods=['GET'])
 def register_page():
-    from ..forms import RegisterForm
     context = {
         'form': RegisterForm()
     }
