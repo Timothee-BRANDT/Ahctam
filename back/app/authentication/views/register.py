@@ -15,7 +15,6 @@ from itsdangerous import (
     BadSignature
 )
 from .utils import send_confirmation_email
-from ..forms import RegisterForm
 from ...database import get_db_connection
 
 
@@ -50,6 +49,7 @@ UPDATE users SET is_active = TRUE WHERE email = %s
 
 @auth.route('/register', methods=['POST'])
 def register():
+    from ..forms import RegisterForm
     data = request.get_json()
     form = RegisterForm(data=data)
     try:
@@ -89,6 +89,7 @@ INSERT INTO users (username, password, email) VALUES (%s, %s, %s)
 
 @auth.route('/register', methods=['GET'])
 def register_page():
+    from ..forms import RegisterForm
     context = {
         'form': RegisterForm()
     }
