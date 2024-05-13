@@ -30,8 +30,8 @@ def login():
             raise ValueError('Invalid password')
         session['id'] = user[1]
         session['username'] = data['username']
-        # Here we can add a JWT token
-        # Here we handle first login with a form
+        # TODO: Add JWT token generation
+        # TODO: Handle first time login giving a form for additional informations
     except Exception as e:
         return jsonify({'error': str(e)}), 400
     finally:
@@ -46,3 +46,10 @@ def login_page():
         'form': LoginForm()
     }
     return render_template('login.html', **context), 200
+
+
+@auth.route('/logout', methods=['GET'])
+def logout():
+    session.clear()
+    # TODO: Add JWT token logout
+    return jsonify({'message': 'Logout successful'}), 200
