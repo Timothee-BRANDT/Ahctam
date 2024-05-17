@@ -1,14 +1,14 @@
 from .. import auth
 from ..forms import LoginForm
 from flask import (
-    # current_app,
-    redirect,
-    url_for,
+    current_app,
     render_template,
     request,
     jsonify,
     session
 )
+import jwt
+from datetime import datetime, timedelta
 from werkzeug.security import (
     check_password_hash
 )
@@ -30,14 +30,20 @@ def login():
             raise ValueError('Invalid password')
         session['id'] = user[1]
         session['username'] = data['username']
-        # TODO: Add JWT token generation
+        jwt_token = jwt.encode({
+            'id': user[1],
+            'exp': datetime.utcnow() + timedelta(hours=24)
+        }, current_app.config['SECRET_KEY'], algorithm='HS256')
         # TODO: Handle first time login giving a form for additional informations
     except Exception as e:
         return jsonify({'error': str(e)}), 400
     finally:
         cur.close()
         conn.close()
-    return jsonify({'message': 'Login successful'}), 200
+    return jsonify({
+        'message': 'Login successful',
+        'jwt_token': jwt_token
+    }), 200
 
 
 @auth.route('/login', methods=['GET'])
