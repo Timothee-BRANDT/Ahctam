@@ -3,7 +3,7 @@
 # ************* BACK ***************
 # Python cache
 back/__pycache__/
-back/matcha_venv
+back/venv
 back/.env
 
 # ************* FRONT ***************
