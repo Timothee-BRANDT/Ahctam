@@ -4,6 +4,7 @@
 # Python cache
 back/__pycache__/
 back/matcha_venv
+back/.env
 
 # ************* FRONT ***************
 # Dependencies

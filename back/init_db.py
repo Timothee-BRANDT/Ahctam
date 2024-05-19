@@ -1,4 +1,5 @@
 import psycopg2
+import os
 from dotenv import load_dotenv
 from psycopg2 import sql
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
@@ -11,15 +12,19 @@ def init_db():
     try:
         conn = psycopg2.connect(
             dbname='postgres',
-            user=current_app.config['POSTGRES_USER'],
-            password=current_app.config['POSTGRES_PASSWORD'],
+            #user=current_app.config['POSTGRES_USER'],
+            #password=current_app.config['POSTGRES_PASSWORD'],
+            user=os.getenv('POSTGRES_USER'),
+            password=os.getenv('POSTGRES_PASSWORD'),
             host='localhost',
             port='5432'
         )
         conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
         cur = conn.cursor()
         cur.execute(sql.SQL('CREATE DATABASE {}').format(
-            sql.Identifier(current_app.config['POSTGRES_DB'])))
+            sql.Identifier(os.getenv('POSTGRES_DB'))))
+        #cur.execute(sql.SQL('CREATE DATABASE {}').format(
+        #    sql.Identifier(current_app.config['POSTGRES_DB'])))
         print('Database created successfully')
         cur.close()
         conn.close()
@@ -30,9 +35,12 @@ def init_db():
 def create_user_table(config=None):
     try:
         conn = psycopg2.connect(
-            dbname=current_app.config['POSTGRES_DB'],
-            user=current_app.config['POSTGRES_USER'],
-            password=current_app.config['POSTGRES_PASSWORD'],
+            #dbname=current_app.config['POSTGRES_DB'],
+            #user=current_app.config['POSTGRES_USER'],
+            #password=current_app.config['POSTGRES_PASSWORD'],
+            dbname=os.getenv('POSTGRES_DB'),
+            user=os.getenv('POSTGRES_USER'),
+            password=os.getenv('POSTGRES_PASSWORD'),
             host='localhost',
             port='5432'
         )

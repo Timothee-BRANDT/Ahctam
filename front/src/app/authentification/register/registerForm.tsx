@@ -15,30 +15,39 @@ const RegisterForm: React.FC = () => {
 	const [lastname, setLastname] = useState('');
 	const [firstname, setFirstname] = useState('');
 	const [password, setPassword] = useState('');
+	const [confirmPassword, setConfirmPassword] = useState('');
 	const [ status, setStatus ] = useState<State>(State.initial);
 	const [ isBadCredentials, setIsBadCredentials] = useState<boolean>(false);
+	const serverIP = '127.0.0.1';
 	
 	const submit = async (event: any) => {
 		event.preventDefault();
 
 		// ************ LOGIC TO MAKE THE LOGIN API CALL ************** //
-		// const url = '/api/login';
-		// const payload = {
-		// 	email: email,
-        //  username: username,
-        //  lastname: lastname,
-        //  firstname: firstname,
-		// 	password: password
-		// };
-		// try {
-		// 	const response = await fetch(url, {
-		// 	  method: 'POST',
-		// 	  headers: {
-		// 		'Content-Type': 'application/json'
-		// 	  },
-		// 	  body: JSON.stringify(payload)
-		// 	});
-	  
+		// const url = '/auth/register';
+		const payload = {
+			email: email,
+			username: username,
+			lastname: lastname,
+			firstname: firstname,
+			password: password,
+			password2: confirmPassword,
+		};
+		console.log(payload)
+		try {
+			const response = await fetch(`http://${serverIP}:5000/auth/register`, {
+			  method: 'POST',
+			  headers: {
+				'Content-Type': 'application/json'
+			  },
+			  body: JSON.stringify(payload)
+			});
+		}
+		catch (e) {
+			console.log(e);
+		}
+
+
 		// 	if (!response.ok) {
 		// 	  throw new Error('Network response was not ok');
 		// 	}
@@ -75,7 +84,8 @@ const RegisterForm: React.FC = () => {
 		// setTimeout(() => {
 		// 	setIsBadCredentials(false);
 		//   }, 2000);
-		};
+		// };
+	}
   return (
 	<>
 		<div className="form-container">
@@ -131,6 +141,17 @@ const RegisterForm: React.FC = () => {
 						id="password"
 						value={password}
 						onChange={(e) => setPassword(e.target.value)}
+						required
+						autoComplete="new-password"
+					/>
+				</div>
+				<div>
+					<label htmlFor="password">Confirm Password</label>
+					<input
+						type="password"
+						id="password"
+						value={confirmPassword}
+						onChange={(e) => setConfirmPassword(e.target.value)}
 						required
 						autoComplete="new-password"
 					/>
