@@ -1,0 +1,67 @@
+@import '../styles/variables';
+
+.profile-container {
+  max-width: 600px;
+  margin: auto;
+  padding: 20px;
+  border-radius: 10px;
+  margin-top: 60px;
+}
+
+.profile-container form {
+  display: flex;
+  flex-direction: column;
+}
+
+.profile-container label {
+  color: var(--secondary-color);
+  margin-top: 10px;
+}
+
+.profile-container input[type="text"],
+.profile-container select,
+.profile-container textarea {
+  padding: 8px;
+  margin-top: 5px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.photo-upload-container {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 15px;
+}
+
+.button-info {
+  margin-top: 20px;
+}
+
+input:focus, select:focus, textarea:focus, button:focus {
+  outline: none;
+}
+
+.photo-placeholder {
+  width: 100px;
+  height: 100px;
+  background-color: var(--primary-color);
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  position: relative;
+}
+
+.photo-placeholder:hover {
+  background-color: var(--secondary-color)
+}
+
+.upload-text {
+  position: absolute;
+  color: white;
+  text-align: center;
+}
