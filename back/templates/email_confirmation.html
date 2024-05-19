@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title></title>
+  <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet" />
+</head>
+
+<body>
+  <div class="container">
+    <h1>Email Confirmation</h1>
+    <p>
+      Thank you for registering! We have sent you an email with a confirmation
+      link. Please click on the link to activate your account.
+    </p>
+    <a href="{{ confirm_url }}">Confirm Email</a>
+  </div>
+
+</html>
