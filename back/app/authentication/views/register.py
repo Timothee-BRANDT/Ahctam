@@ -8,7 +8,6 @@ from flask import (
 )
 from werkzeug.security import (
     generate_password_hash,
-    # check_password_hash
 )
 from itsdangerous import (
     URLSafeTimedSerializer,
@@ -77,7 +76,6 @@ VALUES (%s, %s, %s, %s, %s)
     """
     conn = get_db_connection()
     cur = conn.cursor()
-
     try:
         cur.execute(
             sql,
