@@ -1,0 +1,35 @@
+Metadata-Version: 2.1
+Name: Flask-Mail2
+Version: 1.0.2
+Summary: Flask extension for sending email
+Home-page: https://github.com/rimvislt/flask-mail2
+Author: Dan Jacob
+Author-email: danjac354@gmail.com
+Maintainer: Rimvydas Zilinskas
+Maintainer-email: rim@rdzdirect.com
+License: BSD
+Platform: any
+Classifier: Development Status :: 4 - Beta
+Classifier: Environment :: Web Environment
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: BSD License
+Classifier: Operating System :: OS Independent
+Classifier: Programming Language :: Python
+Classifier: Topic :: Internet :: WWW/HTTP :: Dynamic Content
+Classifier: Topic :: Software Development :: Libraries :: Python Modules
+Description-Content-Type: text/markdown
+License-File: LICENSE
+Requires-Dist: Flask
+Requires-Dist: blinker
+
+Flask-Mail2 (Fork)
+==========================================================================================
+
+Flask-Mail2 is the friendly Flask-Mail fork by Rimvydas Zilinskas (Rim) and contributors.
+Flask-Mail is the Python Email Library created by Dan Jacob (danjac) and Contributors.
+
+.. image:: https://secure.travis-ci.org/mattupstate/flask-mail.png?branch=master
+
+Flask-Mail2 is a Flask extension providing simple email sending capabilities.
+
+Documentation: http://packages.python.org/Flask-Mail

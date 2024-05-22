@@ -2,7 +2,7 @@
 
 # To automatically activate the venv after the script, run source init.sh
 
-VENV="matcha_venv"
+VENV="venv"
 
 python3 -m venv $VENV
 source $VENV/bin/activate
