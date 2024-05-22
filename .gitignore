@@ -4,6 +4,7 @@
 # Python cache
 matcha_venv/
 back/**/__pycache__/
+venv/
 back/venv
 back/.env
 
