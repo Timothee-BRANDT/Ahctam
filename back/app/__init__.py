@@ -1,4 +1,5 @@
 from flask import Flask
+from flask_cors import CORS
 from flask_mail import Mail
 from config import (
     DevelopmentConfig,
@@ -24,6 +25,7 @@ def create_app(test_config=False, production=False):
     app.register_blueprint(auth_blueprint, url_prefix='/auth')
     app.register_blueprint(api_blueprint, url_prefix='/api')
 
+    CORS(app)
     Mail(app)
 
     return app

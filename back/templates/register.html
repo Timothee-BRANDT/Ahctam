@@ -18,6 +18,8 @@
       {{ render_field(form.email) }}
       {{ render_field(form.password) }}
       {{ render_field(form.password2) }}
+      {{ render_field(form.firstname) }}
+      {{ render_field(form.lastname) }}
       <button type="submit">{{ form.submit.label }}</button>
     </form>
     <a href="{{ url_for('auth.login') }}">Login</a>
@@ -31,7 +33,9 @@
           username: formData.get('username'),
           email: formData.get('email'),
           password: formData.get('password'),
-          password2: formData.get('password2')
+          password2: formData.get('password2'),
+          firstname: formData.get('firstname'),
+          lastname: formData.get('lastname'),
         };
 
         fetch('/auth/register', {

@@ -4,6 +4,7 @@ from wtforms import (
     StringField, SubmitField,
     PasswordField, EmailField,
 )
+from werkzeug.security import check_password_hash
 from ..database import get_db_connection
 
 
@@ -12,6 +13,8 @@ class RegisterForm(FlaskForm):
     password = PasswordField('Password')
     password2 = PasswordField('Confirm Password')
     email = EmailField('Email')
+    firstname = StringField('First Name')
+    lastname = StringField('Last Name')
     submit = SubmitField('Sign Up')
 
     def validate_username(self, field):
@@ -70,6 +73,30 @@ one digit and one special character
             cur.close()
             conn.close()
 
+    def validate_firstname(self, field):
+        if len(field.data) < 2:
+            raise ValueError("""
+First name must be at least 2 characters long
+            """)
+        if len(field.data) > 20:
+            raise ValueError("""
+First name must be less than 20 characters long
+            """)
+        if not field.data.isalpha():
+            raise ValueError('First name must contain only letters')
+
+    def validate_lastname(self, field):
+        if len(field.data) < 2:
+            raise ValueError("""
+Last name must be at least 2 characters long
+            """)
+        if len(field.data) > 20:
+            raise ValueError("""
+Last name must be less than 20 characters long
+            """)
+        if not field.data.isalpha():
+            raise ValueError('Last name must contain only letters')
+
 
 class LoginForm(FlaskForm):
     username = StringField('Username')
@@ -92,6 +119,22 @@ class LoginForm(FlaskForm):
             cur.close()
             conn.close()
 
+    def validate_password(self, field):
+        query = 'SELECT password FROM users WHERE username = %s'
+        conn = get_db_connection()
+        cur = conn.cursor()
+        try:
+            cur.execute(query, (self.username.data,))
+            user = cur.fetchone()
+        except Exception as e:
+            raise ValueError(f"An error occurred: {e}")
+        else:
+            if not check_password_hash(user[0], field.data):
+                raise ValueError('Invalid password')
+        finally:
+            cur.close()
+            conn.close()
+
 
 class ResetPasswordForm(FlaskForm):
     password = PasswordField('Password')
@@ -99,7 +142,7 @@ class ResetPasswordForm(FlaskForm):
     submit = SubmitField('Reset Password')
 
     def validate_password(self, field):
-        regex = r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&^[\]])[A-Za-z\d@$!%*?&^\[\]]{8,20}$'
+        regex = r'^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&^.\[\]])[A-Za-z\d@$!%*?&^.\[\]]{8,20}$'
         if not re.match(regex, field.data):
             raise ValueError("""
 Password must be between 8 and 20 characters long,
