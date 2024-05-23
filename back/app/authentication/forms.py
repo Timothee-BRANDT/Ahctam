@@ -151,3 +151,11 @@ one digit and one special character
             """)
         if field.data != self.password2.data:
             raise ValueError('Passwords do not match')
+
+
+# class FirstLoginForm(FlaskForm):
+#     gender = StringField('Gender')
+#     sexual_preferences = StringField('Sexual Preferences')
+#     biography = StringField('Biography')
+#     interests = StringField('Interests')
+#     picture = StringField('Picture')

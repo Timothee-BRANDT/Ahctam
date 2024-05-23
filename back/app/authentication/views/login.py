@@ -20,19 +20,32 @@ def login():
     cur = conn.cursor()
     try:
         form.validate()
+
+        cur.execute('SELECT is_active FROM users WHERE username = %s',
+                    (data['username'],))
+        is_active = cur.fetchone()[0]
+        if not is_active:
+            raise Exception('User is not active')
+
         cur.execute('SELECT id FROM users WHERE username = %s',
                     (data['username'],))
-        user = cur.fetchone()
+        user_id = cur.fetchone()[0]
     except Exception as e:
         return jsonify({'error': str(e)}), 400
     else:
-        # session['id'] = user[0]
-        # session['username'] = data['username']
         jwt_token = jwt.encode({
-            'id': user[0],
+            'id': user_id,
             'exp': datetime.utcnow() + timedelta(hours=24)
         }, current_app.config['SECRET_KEY'], algorithm='HS256')
-        # TODO: Handle first time login giving a form for additional informations
+
+        cur.execute('SELECT gender FROM users WHERE id = %s',
+                    (user_id,))
+        gender = cur.fetchone()[0]
+        if not gender:
+            return jsonify({
+                'message': 'First Login',
+                'jwt_token': jwt_token
+            }), 200
     finally:
         cur.close()
         conn.close()
