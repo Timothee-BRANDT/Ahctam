@@ -55,9 +55,8 @@ def create_user_table(config=None):
             password VARCHAR(255) NOT NULL,
             is_active BOOLEAN NOT NULL DEFAULT FALSE,
             gender VARCHAR(20),
-            sexual_preferencees VARCHAR(50),
+            sexual_preferences VARCHAR(50),
             biography TEXT,
-            interests TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
         '''
