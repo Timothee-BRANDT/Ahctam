@@ -1,8 +1,14 @@
 import re
 from flask_wtf import FlaskForm
 from wtforms import (
-    StringField, SubmitField,
-    PasswordField, EmailField,
+    StringField,
+    SubmitField,
+    PasswordField,
+    EmailField,
+    FileField,
+    TextAreaField,
+    SelectField,
+    SelectMultipleField,
 )
 from werkzeug.security import check_password_hash
 from ..database import get_db_connection
@@ -153,9 +159,43 @@ one digit and one special character
             raise ValueError('Passwords do not match')
 
 
-# class FirstLoginForm(FlaskForm):
-#     gender = StringField('Gender')
-#     sexual_preferences = StringField('Sexual Preferences')
-#     biography = StringField('Biography')
-#     interests = StringField('Interests')
-#     picture = StringField('Picture')
+class InformationsForm(FlaskForm):
+    gender = SelectField('Gender', choices=[
+        'female', 'male', 'other'])
+    sexual_preferences = SelectMultipleField('Sexual Preferences', choices=[
+        'female', 'male', 'other'])
+    biography = TextAreaField('Biography')
+    pictures = FileField('Pictures', render_kw={'multiple': True})
+    interests = SelectMultipleField('Interests')
+    new_interest = StringField('New Interest')
+
+    def validate_gender(self, field):
+        if not field.data:
+            raise ValueError("""
+Please select a gender
+            """)
+
+    def validate_sexual_preferences(self, field):
+        if not field.data:
+            raise ValueError("""
+Please select at least one sexual preference
+            """)
+
+    def validate_pictures(self, field):
+        if len(field.data) > 5:
+            raise ValueError('You can upload up to 5 pictures')
+        for file in field.data:
+            if not file.filename.endswith(('.jpg', '.jpeg', '.png')):
+                raise ValueError('Only jpg, jpeg and png files are allowed')
+
+    def validate_new_interest(self, field):
+        if len(field.data) < 2:
+            raise ValueError("""
+Interest must be at least 2 characters long
+            """)
+        if len(field.data) > 20:
+            raise ValueError("""
+Interest must be less than 20 characters long
+            """)
+        if not field.data.isalpha():
+            raise ValueError('Interest must contain only letters')
