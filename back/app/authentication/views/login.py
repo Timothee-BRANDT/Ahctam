@@ -5,7 +5,6 @@ from flask import (
     render_template,
     request,
     jsonify,
-    session
 )
 import jwt
 from datetime import datetime, timedelta
@@ -43,7 +42,7 @@ def login():
         gender = cur.fetchone()[0]
         if not gender:
             return jsonify({
-                'message': 'First Login',
+                'message': 'First login',
                 'jwt_token': jwt_token
             }), 200
     finally:
@@ -65,6 +64,6 @@ def login_page():
 
 @auth.route('/logout', methods=['GET'])
 def logout():
-    session.clear()
+    pass
     # TODO: Add JWT token logout
     return jsonify({'message': 'Logout successful'}), 200

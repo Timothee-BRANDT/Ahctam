@@ -1,11 +1,10 @@
 from .. import main
-from flask import render_template, session
+from flask import render_template
 
 
 @main.route('/', methods=['GET'])
 def home():
-    username = session.get('username')
     context = {
-        'username': username
+        'username': 'Useless test'
     }
     return render_template('index.html', **context)
