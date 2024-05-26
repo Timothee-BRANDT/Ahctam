@@ -136,7 +136,7 @@ export default function UserInformations() {
             className="button-info"
             title="Save"
             type="submit"
-            onClick={() => {}}
+            onClick={() => { }}
           />
         </form>
       </div>

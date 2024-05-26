@@ -42,6 +42,7 @@ def login():
         if not gender:
             return jsonify({
                 'message': 'First login',
+                'user_id': user_id,
             }), 200
 
         jwt_token = jwt.encode({
@@ -61,7 +62,6 @@ VALUES (%s, %s, %s)
         cur.execute(query, (refresh_token, user_id,
                     datetime.utcnow() + timedelta(days=30)))
         conn.commit()
-
     finally:
         cur.close()
         conn.close()
@@ -82,17 +82,23 @@ def login_page():
 
 @auth.route('/first-login', methods=['POST'])
 def first_login():
-    data = request.get_json()
-    print('data:', data)
-    form = InformationsForm(data=data)
-    print('form:', form)
     conn = get_db_connection()
     cur = conn.cursor()
     try:
-        form.validate()
-        print(form)
-        print('-' * 50)
-        print(form.data)
+        data = request.get_json()
+        profile = data.get('profile', {})
+        # age = profile.get('age')
+        gender = profile.get('gender')
+        print(gender)
+        sexual_preferences = profile.get('sexualPreference')
+        print(sexual_preferences)
+        biography = profile.get('biography')
+        print(biography)
+        interests = profile.get('interests')
+        print(interests)
+        pictures = profile.get('photos')
+        print(pictures)
+        # location = profile.get('location')
     except Exception as e:
         return jsonify({'error': str(e)}), 400
     else:
@@ -135,12 +141,17 @@ def refresh():
         decoded_refresh_token = jwt.decode(
             refresh_token,
             current_app.config['SECRET_KEY'],
-            algorithms=['HS256'])
+            algorithms=['HS256']
+        )
         print(decoded_refresh_token)
-        return
         user_id = decoded_refresh_token['id']
-
-        cur.execute('SELECT * FROM refresh_tokens WHERE user_id = %s AND token = %s AND expiry_date > %s',
+        query = """
+SELECT * FROM refresh_tokens
+WHERE user_id = %s
+AND token = %s
+AND expiration_date > %s
+        """
+        cur.execute(query,
                     (user_id, refresh_token, datetime.utcnow()))
         token_record = cur.fetchone()
         if not token_record:

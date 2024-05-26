@@ -25,7 +25,11 @@ def create_app(test_config=False, production=False):
     app.register_blueprint(auth_blueprint, url_prefix='/auth')
     app.register_blueprint(api_blueprint, url_prefix='/api')
 
-    CORS(app, supports_credentials=True)
+    CORS(
+        app,
+        supports_credentials=True,
+        resources={r"/*": {"origins": "http://localhost:3000"}},
+    )
     Mail(app)
 
     return app
