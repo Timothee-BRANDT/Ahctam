@@ -160,6 +160,8 @@ one digit and one special character
 
 
 class InformationsForm(FlaskForm):
+    age = SelectField('Age', choices=[
+        (str(i), str(i)) for i in range(18, 101)])
     gender = SelectField('Gender', choices=[
         'female', 'male', 'other'])
     sexual_preferences = SelectMultipleField('Sexual Preferences', choices=[
@@ -168,6 +170,7 @@ class InformationsForm(FlaskForm):
     pictures = FileField('Pictures', render_kw={'multiple': True})
     interests = SelectMultipleField('Interests')
     new_interest = StringField('New Interest')
+    submit = SubmitField('Submit')
 
     def validate_gender(self, field):
         if not field.data:

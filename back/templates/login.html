@@ -39,7 +39,16 @@
           body: JSON.stringify(jsonData)
         })
           .then(response => response.json())
-          .then(data => console.log(data))
+          .then(data => {
+            console.log('Success:', data);
+            if (data.message === 'First login') {
+              localStorage.setItem('jwt_token', data.jwt_token);
+              window.location.href = '/auth/first-login';
+            } else {
+              localStorage.setItem('jwt_token', data.jwt_token);
+              console.log('Login successful');
+            }
+          })
           .catch(error => console.error('Error:', error));
       });
     </script>

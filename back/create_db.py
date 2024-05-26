@@ -153,6 +153,18 @@ def create_user_interests_table(cursor):
     """)
 
 
+def create_refresh_tokens_table(cursor):
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS refresh_tokens (
+            id SERIAL PRIMARY KEY,
+            token VARCHAR(255) NOT NULL,
+            user_id INTEGER NOT NULL,
+            expiration_date TIMESTAMP NOT NULL,
+            FOREIGN KEY (user_id) REFERENCES users(id)
+        );
+    """)
+
+
 def create_all_tables():
     conn = psycopg2.connect(
         dbname=os.getenv('POSTGRES_DB'),
@@ -172,6 +184,7 @@ def create_all_tables():
         create_blocks_table(cursor)
         create_interests_table(cursor)
         create_user_interests_table(cursor)
+        create_refresh_tokens_table(cursor)
         conn.commit()
     except Exception as e:
         conn.rollback()

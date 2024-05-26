@@ -10,17 +10,19 @@ from flask import (
 def jwt_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        token = request.headers.get('Authorization')
-        print('the token is', token)
-        if not token:
+        token_bearer = request.headers.get('Authorization')
+        if not token_bearer:
             return jsonify({'error': 'Token is missing'}), 400
+        token = token_bearer.split(' ')[1]
         try:
             jwt.decode(
                 token,
                 current_app.config['SECRET_KEY'],
-                algorithms='HS256'
+                algorithms=['HS256']
             )
-        except Exception as e:
-            return jsonify({'error': str(e)}), 400
+        except jwt.ExpiredSignatureError:
+            return jsonify({'error': 'Token has expired'}), 401
+        except jwt.InvalidTokenError:
+            return jsonify({'error': 'Invalid token'}), 401
         return f(*args, **kwargs)
     return decorated
