@@ -1,6 +1,7 @@
 import re
 from flask_wtf import FlaskForm
 from wtforms import (
+    Form,
     StringField,
     SubmitField,
     PasswordField,
@@ -159,9 +160,8 @@ one digit and one special character
             raise ValueError('Passwords do not match')
 
 
-class InformationsForm(FlaskForm):
-    age = SelectField('Age', choices=[
-        (str(i), str(i)) for i in range(18, 101)])
+class InformationsForm(Form):
+    age = SelectField('Age')
     gender = SelectField('Gender', choices=[
         'female', 'male', 'other'])
     sexual_preferences = SelectMultipleField('Sexual Preferences', choices=[
