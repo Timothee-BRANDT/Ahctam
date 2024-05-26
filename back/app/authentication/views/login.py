@@ -123,16 +123,41 @@ def first_login_page():
     return render_template('first-login.html', **context), 200
 
 
-# @auth.route('/logout', methods=['GET'])
-# def logout():
-#     pass
-#     return jsonify({'message': 'Logout successful'}), 200
+@auth.route('/logout', methods=['GET'])
+@jwt_required
+def logout():
+    conn = get_db_connection()
+    cur = conn.cursor()
+    try:
+        data = request.get_json()
+        refresh_token = data.get('refresh_token')
+        decoded_refresh_token = jwt.decode(
+            refresh_token,
+            current_app.config['SECRET_KEY'],
+            algorithms=['HS256']
+        )
+        user_id = decoded_refresh_token['id']
+        query = """
+DELETE FROM refresh_tokens
+WHERE user_id = %s
+AND token = %s
+        """
+        cur.execute(query, (user_id, refresh_token))
+        conn.commit()
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+    finally:
+        cur.close()
+        conn.close()
+
+    return jsonify({'message': 'Logout successful'}), 200
+
 
 @auth.route('/protected', methods=['GET'])
 @jwt_required
 def test_protected():
     return jsonify({
-        'message': 'Protected route'
+        'message': 'Hello protected route'
     }), 200
 
 

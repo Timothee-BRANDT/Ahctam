@@ -162,14 +162,23 @@ one digit and one special character
 
 class InformationsForm(Form):
     age = SelectField('Age')
-    gender = SelectField('Gender', choices=[
-        'female', 'male', 'other'])
-    sexual_preferences = SelectMultipleField('Sexual Preferences', choices=[
-        'female', 'male', 'other'])
+    gender = SelectField('Gender',
+                         choices=[
+                             'female', 'male', 'other'
+                         ])
+    sexual_preferences = SelectMultipleField('Sexual Preferences',
+                                             choices=[
+                                                 'female', 'male', 'other'
+                                             ])
     biography = TextAreaField('Biography')
-    pictures = FileField('Pictures', render_kw={'multiple': True})
+    pictures = FileField('Pictures',
+                         render_kw={'multiple': True})
     interests = SelectMultipleField('Interests')
     new_interest = StringField('New Interest')
+    location = SelectField('Can we use your location?',
+                           choices=[
+                               'yes', 'no'
+                           ])
     submit = SubmitField('Submit')
 
     def validate_gender(self, field):

@@ -1,12 +1,12 @@
 from flask import jsonify
 from . import api
 from ..database import get_db_connection
-from ..authentication.decorators import jwt_required
+from ..authentication.views.decorators import jwt_required
 
 
 @api.route('/test')
 def get_test():
-    data = {"message": "Hello, World from the API!"}
+    data = {"message": "Hello World from the API!"}
     return jsonify(data)
 
 
