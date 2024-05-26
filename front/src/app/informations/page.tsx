@@ -44,7 +44,7 @@ export default function UserInformations() {
     e.preventDefault();
     // send the data to the backend
     // redirect the user to /
-    // WARNING: TIM I CHANGED THE URL HERE
+    // WARNING: TIM I CHANGED THE URL HERE, I ALSO NEED THE ID OF THE USER
     const response = await fetch(`http://${serverIP}:5000/auth/first-login`, {
       method: "POST",
       credentials: "include",

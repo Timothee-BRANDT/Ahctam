@@ -13,6 +13,7 @@ import jwt
 from datetime import datetime, timedelta
 from ...database import get_db_connection
 from .decorators import jwt_required
+from .utils import store_informations
 
 
 @auth.route('/login', methods=['POST'])
@@ -87,12 +88,14 @@ def first_login():
     try:
         data = request.get_json()
         profile = data.get('profile', {})
+        user_id = data.get('user_id')
         form = InformationsForm(data=profile)
         print(form)
         for element in form:
             print(element)
         form.validate()
         print('validated')
+        store_informations(conn, cur, form, user_id)
         # age = profile.get('age')
         # gender = profile.get('gender')
         # print(gender)

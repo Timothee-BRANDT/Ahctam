@@ -40,3 +40,39 @@ def send_reset_password_email(email):
         """
         mail.send(msg)
         print('Email sent')
+
+
+def store_informations(conn, cur, form):
+    # TODO: tolower for the interests
+    # TODO: check if the interest already exists or give it unique in the db
+    user_query = """
+UPDATE users
+SET age = %s, gender = %s, sexual_preferences = %s, biography = %s
+WHERE id = %s
+    """
+    picture_query = """
+INSERT INTO pictures (url, owner)
+VALUES (%s, %s)
+    """
+    profile_picture_query = """
+UPDATE pictures
+SET is_profile_picture = TRUE
+WHERE url = %s
+    """
+    interests_query = """
+INSERT INTO interests (name)
+VALUES (%s)
+    """
+    try:
+        cur.execute(user_query, (
+            form.age.data,
+            form.gender.data,
+            form.sexual_preferences.data,
+            form.biography.data
+        ))
+        conn.commit()
+    except Exception as e:
+        raise ValueError(e)
+    finally:
+        cur.close()
+        conn.close()
