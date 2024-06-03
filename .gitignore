@@ -2,7 +2,9 @@
 
 # ************* BACK ***************
 # Python cache
-back/__pycache__/
+matcha_venv/
+back/**/__pycache__/
+venv/
 back/venv
 back/.env
 

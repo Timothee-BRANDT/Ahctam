@@ -8,7 +8,6 @@ from flask import (
 )
 from werkzeug.security import (
     generate_password_hash,
-    # check_password_hash
 )
 from itsdangerous import (
     URLSafeTimedSerializer,
@@ -61,6 +60,8 @@ def register():
     password = data['password']
     email = data['email']
     hashed_password = generate_password_hash(password)
+    firstname = data['firstname']
+    lastname = data['lastname']
 
     serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
     token = serializer.dumps(
@@ -70,13 +71,17 @@ def register():
     # So we don't need to store the registration token in the database
 
     sql = """
-INSERT INTO users (username, password, email) VALUES (%s, %s, %s)
+INSERT INTO users (username, password, email, firstname, lastname)
+VALUES (%s, %s, %s, %s, %s)
     """
     conn = get_db_connection()
     cur = conn.cursor()
-
     try:
-        cur.execute(sql, (username, hashed_password, email))
+        cur.execute(
+            sql,
+            (username, hashed_password,
+             email, firstname, lastname)
+        )
         conn.commit()
         send_confirmation_email(email, token)
     except Exception as e:

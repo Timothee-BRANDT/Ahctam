@@ -12,8 +12,8 @@ def init_db():
     try:
         conn = psycopg2.connect(
             dbname='postgres',
-            #user=current_app.config['POSTGRES_USER'],
-            #password=current_app.config['POSTGRES_PASSWORD'],
+            # user=current_app.config['POSTGRES_USER'],
+            # password=current_app.config['POSTGRES_PASSWORD'],
             user=os.getenv('POSTGRES_USER'),
             password=os.getenv('POSTGRES_PASSWORD'),
             host='localhost',
@@ -23,7 +23,7 @@ def init_db():
         cur = conn.cursor()
         cur.execute(sql.SQL('CREATE DATABASE {}').format(
             sql.Identifier(os.getenv('POSTGRES_DB'))))
-        #cur.execute(sql.SQL('CREATE DATABASE {}').format(
+        # cur.execute(sql.SQL('CREATE DATABASE {}').format(
         #    sql.Identifier(current_app.config['POSTGRES_DB'])))
         print('Database created successfully')
         cur.close()
@@ -35,9 +35,9 @@ def init_db():
 def create_user_table(config=None):
     try:
         conn = psycopg2.connect(
-            #dbname=current_app.config['POSTGRES_DB'],
-            #user=current_app.config['POSTGRES_USER'],
-            #password=current_app.config['POSTGRES_PASSWORD'],
+            # dbname=current_app.config['POSTGRES_DB'],
+            # user=current_app.config['POSTGRES_USER'],
+            # password=current_app.config['POSTGRES_PASSWORD'],
             dbname=os.getenv('POSTGRES_DB'),
             user=os.getenv('POSTGRES_USER'),
             password=os.getenv('POSTGRES_PASSWORD'),
@@ -49,8 +49,8 @@ def create_user_table(config=None):
         CREATE TABLE users (
             id SERIAL PRIMARY KEY,
             username VARCHAR(50) NOT NULL,
-            firstname VARCHAR(50),
-            lastname VARCHAR(50),
+            firstname VARCHAR(50) NOT NULL,
+            lastname VARCHAR(50) NOT NULL,
             email VARCHAR(50) NOT NULL,
             password VARCHAR(255) NOT NULL,
             is_active BOOLEAN NOT NULL DEFAULT FALSE,
@@ -71,5 +71,5 @@ def create_user_table(config=None):
 
 
 if __name__ == '__main__':
-    init_db()
-    create_user_table()
+    init_db(app=False)
+    create_user_table(app=False)
