@@ -1,7 +1,7 @@
 'use client'
 import React, { useEffect, useState } from 'react';
 import './index.scss';
-import Button from '../components/button';
+import Button from '../components/core/button/button';
 import Header from '../header/header';
 import Footer from '../footer/footer';
 import RootLayout from '../layout';

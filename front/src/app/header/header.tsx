@@ -4,7 +4,7 @@ import React, { useContext, useEffect } from 'react';
 import { useAuth } from '../authContext';
 import Link from 'next/link';
 import "./header.scss"
-import Button from '@/app/components/button';
+import Button from '@/app/components/core/button/button';
 import { useRouter } from 'next/navigation';
 
 const Header: React.FC = () => {

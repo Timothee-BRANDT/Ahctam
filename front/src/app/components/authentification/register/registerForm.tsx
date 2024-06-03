@@ -4,9 +4,9 @@ import React from 'react';
 import { useEffect, useState } from 'react';
 import './registerForm.scss'
 import Link from 'next/link';
-import { State } from '../../types';
-import { useAuth } from '../../authContext';
-import Button from '../../components/button';
+import { State } from '../../../types';
+import { useAuth } from '../../../authContext';
+import Button from '../../core/button/button';
 
 const RegisterForm: React.FC = () => {
 	const {login, logout, isJwtInCookie, user, setUser } = useAuth();

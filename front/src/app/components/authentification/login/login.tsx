@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/app/authContext';
 import { State } from '@/app/types';
-import Button from '@/app/components/button';
+import Button from '@/app/components/core/button/button';
 import { useRouter } from 'next/navigation';
 
 import './login.scss'
@@ -24,7 +24,10 @@ const Login: React.FC = () => {
 	const [ isBadCredentials, setIsBadCredentials] = useState<boolean>(false);
 
 	useEffect(() => {
+		console.log('render login component')
+		console.log('user ->', user);
 		if (status == State.initial && !user?.userName && isJwtInCookie('jwtToken')) {
+			console.log('render login and found a user')
 			console.log('got a user')
 			// CALL ENDPOINT TO GET THE USER INFORMATIONS
 			// GET METHOD WITH THE JWT IN HEADER
@@ -144,7 +147,7 @@ const Login: React.FC = () => {
   return (
 	<>
 		{isBadCredentials && <p className="bad-credentials">Bad credentials</p>}
-		{!user.firstName && status != State.initial ? (
+		{!user.firstName &&
 		<div className="form-container">
 			<form onSubmit={submit} className="form">
 				<div>
@@ -177,19 +180,7 @@ const Login: React.FC = () => {
 						</Link>
 					</div>
 			</form>
-		</div>
-		) : (
-			<>
-				{status === State.redirect ? (
-					undefined
-				): (
-				user?.firstName && <div className="user-card">
-					<p>Welcome {user?.firstName}</p>
-					<img className="profile-picture" src="https://cdn4.volusion.store/kapts-nrbqf/v/vspfiles/photos/GUINEAPIGONEDRESSED-2.jpg?v-cache=1590745950"></img>
-				</div>
-				)}
-			</>
-		)}
+		</div>}
 	</>
   );
 }
