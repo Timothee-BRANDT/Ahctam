@@ -1,10 +1,11 @@
 export interface User {
     id: number;
-    userName: string;
-    firstName: string;
-    lastName: string;
+    username: string;
+    firstname: string;
+    lastname: string;
     email: string;
-    password_hash: string;
+    password: string;
+    confirmPassword: string;
     is_active: boolean;
     registration_token: string;
     jwt_token: string;

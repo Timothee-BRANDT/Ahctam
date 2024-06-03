@@ -1,170 +1,138 @@
 'use client'
 
 import React from 'react';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import './registerForm.scss'
 import Link from 'next/link';
-import { State } from '../../../types';
-import { useAuth } from '../../../authContext';
 import Button from '../../core/button/button';
+import { serverIP } from '@/app/constants';
+import { State } from '@/app/types';
 
 const RegisterForm: React.FC = () => {
-	const {login, logout, isJwtInCookie, user, setUser } = useAuth();
-	const [email, setEmail] = useState('');
-	const [username, setUsername] = useState('');
-	const [lastname, setLastname] = useState('');
-	const [firstname, setFirstname] = useState('');
-	const [password, setPassword] = useState('');
-	const [confirmPassword, setConfirmPassword] = useState('');
-	const [ status, setStatus ] = useState<State>(State.initial);
-	const [ isBadCredentials, setIsBadCredentials] = useState<boolean>(false);
-	const serverIP = '127.0.0.1';
+	const [status, setStatus] = useState<State>(State.initial)
+	const [payload, setPayload] = useState({
+		email: '',
+		username: '',
+		lastname: '',
+		firstname: '',
+		password: '',
+		confirmPassword: '',
+	})
+
+	const handleChange = (e: any) => {
+		const { name, value } = e.target;
+		setPayload({
+		  ...payload,
+		  [name]: value,
+		});
+	  };
 	
 	const submit = async (event: any) => {
 		event.preventDefault();
-
-		// ************ LOGIC TO MAKE THE LOGIN API CALL ************** //
-		// const url = '/auth/register';
-		const payload = {
-			email: email,
-			username: username,
-			lastname: lastname,
-			firstname: firstname,
-			password: password,
-			password2: confirmPassword,
-		};
-		console.log(payload)
 		try {
 			const response = await fetch(`http://${serverIP}:5000/auth/register`, {
 			  method: 'POST',
+			  credentials: 'include',
 			  headers: {
 				'Content-Type': 'application/json'
 			  },
 			  body: JSON.stringify(payload)
 			});
+			if (response.ok) {
+				setStatus(State.redirect);
+			}
 		}
 		catch (e) {
-			console.log(e);
+			throw new Error('An error occured while attenmp to register');
 		}
-
-
-		// 	if (!response.ok) {
-		// 	  throw new Error('Network response was not ok');
-		// 	}
-	  
-		// 	const data = await response.json();
-		// 	console.log('Server response:', data);
-		// 1) log success, response is a JSON with the user info, mock the api response with myPig
-		// mocked data from the API response
-		const myPig = {
-			id: 12,
-			userName: username,
-			firstName: firstname,
-			lastName: lastname,
-			email: email,
-			password_hash: password,
-			is_active: true,
-			registration_token: 'qwertyuiop',
-			jwt_token: '123456789asdsfgbvncxvbn',
-			gender: 'female',
-			sexual_preferences: 'male',
-			biography: 'osef',
-			interests: 'osef',
-			created_at: '1234567876543',
-			firstTimeLogged: true,
-		}
-		setUser(myPig);
-		login(myPig);
-		// 2) ERROR FROM THE API CALL
-		// } catch (error) {
-		// 	console.error('Error sending data to the server:', error);
-		// }
-		// 3) log failed, JSON with a logFailed value
-		// setIsBadCredentials(true)
-		// setTimeout(() => {
-		// 	setIsBadCredentials(false);
-		//   }, 2000);
-		// };
 	}
   return (
 	<>
-		<div className="form-container">
-			<form onSubmit={submit} className="form">
-				<div>
-					<label htmlFor="email">Email</label>
-					<input
-						type="email"
-						id="email"
-						value={email}
-						onChange={(e) => setEmail(e.target.value)}
-						required
-						autoComplete="new-password"
-					/>
-				</div>
-				<div>
-					<label>Username</label>
-					<input
-						type="username"
-						id="username"
-						value={username}
-						onChange={(e) => setUsername(e.target.value)}
-						required
-						autoComplete="new-password"
-					/>
-				</div>
-                <div>
-					<label>Last Name</label>
-					<input
-						type="last-name"
-						id="last-name"
-						value={lastname}
-						onChange={(e) => setLastname(e.target.value)}
-						required
-						autoComplete="new-password"
-					/>
-				</div>
-                <div>
-					<label>First Name</label>
-					<input
-						type="first-name"
-						id="first-name"
-						value={firstname}
-						onChange={(e) => setFirstname(e.target.value)}
-						required
-						autoComplete="new-password"
-					/>
-				</div>
-                <div>
-					<label htmlFor="password">Password</label>
-					<input
-						type="password"
-						id="password"
-						value={password}
-						onChange={(e) => setPassword(e.target.value)}
-						required
-						autoComplete="new-password"
-					/>
-				</div>
-				<div>
-					<label htmlFor="password">Confirm Password</label>
-					<input
-						type="password"
-						id="password"
-						value={confirmPassword}
-						onChange={(e) => setConfirmPassword(e.target.value)}
-						required
-						autoComplete="new-password"
-					/>
-				</div>
-				<Button title="Register" type="submit" onClick={() => {}}/>
-					<div className="new_member">
-						<p className="new_member-question">Already have an Account ?</p>
-						<Link className="new_member-creation" href="/">
-							Login!
-						</Link>
+		{status === State.initial ? (
+			<div className="form-container">
+				<form onSubmit={submit} className="form">
+					<div>
+						<label htmlFor="email">Email</label>
+						<input
+							type="email"
+							value={payload.email}
+							name="email"
+							onChange={handleChange}
+							required
+							autoComplete="new-password"
+						/>
 					</div>
-			</form>
-		</div>
+					<div>
+						<label htmlFor="userame">User Name</label>
+						<input
+							type="username"
+							name="username"
+							value={payload.username}
+							onChange={handleChange}
+							required
+							autoComplete="new-password"
+						/>
+					</div>
+					<div>
+						<label htmlFor="lastname">Last Name</label>
+						<input
+							type="lastname"
+							name="lastname"
+							value={payload.lastname}
+							onChange={handleChange}
+							required
+							autoComplete="new-password"
+						/>
+					</div>
+					<div>
+						<label htmlFor="firstname">First Name</label>
+						<input
+							type="first-name"
+							name="firstname"
+							value={payload.firstname}
+							onChange={handleChange}
+							required
+							autoComplete="new-password"
+						/>
+					</div>
+					<div>
+						<label htmlFor="password">Password</label>
+						<input
+							type="password"
+							name="password"
+							value={payload.password}
+							onChange={handleChange}
+							required
+							autoComplete="new-password"
+						/>
+					</div>
+					<div>
+						<label htmlFor="confirmPassword">Confirm Password</label>
+						<input
+							type="password"
+							name="confirmPassword"
+							value={payload.confirmPassword}
+							onChange={handleChange}
+							required
+							autoComplete="new-password"
+						/>
+					</div>
+					<Button title="Register" type="submit" onClick={() => {}}/>
+						<div className="new_member">
+							<p className="new_member-question">Already have an Account ?</p>
+							<Link className="new_member-creation" href="/">
+								Login!
+							</Link>
+						</div>
+				</form>
+			</div>
+		) : (
+			<>
+				<div>THANKS FOR SIGNING UP.</div>
+				<div>AN VERIFICATION EMAIL AS BEEN SENT TO {payload.email}</div>
+				<div>LOGIN TO YOUR NEW ACCOUNT</div>
+			</>
+		)}
 	</>
   );
 }

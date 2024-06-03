@@ -24,11 +24,7 @@ const Login: React.FC = () => {
 	const [ isBadCredentials, setIsBadCredentials] = useState<boolean>(false);
 
 	useEffect(() => {
-		console.log('render login component')
-		console.log('user ->', user);
 		if (status == State.initial && !user?.userName && isJwtInCookie('jwtToken')) {
-			console.log('render login and found a user')
-			console.log('got a user')
 			// CALL ENDPOINT TO GET THE USER INFORMATIONS
 			// GET METHOD WITH THE JWT IN HEADER
 			// FOR NOW myPIG IS A MOCK :D

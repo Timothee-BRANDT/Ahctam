@@ -2,9 +2,9 @@
 import React, { useEffect, useState } from 'react';
 import './index.scss';
 import Button from '../core/button/button';
+import { serverIP } from '@/app/constants';
 
 const InformationPage: React.FC = () => {
-  const serverIP = process.env.CKOILENOM || "127.0.0.1";
   const [profile, setProfile] = useState({
     gender: '',
     sexualPreference: '',
@@ -38,6 +38,9 @@ const InformationPage: React.FC = () => {
   };
 
   const handleSubmit = async (e: any) => {
+    console.log(JSON.stringify({
+        ...profile,
+    }))
     e.preventDefault();
     // send the data to the backend
     // redirect the user to /
@@ -48,15 +51,11 @@ const InformationPage: React.FC = () => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-          profile,
+          ...profile,
       })
-  })
-    console.log(profile);
+    })
   };
 
-  useEffect(() => {
-    console.log(profile)
-  })
   return (
     <>
       <div className="profile-container">

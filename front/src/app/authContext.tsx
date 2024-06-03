@@ -6,11 +6,12 @@ import { useRouter } from 'next/navigation';
 
 const initialPig: User = {
 	id: 1,
-	userName: '',
-	firstName: '',
-	lastName: '',
+	username: '',
+	firstname: '',
+	lastname: '',
 	email: '',
-	password_hash: '',
+	password: '',
+	confirmPassword: '',
 	is_active: false,
 	registration_token: '',
 	jwt_token: '',
