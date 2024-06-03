@@ -24,17 +24,17 @@ const Login: React.FC = () => {
 	const [ isBadCredentials, setIsBadCredentials] = useState<boolean>(false);
 
 	useEffect(() => {
-		if (status == State.initial && !user?.userName && isJwtInCookie('jwtToken')) {
+		if (status == State.initial && !user?.username && isJwtInCookie('jwtToken')) {
 			// CALL ENDPOINT TO GET THE USER INFORMATIONS
 			// GET METHOD WITH THE JWT IN HEADER
 			// FOR NOW myPIG IS A MOCK :D
 			const myPig = {
 				id: 12,
-				userName: 'Julie',
-				firstName: 'Brandt',
-				lastName: 'Juju',
+				username: 'Julie',
+				firstname: 'Brandt',
+				lastname: 'Juju',
 				email: email,
-				password_hash: password,
+				password: password,
 				is_active: true,
 				registration_token: 'qwertyuiop',
 				jwt_token: '123456789asdsfgbvncxvbn',
@@ -83,11 +83,12 @@ const Login: React.FC = () => {
 			setStatus(State.redirect)
 			const myPig = {
 				id: 12,
-				userName: 'JuJu',
-				firstName: 'Julie',
-				lastName: 'Juliette',
+				username: 'JuJu',
+				firstname: 'Julie',
+				lastname: 'Juliette',
 				email: email,
-				password_hash: password,
+				password: password,
+				confirmPassword: password,
 				is_active: true,
 				registration_token: 'qwertyuiop',
 				jwt_token: '123456789asdsfgbvncxvbn',
@@ -107,11 +108,11 @@ const Login: React.FC = () => {
 		if (password === '2') {
 			const myPig = {
 				id: 12,
-				userName: 'JuJu',
-				firstName: 'Julie',
-				lastName: 'Juliette',
+				username: 'JuJu',
+				firstname: 'Julie',
+				lastname: 'Juliette',
 				email: email,
-				password_hash: password,
+				password: password,
 				is_active: true,
 				registration_token: 'qwertyuiop',
 				jwt_token: '123456789asdsfgbvncxvbn',
@@ -143,7 +144,7 @@ const Login: React.FC = () => {
   return (
 	<>
 		{isBadCredentials && <p className="bad-credentials">Bad credentials</p>}
-		{!user.firstName &&
+		{!user.firstname &&
 		<div className="form-container">
 			<form onSubmit={submit} className="form">
 				<div>

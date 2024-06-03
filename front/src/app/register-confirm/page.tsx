@@ -2,17 +2,17 @@ import React from 'react';
 import Header from "../components/header/header";
 import Footer from "../components/footer/footer"
 import { AuthProvider } from '../authContext';
-import RegisterForm from '../components/authentification/register/registerForm';
+import RegisterConfirm from '../components/authentification/register/registerConfirm';
 import RootLayout from '../layout';
 
-export default function Register() {
+export default function RegisterConfirmLayout() {
   return (
     <>
         <Header />
-        <RegisterForm />
+        <RegisterConfirm />
         <Footer />
     </>
   );
 }
 
-Register.layout = RootLayout;
+RegisterConfirmLayout.layout = RootLayout;

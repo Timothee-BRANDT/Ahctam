@@ -19,7 +19,7 @@ const Header: React.FC = () => {
       <nav>
         <ul className="navLinks">
           <Button title="Home" onClick={redirectHome} className="home" />
-          {user.firstName && <Button title="Logout" onClick={logout} />}
+          {user.firstname && <Button title="Logout" onClick={logout} />}
         </ul>
       </nav>
     </header>

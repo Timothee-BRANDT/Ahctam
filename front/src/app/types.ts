@@ -5,7 +5,7 @@ export interface User {
     lastname: string;
     email: string;
     password: string;
-    confirmPassword: string;
+    confirmPassword?: string;
     is_active: boolean;
     registration_token: string;
     jwt_token: string;
