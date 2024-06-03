@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useContext, useEffect } from 'react';
-import { useAuth } from '../authContext';
+import { useAuth } from '../../authContext';
 import Link from 'next/link';
 import "./header.scss"
 import Button from '@/app/components/core/button/button';

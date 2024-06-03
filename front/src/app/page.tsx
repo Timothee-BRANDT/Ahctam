@@ -1,6 +1,6 @@
 import React from 'react';
-import Header from "./header/header";
-import Footer from "./footer/footer"
+import Header from "./components/header/header";
+import Footer from "./components/footer/footer"
 import Login from './components/authentification/login/login';
 import RootLayout from './layout';
 

@@ -1,7 +1,7 @@
 import React from 'react';
-import Header from "../header/header";
-import Footer from "../footer/footer"
-import ProfilePage from '../components/profile';
+import Header from "../components/header/header";
+import Footer from "../components/footer/footer"
+import ProfilePage from '../components/profilePage';
 import RootLayout from '../layout';
 
 export default function Profile() {
