@@ -16,7 +16,7 @@ import './login.scss'
 // 3 => Bad credentials
 
 const Login: React.FC = () => {
-	const router = useRouter()
+	const router = useRouter();
 	const {login, logout, isJwtInCookie, user, setUser } = useAuth();
 	const [email, setEmail] = useState('');
 	const [password, setPassword] = useState('');
@@ -25,6 +25,7 @@ const Login: React.FC = () => {
 
 	useEffect(() => {
 		if (status == State.initial && !user?.userName && isJwtInCookie('jwtToken')) {
+			console.log('got a user')
 			// CALL ENDPOINT TO GET THE USER INFORMATIONS
 			// GET METHOD WITH THE JWT IN HEADER
 			// FOR NOW myPIG IS A MOCK :D
@@ -50,7 +51,7 @@ const Login: React.FC = () => {
 		}
 		setStatus(State.done)
 	  }, [user]);
-	
+
 	const submit = async (event: any) => {
 		event.preventDefault();
 
@@ -98,14 +99,13 @@ const Login: React.FC = () => {
 				created_at: '1234567876543',
 				firstTimeLogged: true,
 			}
+			router.push('/informations');
 			setUser(myPig);
 			login(myPig);
-			router.push('/informations');
 		}
 
 		// 2) logged success from API, but not the first time
 		if (password === '2') {
-			console.log('wertyu')
 			const myPig = {
 				id: 12,
 				userName: 'JuJu',
@@ -123,6 +123,7 @@ const Login: React.FC = () => {
 				created_at: '1234567876543',
 				firstTimeLogged: true,
 			}
+			router.push('/profile');
 			setUser(myPig);
 			login(myPig);
 		}
@@ -179,10 +180,14 @@ const Login: React.FC = () => {
 		</div>
 		) : (
 			<>
-				{user?.firstName && status !== State.redirect && <div className="user-card">
+				{status === State.redirect ? (
+					undefined
+				): (
+				user?.firstName && <div className="user-card">
 					<p>Welcome {user?.firstName}</p>
 					<img className="profile-picture" src="https://cdn4.volusion.store/kapts-nrbqf/v/vspfiles/photos/GUINEAPIGONEDRESSED-2.jpg?v-cache=1590745950"></img>
-				</div>}
+				</div>
+				)}
 			</>
 		)}
 	</>
