@@ -19,7 +19,7 @@ const CLASSNAME = 'login';
 
 const Login: React.FC = () => {
 	const router = useRouter();
-	const {login, logout, isJwtInCookie, user, setUser } = useAuth();
+	const {login, isJwtInCookie, user, setUser } = useAuth();
 	const [username, setUsername] = useState('');
 	const [password, setPassword] = useState('');
 	const [ status, setStatus ] = useState<State>(State.initial);
@@ -174,7 +174,7 @@ const Login: React.FC = () => {
 				<Button title="Log in" type="submit" onClick={() => {}}/>
 				<div className={`${CLASSNAME}__helper`}>
 					<p className={`${CLASSNAME}__helper-question`}>Password forgot ?</p>
-					<Link className={`${CLASSNAME}__helper-link`} href="/register">
+					<Link className={`${CLASSNAME}__helper-link`} href="/reset-password">
 						Send me a link !
 					</Link>
 				</div>

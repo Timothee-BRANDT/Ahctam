@@ -1,17 +1,17 @@
 import React from 'react';
 import Header from "../components/header/header";
 import Footer from "../components/footer/footer"
-import RegisterConfirm from '../components/authentification/register/registerConfirm';
 import RootLayout from '../layout';
+import ResetPasswordPage from '../components/authentification/reset-password/reset-password';
 
-export default function RegisterConfirmLayout() {
+export default function ResetPassword() {
   return (
     <>
         <Header />
-        <RegisterConfirm />
+        <ResetPasswordPage />
         <Footer />
     </>
   );
 }
 
-RegisterConfirmLayout.layout = RootLayout;
+ResetPassword.layout = RootLayout;
