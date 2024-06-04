@@ -1,19 +1,49 @@
 'use client'
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './index.scss';
 import Button from '../core/button/button';
 import { serverIP } from '@/app/constants';
+import { useAuth } from '@/app/authContext';
 
 const CLASSNAME = 'profile';
 
 const InformationPage: React.FC = () => {
-  const [profile, setProfile] = useState({
-    gender: '',
-    sexualPreference: '',
-    biography: '',
-    interests: '',
-    photos: Array(6).fill(null)
+    const { user } = useAuth();
+    const [profile, setProfile] = useState({
+        gender: '',
+        sexualPreference: '',
+        biography: '',
+        interests: '',
+        photos: Array(6).fill(null)
   });
+
+  const [interests, setInterests] = useState<Record<string, boolean>>({
+    'Exploring tunnels and mazes': false,
+    'Running through obstacle courses': false,
+    'Group naps': false,
+    'Sharing fresh vegetable meals': false,
+    'Chewing on wooden toys': false,
+    'Rolling in exercise balls': false,
+    'Sand and dust baths': false,
+    'Hide and seek in tunnels': false,
+    'Collecting hay and leaves': false,
+    'Making cozy nests': false,
+    'Pelage beauty contests': false,
+    'Mutual grooming sessions': false,
+    'Nibbling on carrots together': false,
+    'Sharing cuddles and pets': false,
+    'Outdoor exploration': false,
+    'Enjoying group company': false,
+    'Listening to relaxing music': false,
+    'Participating in friendly races': false,
+    'Discovering new vegetable flavors': false,
+    'Experimenting with new hiding spots': false,
+    'Carrots are the best': false,
+  });
+
+  useEffect(() => {
+
+  }, [interests])
 
   const handleChange = (e: any) => {
     const { name, value } = e.target;
@@ -54,13 +84,21 @@ const InformationPage: React.FC = () => {
       },
       body: JSON.stringify({
           ...profile,
+          id: user.id,
       })
     })
   };
 
+  const selectInterest = (interest: string) => {
+    const newInterests = {...interests};
+    newInterests[interest] = !newInterests[interest];
+    setInterests(newInterests);
+  }
+
   return (
     <>
       <div className={CLASSNAME}>
+      <p className={`${CLASSNAME}__main-title`}>Welcome to PiggyDate ! Tell us more about yourself !</p>
         <form onSubmit={handleSubmit}>
             <p className={`${CLASSNAME}__title`}>I am</p>
             <div className={`${CLASSNAME}__radio-button`}>
@@ -118,16 +156,17 @@ const InformationPage: React.FC = () => {
                 value={profile.biography}
                 onChange={handleChange}
             />
-
-            <p className={`${CLASSNAME}__title`}>Interests</p>
-            <input
-                type="text"
-                name="interests"
-                value={profile.interests}
-                onChange={handleChange}
-                placeholder="#hay #vegetables #pellets"
-            />
-
+            <p className={`${CLASSNAME}__title`}>My interests</p>
+            <div className={`${CLASSNAME}__interests-container`}>
+                {Object.entries(interests).map(([interest, isSelected]) => (
+                    <div className={!isSelected ? `${CLASSNAME}__interests` : `${CLASSNAME}__interests__selected`}
+                        onClick={() => {selectInterest(interest)}}
+                        key={interest}>
+                        {interest}
+                    </div>
+                ))}
+            </div>
+            <p className={`${CLASSNAME}__title`}>Pictures</p>
             <div className="photo-upload-container">
                 {profile.photos.map((photo, index) => (
                 <div onClick={() => document.getElementsByName(`photoUpload${index}`)[0].click()}

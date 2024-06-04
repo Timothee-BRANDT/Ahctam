@@ -9,6 +9,7 @@ import Button from '@/app/components/core/button/button';
 import { useRouter } from 'next/navigation';
 
 import './login.scss'
+import { serverIP } from '@/app/constants';
 
 // PERSONNAL DOC, I'M USING PASSWORD_HASH TO HANDLE ALL THE DIFFERENTS USE CASES
 // 1 => Log for the first time, redirect to information page
@@ -55,88 +56,86 @@ const Login: React.FC = () => {
 
 	const submit = async (event: any) => {
 		event.preventDefault();
-
-		// ************ LOGIC TO MAKE THE LOGIN API CALL ************** //
-		// const url = '/api/login';
-		// const payload = {
-		// 	email: email,
-		// 	password: password
-		// };
-		// try {
-		// 	const response = await fetch(url, {
-		// 	  method: 'POST',
-		// 	  headers: {
-		// 		'Content-Type': 'application/json'
-		// 	  },
-		// 	  body: JSON.stringify(payload)
-		// 	});
+		const payload = {
+			username,
+			password,
+		};
+		try {
+			const response = await fetch(`http://${serverIP}:3333/auth/first-log`, {
+			  method: 'POST',
+			  headers: {
+				'Content-Type': 'application/json'
+			  },
+			  body: JSON.stringify(payload)
+			});
 	  
-		// 	if (!response.ok) {
-		// 	  throw new Error('Network response was not ok');
-		// 	}
+			if (!response.ok) {
+			  throw new Error('Network response was not ok');
+			}
+            const data = await response.json();
+            console.log('Server response:', data);
+        } catch (e) {
+            console.log(e);
+        }
 	  
-		// 	const data = await response.json();
-		// 	console.log('Server response:', data);
-
-
 
 		// if the user is logged for the first time;
-		if (password === '1') {
-			setStatus(State.redirect)
-			const myPig = {
-				id: 12,
-				username: 'JuJu',
-				firstname: 'Julie',
-				lastname: 'Juliette',
-				email: 'Juliette@gmail.com',
-				password: password,
-				confirmPassword: password,
-				is_active: true,
-				registration_token: 'qwertyuiop',
-				jwt_token: '123456789asdsfgbvncxvbn',
-				gender: '',
-				sexual_preferences: '',
-				biography: '',
-				interests: '',
-				created_at: '1234567876543',
-				firstTimeLogged: true,
-			}
-			router.push('/informations');
-			setUser(myPig);
-			login(myPig);
-		}
+		// if (password === '1') {
+		// 	setStatus(State.redirect)
+		// 	const myPig = {
+		// 		id: 12,
+		// 		username: 'JuJu',
+		// 		firstname: 'Julie',
+		// 		lastname: 'Juliette',
+		// 		email: 'Juliette@gmail.com',
+		// 		password: password,
+		// 		confirmPassword: password,
+		// 		is_active: true,
+		// 		registration_token: 'qwertyuiop',
+		// 		jwt_token: '123456789asdsfgbvncxvbn',
+		// 		gender: '',
+		// 		sexual_preferences: '',
+		// 		biography: '',
+		// 		interests: '',
+		// 		created_at: '1234567876543',
+		// 		firstTimeLogged: true,
+		// 	}
+		// 	router.push('/informations');
+		// 	setUser(myPig);
+		// 	login(myPig);
+		// }
 
 		// 2) logged success from API, but not the first time
-		if (password === '2') {
-			const myPig = {
-				id: 12,
-				username: 'JuJu',
-				firstname: 'Julie',
-				lastname: 'Juliette',
-				email: 'Juliette@gmail.com',
-				password: password,
-				is_active: true,
-				registration_token: 'qwertyuiop',
-				jwt_token: '123456789asdsfgbvncxvbn',
-				gender: 'female',
-				sexual_preferences: 'male',
-				biography: 'osef',
-				interests: 'osef',
-				created_at: '1234567876543',
-				firstTimeLogged: true,
-			}
-			router.push('/profile');
-			setUser(myPig);
-			login(myPig);
-		}
+		// if (password === '2') {
+		// 	const myPig = {
+		// 		id: 12,
+		// 		username: 'JuJu',
+		// 		firstname: 'Julie',
+		// 		lastname: 'Juliette',
+		// 		email: 'Juliette@gmail.com',
+		// 		password: password,
+		// 		is_active: true,
+		// 		registration_token: 'qwertyuiop',
+		// 		jwt_token: '123456789asdsfgbvncxvbn',
+		// 		gender: 'female',
+		// 		sexual_preferences: 'male',
+		// 		biography: 'osef',
+		// 		interests: 'osef',
+		// 		created_at: '1234567876543',
+		// 		firstTimeLogged: true,
+		// 	}
+		// 	router.push('/profile');
+		// 	setUser(myPig);
+		// 	login(myPig);
+		// }
 
 		// 3) bad credentials 
-		if (password === '3') {
-			setIsBadCredentials(true)
-			setTimeout(() => {
-				setIsBadCredentials(false);
-			}, 2000);
-		}
+		// if (password === '3') {
+		// 	setIsBadCredentials(true)
+		// 	setTimeout(() => {
+		// 		setIsBadCredentials(false);
+		// 	}, 2000);
+		// }
 
 		// 4) ERROR FROM THE API CALL
 		// } catch (error) {
