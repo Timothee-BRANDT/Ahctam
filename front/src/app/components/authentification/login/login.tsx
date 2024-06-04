@@ -15,10 +15,12 @@ import './login.scss'
 // 2 => Log but not the first time, just setJwt and user
 // 3 => Bad credentials
 
+const CLASSNAME = 'login';
+
 const Login: React.FC = () => {
 	const router = useRouter();
 	const {login, logout, isJwtInCookie, user, setUser } = useAuth();
-	const [email, setEmail] = useState('');
+	const [username, setUsername] = useState('');
 	const [password, setPassword] = useState('');
 	const [ status, setStatus ] = useState<State>(State.initial);
 	const [ isBadCredentials, setIsBadCredentials] = useState<boolean>(false);
@@ -33,7 +35,7 @@ const Login: React.FC = () => {
 				username: 'Julie',
 				firstname: 'Brandt',
 				lastname: 'Juju',
-				email: email,
+				email: 'Juliette@gmail.com',
 				password: password,
 				is_active: true,
 				registration_token: 'qwertyuiop',
@@ -86,7 +88,7 @@ const Login: React.FC = () => {
 				username: 'JuJu',
 				firstname: 'Julie',
 				lastname: 'Juliette',
-				email: email,
+				email: 'Juliette@gmail.com',
 				password: password,
 				confirmPassword: password,
 				is_active: true,
@@ -111,7 +113,7 @@ const Login: React.FC = () => {
 				username: 'JuJu',
 				firstname: 'Julie',
 				lastname: 'Juliette',
-				email: email,
+				email: 'Juliette@gmail.com',
 				password: password,
 				is_active: true,
 				registration_token: 'qwertyuiop',
@@ -143,17 +145,17 @@ const Login: React.FC = () => {
 		};
   return (
 	<>
-		{isBadCredentials && <p className="bad-credentials">Bad credentials</p>}
+		{isBadCredentials && <p className={`${CLASSNAME}__bad-credentials`}>Bad credentials</p>}
 		{!user.jwt_token &&
-		<div className="form-container">
+		<div className={`${CLASSNAME}__form-container`}>
 			<form onSubmit={submit} className="form">
 				<div>
-					<label htmlFor="email">Email</label>
+					<label htmlFor="text">Username</label>
 					<input
-						type="email"
-						id="email"
-						value={email}
-						onChange={(e) => setEmail(e.target.value)}
+						type="text"
+						id="text"
+						value={username}
+						onChange={(e) => setUsername(e.target.value)}
 						required
 						autoComplete="new-password"
 					/>
@@ -170,12 +172,18 @@ const Login: React.FC = () => {
 					/>
 				</div>
 				<Button title="Log in" type="submit" onClick={() => {}}/>
-					<div className="new_member">
-						<p className="new_member-question">Not a member yet ?</p>
-						<Link className="new_member-creation" href="/register">
-							Register!
-						</Link>
-					</div>
+				<div className={`${CLASSNAME}__helper`}>
+					<p className={`${CLASSNAME}__helper-question`}>Password forgot ?</p>
+					<Link className={`${CLASSNAME}__helper-link`} href="/register">
+						Send me a link !
+					</Link>
+				</div>
+				<div className={`${CLASSNAME}__helper`}>
+					<p className={`${CLASSNAME}__helper-question`}>Not a member yet ?</p>
+					<Link className={`${CLASSNAME}__helper-link`} href="/register">
+						Register!
+					</Link>
+				</div>
 			</form>
 		</div>}
 	</>

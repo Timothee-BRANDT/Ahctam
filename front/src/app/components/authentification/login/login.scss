@@ -1,11 +1,35 @@
 @import '../../../styles/variables';
 
-.form-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 20px;
+.login {
+  &__form-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+  }
+  &__helper {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    text-align: center;
+    text-decoration: none;
+    margin-top: 8px;
+  }
+  &__helper-question {
+    color: var(--secondary-color);
+  }
+  &__helper-link {
+    color: var(--primary-color);
+    font-weight: bold;
+    text-decoration: underline;
+  }
+  &__bad-credentials {
+    text-align: center;
+    font-weight: bold;
+    color: red;
+  }
 }
+
   
 .form {
   width: 300px;
@@ -29,48 +53,4 @@
 
 .form button {
   width: 100%;
-}
-
-body .button-logout {
-  position: fixed;
-  top: 16px;
-  right: 16px;
-}
-
-.new_member {
-  display: block;
-  width: 100%;
-  padding: 10px;
-  text-align: center;
-  text-decoration: none;
-  margin-top: 8px;
-}
-
-.new_member-question {
-  color: var(--secondary-color);
-}
-
-.new_member-creation {
-  color: var(--primary-color);
-  font-weight: bold;
-  text-decoration: underline;
-}
-
-.bad-credentials {
-  position: fixed;
-  top: 160px;
-  margin-left: 630px;
-  color: red;
-}
-
-.user-card {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-}
-
-.profile-picture {
-  border-radius: 40px;
-  margin-top: 18px;
 }
