@@ -10,13 +10,26 @@
     color: var(--primary-color);
     margin-top: 8px;
   }
-  &__sexual-preference {
+  &__radio-button {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
   }
-  &__sexual-preference--input {
+  &__radio-button div {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    width: 120px;
+    }
+  &__radio-button-input {
     margin-right: 8px;
+  }
+  &__radio-button-text {
+    font-weight: bold; 
+  }
+  &__profile-picture-uploader {
+    font-weight: bold;
   }
 }
 
@@ -34,13 +47,9 @@
   border-radius: 4px;
 }
 
-.photo-upload-container {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 15px;
-}
 
 .button-info {
+    width: 100%;
   margin-top: 20px;
 }
 
@@ -48,54 +57,62 @@ input:focus, select:focus, textarea:focus, button:focus {
   outline: none;
 }
 
+.photo-upload-container {
+  display: grid;
+  margin-top: 16px;
+  margin-left: auto;
+  margin-right: auto;
+    grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
 .photo-placeholder {
-  width: 100px;
-  height: 100px;
-  background-color: var(--primary-color);
+    @media only screen and (max-width: 600px) {
+       width: 80px;
+       height: 80px;
+    }
+  width: 180px;
+  height: 180px;
+//   background-color: var(--primary-color);
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
+  border: 1px solid var(--secondary-color);
   border-radius: 4px;
-  border: 1px solid #ccc;
+//   border: 1px solid #ccc;
   cursor: pointer;
   display: flex;
+  justify-content: center;
   align-items: center;
+  text-align: center;
   position: relative;
-}
-
-.photo-placeholder:hover {
-  background-color: var(--secondary-color)
 }
 
 .upload-text {
   position: absolute;
-  color: white;
+  color: var(--primary-color);
   text-align: center;
 }
 
-
-input[type="radio"] {
+.profile input[type="radio"] {
     display: none;
 }
 
-input[type="radio"]:checked + label::before {
+.profile input[type="radio"]:checked + label::before {
     border-color: var(--primary-color);
     background: var(--secondary-color);
 }
 
-label {
+.profile label {
     position: relative;
-    padding-left: 25px;
+    padding: 10px;
     cursor: pointer;
-    display: inline-block;
-    margin-right: 20px;
 }
 
-label::before {
+.profile label::before {
     content: '';
     position: absolute;
     top: 50%;
-    left: 0;
+    left: -25px;
     transform: translateY(-50%);
     width: 15px;
     height: 15px;

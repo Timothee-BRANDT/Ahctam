@@ -12,13 +12,11 @@ const InformationPage: React.FC = () => {
     sexualPreference: '',
     biography: '',
     interests: '',
-    photos: Array(5).fill(null)
+    photos: Array(6).fill(null)
   });
 
   const handleChange = (e: any) => {
     const { name, value } = e.target;
-    console.log(name)
-    console.log(name)
     setProfile({
       ...profile,
       [name]: value,
@@ -65,23 +63,23 @@ const InformationPage: React.FC = () => {
       <div className={CLASSNAME}>
         <form onSubmit={handleSubmit}>
             <p className={`${CLASSNAME}__title`}>I am</p>
-            <div className={`${CLASSNAME}__sexual-preference`}>
+            <div className={`${CLASSNAME}__radio-button`}>
                 <div>
-                    <input className={`${CLASSNAME}__sexual-preference--input`} type="radio" 
+                    <input type="radio" 
                         id="gender-female" name="gender" value="female" 
                         checked={profile.gender === 'female'} 
                         onChange={handleChange} required />
                     <label htmlFor="gender-female">Female</label>
                 </div>
                 <div>
-                    <input className={`${CLASSNAME}__sexual-preference--input`} type="radio" 
+                    <input type="radio" 
                         id="gender-male" name="gender" value="male"
                         checked={profile.gender === 'male'}
                         onChange={handleChange} required />
                     <label htmlFor="gender-male">Male</label>
                 </div>
                 <div>
-                    <input className={`${CLASSNAME}__sexual-preference--input`} type="radio"
+                    <input type="radio"
                         id="gender-non-binary" name="gender" value="non-binary"
                         checked={profile.gender === 'non-binary'}
                         onChange={handleChange} required />
@@ -90,24 +88,24 @@ const InformationPage: React.FC = () => {
             </div>
 
             <p className={`${CLASSNAME}__title`}>I'm looking for</p>
-            <div className={`${CLASSNAME}__sexual-preference`}>
+            <div className={`${CLASSNAME}__radio-button`}>
                 <div>
-                    <input className={`${CLASSNAME}__sexual-preference--input`} type="radio" 
-                        id="female" name="sexualPreference" value="female" 
+                    <input type="radio" 
+                        id="sexual-female" name="sexualPreference" value="female" 
                         checked={profile.sexualPreference === 'female'} 
                         onChange={handleChange} required />
                     <label htmlFor="sexual-female">Female</label>
                 </div>
                 <div>
-                    <input className={`${CLASSNAME}__sexual-preference--input`} type="radio" 
-                        id="male" name="sexualPreference" value="male"
+                    <input type="radio" 
+                        id="sexual-male" name="sexualPreference" value="male"
                         checked={profile.sexualPreference === 'male'}
                         onChange={handleChange} required />
                     <label htmlFor="sexual-male">Male</label>
                 </div>
                 <div>
-                    <input className={`${CLASSNAME}__sexual-preference--input`} type="radio"
-                        id="both" name="sexualPreference" value="both"
+                    <input type="radio"
+                        id="sexual-both" name="sexualPreference" value="both"
                         checked={profile.sexualPreference === 'both'}
                         onChange={handleChange} required />
                     <label htmlFor="sexual-both">Both</label>
@@ -136,13 +134,17 @@ const InformationPage: React.FC = () => {
                     key={index} className="photo-placeholder" 
                     style={{ backgroundImage: photo ? `url(${photo})` : 'none' }}>
                     <input
-                    type="file"
-                    name={`photoUpload${index}`}
-                    accept="image/*"
-                    onChange={(e) => handleImageChange(index, e)}
-                    style={{ display: 'none' }}
+                        type="file"
+                        name={`photoUpload${index}`}
+                        accept="image/*"
+                        onChange={(e) => handleImageChange(index, e)}
+                        style={{ display: 'none' }}
                     />
-                    {!photo ? <div className="upload-text">Upload a picture</div>: ''}
+                    {!photo && (
+                        <div className={`upload-text ${index === 0 ? `${CLASSNAME}__profile-picture-uploader` : ''}`}>
+                            {index === 0 ? 'Upload a profile picture' : 'Upload a picture'}
+                        </div>
+                    )} 
                 </div>
                 ))}
             </div>
@@ -152,3 +154,5 @@ const InformationPage: React.FC = () => {
     </>
   );
 }
+
+export default InformationPage;
