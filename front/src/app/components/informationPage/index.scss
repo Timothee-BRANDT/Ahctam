@@ -1,26 +1,33 @@
 @import '../../styles/variables';
 
-.profile-container {
+.profile {
   max-width: 600px;
   margin: auto;
   padding: 20px;
   border-radius: 10px;
   margin-top: 60px;
+  &__title {
+    color: var(--primary-color);
+    margin-top: 8px;
+  }
+  &__sexual-preference {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+  &__sexual-preference--input {
+    margin-right: 8px;
+  }
 }
 
-.profile-container form {
+.profile form {
   display: flex;
   flex-direction: column;
 }
 
-.profile-container label {
-  color: var(--secondary-color);
-  margin-top: 10px;
-}
-
-.profile-container input[type="text"],
-.profile-container select,
-.profile-container textarea {
+.profile input[type="text"],
+.profile select,
+.profile textarea {
   padding: 8px;
   margin-top: 5px;
   border: 1px solid #ddd;
@@ -64,4 +71,35 @@ input:focus, select:focus, textarea:focus, button:focus {
   position: absolute;
   color: white;
   text-align: center;
+}
+
+
+input[type="radio"] {
+    display: none;
+}
+
+input[type="radio"]:checked + label::before {
+    border-color: var(--primary-color);
+    background: var(--secondary-color);
+}
+
+label {
+    position: relative;
+    padding-left: 25px;
+    cursor: pointer;
+    display: inline-block;
+    margin-right: 20px;
+}
+
+label::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%);
+    width: 15px;
+    height: 15px;
+    border: 2px solid #ccc;
+    border-radius: 50%;
+    background: white;
 }
