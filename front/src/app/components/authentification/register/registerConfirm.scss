@@ -1,0 +1,16 @@
+@import '../../../styles/variables.scss';
+
+.confirm-registration {
+    height: 200px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-top: 150px;
+    gap: 12px;
+    &__message {
+        font-weight: bold;
+        color: var(--secondary-color);
+        margin-bottom: 8px;
+    }
+}
