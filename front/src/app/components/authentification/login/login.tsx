@@ -144,7 +144,7 @@ const Login: React.FC = () => {
   return (
 	<>
 		{isBadCredentials && <p className="bad-credentials">Bad credentials</p>}
-		{!user.firstname &&
+		{!user.jwt_token &&
 		<div className="form-container">
 			<form onSubmit={submit} className="form">
 				<div>

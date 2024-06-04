@@ -61,7 +61,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   }, []);
 
-  function getUserFromLocalStorage() {
+  const getUserFromLocalStorage = () => {
     if (typeof window !== "undefined") {
       const userString = localStorage.getItem('user');
       return userString ? JSON.parse(userString) : null;
