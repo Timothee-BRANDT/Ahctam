@@ -5,18 +5,26 @@ import Button from '../core/button/button';
 import { serverIP } from '@/app/constants';
 import { useAuth } from '@/app/authContext';
 import { ProfileInformations } from '@/app/types';
+import { useRouter } from 'next/navigation';
 
 const CLASSNAME = 'profile';
 
 const InformationPage: React.FC = () => {
     const { user } = useAuth();
+     const router = useRouter();
     const [profile, setProfile] = useState<ProfileInformations>({
+        firstname: user.firstname,
+        lastname: user.lastname,
+        email: user.email,
         gender: '',
         sexualPreference: '',
         biography: '',
         interests: [],
         photos: Array(6).fill(null)
     });
+
+    const [updateFirstname, setUpdateFirstName] = useState(false);
+    const [saveFirstname, setSaveFirstname] = useState('');
 
     const [allInterests, setAllInterests] = useState<Record<string, boolean>>({
         'Exploring tunnels and mazes': false,
@@ -72,6 +80,9 @@ const InformationPage: React.FC = () => {
     const handleSubmit = async (e: any) => {
         e.preventDefault();
         const payload = {
+            firstname: profile.firstname,
+            lastname: profile.lastname,
+            email: profile.email,
             gender: profile.gender,
             sexualPreference: profile.sexualPreference,
             biography: profile.biography,
@@ -84,9 +95,7 @@ const InformationPage: React.FC = () => {
         if (!payload.gender) {
             payload.gender = 'other';
         }
-        console.log(payload);
-        // send the data to the backend
-        // redirect the user to /
+        console.log('Payload -> ', payload);
         const response = await fetch(`http://${serverIP}:3333/auth/first-log`, {
             method: 'POST',
             credentials: 'include',
@@ -98,6 +107,9 @@ const InformationPage: React.FC = () => {
                 id: user.id,
             })
         })
+        if (response.ok) {
+            router.push('/');
+        }
     };
 
     const getInterestsIndices = (record: Record<string, boolean>) => {
@@ -121,10 +133,56 @@ const InformationPage: React.FC = () => {
         });
     };
 
+    const handleFirstname = () => {
+        setUpdateFirstName(true);
+        setSaveFirstname(profile.firstname);
+    }
+
+    const cancelFirstnameUpdate = () => {
+        setUpdateFirstName(false)
+        setProfile({
+            ...profile,
+            firstname: saveFirstname,
+        })
+    }
+
+    const confirmFirstnameUpdate = () => {
+        setUpdateFirstName(false)
+    }
+
     return (
         <>
             <div className={CLASSNAME}>
                 <form onSubmit={handleSubmit}>
+                    <div className={`${CLASSNAME}__info-container`}>
+                        <p className={`${CLASSNAME}__title`}>Firstname</p>
+                        <div className={`${CLASSNAME}__update-button`} onClick={handleFirstname}>Update</div>
+                        <div className={`${CLASSNAME}__update-button`} onClick={confirmFirstnameUpdate}>Confirm</div>
+                        <div className={`${CLASSNAME}__update-button`} onClick={cancelFirstnameUpdate}>Cancel</div>
+                    </div>
+                        {!updateFirstname ? (
+                            <p className={`${CLASSNAME}__info`}>{profile.firstname}</p>
+                        ) : (
+                            <>
+                                <input
+                                    className={`${CLASSNAME}__update-input`}
+                                    type="firstname"
+                                    name="firstname"
+                                    value={profile.firstname}
+                                    onChange={handleChange}
+                                    required
+                                    autoComplete="new-password"
+                                />
+                            </>
+                        )}
+                    <div className={`${CLASSNAME}__info-container`}>
+                        <p className={`${CLASSNAME}__title`}>Lastname</p>
+                    </div>
+                        <p className={`${CLASSNAME}__info`}>{user.lastname}</p>
+                    <div className={`${CLASSNAME}__info-container`}>
+                        <p className={`${CLASSNAME}__title`}>Email</p>
+                    </div> 
+                        <p className={`${CLASSNAME}__info`}>{user.email}</p>
                     <p className={`${CLASSNAME}__title`}>I am</p>
                     <div className={`${CLASSNAME}__radio-button`}>
                         <div>

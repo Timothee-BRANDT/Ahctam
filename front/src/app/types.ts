@@ -12,7 +12,8 @@ export interface User {
     gender: string;
     sexual_preferences: string;
     biography: string;
-    interests: string;
+    interests: number[];
+    photos: string[];
     created_at: string;
     firstTimeLogged: boolean;
 }
@@ -22,12 +23,4 @@ export enum State {
     loading = "loading",
     done = "done",
     redirect = "redirect",
-}
-
-export interface ProfileInformations {
-    gender: string;
-    sexualPreference: string;
-    biography: string;
-    interests: number[];
-    photos: (string | null)[];
 }

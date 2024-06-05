@@ -52,7 +52,7 @@ interface AuthProviderProps {
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User>(initialPig);
-  const router = useRouter();
+    const router = useRouter();
 
   useEffect(() => {
     const userFromStorage = getUserFromLocalStorage();
