@@ -80,7 +80,8 @@ const RegisterForm: React.FC = () => {
 					gender: '',
 					sexual_preferences: '',
 					biography: '',
-					interests: '',
+					interests: [],
+                    photos: [],
 					created_at: '',
 					firstTimeLogged: false,
 				}

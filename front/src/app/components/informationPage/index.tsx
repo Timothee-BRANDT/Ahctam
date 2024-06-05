@@ -10,7 +10,7 @@ import { useRouter } from 'next/navigation';
 const CLASSNAME = 'profile';
 
 const InformationPage: React.FC = () => {
-    const { user } = useAuth();
+    const { user, setUser } = useAuth();
      const router = useRouter();
     const [profile, setProfile] = useState<ProfileInformations>({
         firstname: user.firstname,
@@ -53,10 +53,18 @@ const InformationPage: React.FC = () => {
     useEffect(() => {
     }, [allInterests])
 
-    const handleChange = (e: any) => {
+    const handleProfileChange = (e: any) => {
         const { name, value } = e.target;
         setProfile({
             ...profile,
+            [name]: value,
+        });
+    };
+
+    const handleUserChange = (e: any) => {
+        const { name, value } = e.target;
+        setUser({
+            ...user,
             [name]: value,
         });
     };
@@ -80,9 +88,9 @@ const InformationPage: React.FC = () => {
     const handleSubmit = async (e: any) => {
         e.preventDefault();
         const payload = {
-            firstname: profile.firstname,
-            lastname: profile.lastname,
-            email: profile.email,
+            firstname: user.firstname,
+            lastname: user.lastname,
+            email: user.email,
             gender: profile.gender,
             sexualPreference: profile.sexualPreference,
             biography: profile.biography,
@@ -135,13 +143,13 @@ const InformationPage: React.FC = () => {
 
     const handleFirstname = () => {
         setUpdateFirstName(true);
-        setSaveFirstname(profile.firstname);
+        setSaveFirstname(user.firstname);
     }
 
     const cancelFirstnameUpdate = () => {
         setUpdateFirstName(false)
-        setProfile({
-            ...profile,
+        setUser({
+            ...user,
             firstname: saveFirstname,
         })
     }
@@ -150,26 +158,31 @@ const InformationPage: React.FC = () => {
         setUpdateFirstName(false)
     }
 
+
     return (
         <>
             <div className={CLASSNAME}>
                 <form onSubmit={handleSubmit}>
                     <div className={`${CLASSNAME}__info-container`}>
                         <p className={`${CLASSNAME}__title`}>Firstname</p>
-                        <div className={`${CLASSNAME}__update-button`} onClick={handleFirstname}>Update</div>
-                        <div className={`${CLASSNAME}__update-button`} onClick={confirmFirstnameUpdate}>Confirm</div>
-                        <div className={`${CLASSNAME}__update-button`} onClick={cancelFirstnameUpdate}>Cancel</div>
+                        <Button className={`${CLASSNAME}__update-button`}
+                         title="update" onClick={handleFirstname} />
+                          <Button className={`${CLASSNAME}__update-button`}
+                         title="confirm" onClick={confirmFirstnameUpdate} />
+                          <Button className={`${CLASSNAME}__update-button`}
+                         title="cancel" onClick={cancelFirstnameUpdate} />
                     </div>
                         {!updateFirstname ? (
-                            <p className={`${CLASSNAME}__info`}>{profile.firstname}</p>
+                            <p className={`${CLASSNAME}__info`}>{user.firstname}</p>
                         ) : (
                             <>
                                 <input
-                                    className={`${CLASSNAME}__update-input`}
+                                    className={updateFirstname ? `${CLASSNAME}__update-input` :
+                                     `${CLASSNAME}__update-input-done`}
                                     type="firstname"
                                     name="firstname"
-                                    value={profile.firstname}
-                                    onChange={handleChange}
+                                    value={user.firstname}
+                                    onChange={handleUserChange}
                                     required
                                     autoComplete="new-password"
                                 />
@@ -189,21 +202,21 @@ const InformationPage: React.FC = () => {
                             <input type="radio"
                                 id="gender-female" name="gender" value="female"
                                 checked={profile.gender === 'female'}
-                                onChange={handleChange}  />
+                                onChange={handleProfileChange}  />
                             <label htmlFor="gender-female">Female</label>
                         </div>
                         <div>
                             <input type="radio"
                                 id="gender-male" name="gender" value="male"
                                 checked={profile.gender === 'male'}
-                                onChange={handleChange}  />
+                                onChange={handleProfileChange}  />
                             <label htmlFor="gender-male">Male</label>
                         </div>
                         <div>
                             <input type="radio"
                                 id="gender-other" name="gender" value="other"
                                 checked={profile.gender === 'other'}
-                                onChange={handleChange}  />
+                                onChange={handleProfileChange}  />
                             <label htmlFor="gender-other">Other</label>
                         </div>
                     </div>
@@ -214,21 +227,21 @@ const InformationPage: React.FC = () => {
                             <input type="radio"
                                 id="sexual-female" name="sexualPreference" value="female"
                                 checked={profile.sexualPreference === 'female'}
-                                onChange={handleChange}  />
+                                onChange={handleProfileChange}  />
                             <label htmlFor="sexual-female">Female</label>
                         </div>
                         <div>
                             <input type="radio"
                                 id="sexual-male" name="sexualPreference" value="male"
                                 checked={profile.sexualPreference === 'male'}
-                                onChange={handleChange}  />
+                                onChange={handleProfileChange}  />
                             <label htmlFor="sexual-male">Male</label>
                         </div>
                         <div>
                             <input type="radio"
                                 id="sexual-both" name="sexualPreference" value="both"
                                 checked={profile.sexualPreference === 'both'}
-                                onChange={handleChange}  />
+                                onChange={handleProfileChange}  />
                             <label htmlFor="sexual-both">Both</label>
                         </div>
                     </div>
@@ -238,12 +251,13 @@ const InformationPage: React.FC = () => {
                         name="biography"
                         spellCheck="false" 
                         value={profile.biography}
-                        onChange={handleChange}
+                        onChange={handleProfileChange}
                     />
                     <p className={`${CLASSNAME}__title`}>My interests</p>
                     <div className={`${CLASSNAME}__interests-container`}>
                         {Object.entries(allInterests).map(([interest, isSelected]) => (
-                            <div className={!isSelected ? `${CLASSNAME}__interests` : `${CLASSNAME}__interests__selected`}
+                            <div className={!isSelected ? `${CLASSNAME}__interests` :
+                                `${CLASSNAME}__interests__selected`}
                                 onClick={() => { selectInterest(interest) }}
                                 key={interest}>
                                 {interest}
@@ -252,7 +266,7 @@ const InformationPage: React.FC = () => {
                     </div>
                     <p className={`${CLASSNAME}__title`}>Pictures</p>
                     <div className="photo-upload-container">
-                        {profile.photos.map((photo, index) => (
+                        {profile.photos.map((photo: string, index: number) => (
                             <div onClick={() => document.getElementsByName(`photoUpload${index}`)[0].click()}
                                 key={index} className="photo-placeholder"
                                 style={{ backgroundImage: photo ? `url(${photo})` : 'none' }}>
@@ -264,7 +278,8 @@ const InformationPage: React.FC = () => {
                                     style={{ display: 'none' }}
                                 />
                                 {!photo && (
-                                    <div className={`upload-text ${index === 0 ? `${CLASSNAME}__profile-picture-uploader` : ''}`}>
+                                    <div className={`upload-text ${index === 0 ?
+                                        `${CLASSNAME}__profile-picture-uploader` : ''}`}>
                                         {index === 0 ? 'Upload a profile picture' : 'Upload a picture'}
                                     </div>
                                 )}

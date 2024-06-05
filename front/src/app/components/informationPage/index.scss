@@ -33,15 +33,18 @@
     }
 
     &__update-button  {
-        align-items: center;
-        text-align: center;
-        display: flex;
-        justify-content: center;
-        color: white;
-        background-color: var(--primary-color);
-        border-radius: 6px;
-        width: 60px;
+        width: 70px;
         height: 24px;
+        font-size: 12px;
+        // align-items: center;
+        // text-align: center;
+        // display: flex;
+        // justify-content: center;
+        // color: white;
+        // background-color: var(--primary-color);
+        // border-radius: 6px;
+        // width: 70px;
+        // height: 24px;
     }
 
     &__update-input  {
@@ -49,6 +52,10 @@
         border: 1px solid var(--secondary-color);
         border-radius: 4px;
         color: var(--primary-color);
+    }
+
+    &__update-input-done  {
+        background-color:  transparent;
     }
 
     &__info {
