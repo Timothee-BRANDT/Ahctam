@@ -17,7 +17,7 @@ import { serverIP } from '@/app/constants';
 
 const CLASSNAME = 'login';
 
-const Login: React.FC = () => {
+const LoginPage: React.FC = () => {
     const router = useRouter();
     const { login, isJwtInCookie, user, setUser } = useAuth();
     const [username, setUsername] = useState('');
@@ -118,7 +118,7 @@ const Login: React.FC = () => {
     return (
         <>
             {isBadCredentials && <p className={`${CLASSNAME}__bad-credentials`}>Bad credentials</p>}
-            {!user.jwt_token &&
+            {!user.jwt_token && (
                 <div className={`${CLASSNAME}__form-container`}>
                     <form onSubmit={submit} className="form">
                         <div>
@@ -157,9 +157,10 @@ const Login: React.FC = () => {
                             </Link>
                         </div>
                     </form>
-                </div>}
+                </div>
+            )}
         </>
     );
 }
 
-export default Login;
+export default LoginPage;

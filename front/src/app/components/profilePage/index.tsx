@@ -5,12 +5,13 @@ import Button from '../core/button/button';
 import { serverIP } from '@/app/constants';
 import { useAuth } from '@/app/authContext';
 import { ProfileInformations } from '@/app/types';
-import { useRouter } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 
 const CLASSNAME = 'profile';
 
 const ProfilePage: React.FC = () => {
     const { user, setUser } = useAuth();
+    const pathname = usePathname();
      const router = useRouter();
     const [profile, setProfile] = useState<ProfileInformations>({
         firstname: user.firstname,
@@ -22,9 +23,6 @@ const ProfilePage: React.FC = () => {
         interests: [],
         photos: Array(6).fill(null)
     });
-
-    const [updateFirstname, setUpdateFirstName] = useState(false);
-    const [saveFirstname, setSaveFirstname] = useState('');
 
     const [allInterests, setAllInterests] = useState<Record<string, boolean>>({
         'Exploring tunnels and mazes': false,
@@ -51,7 +49,14 @@ const ProfilePage: React.FC = () => {
     });
 
     useEffect(() => {
+        if (pathname !== '/login' && !user.jwt_token)
+        redirectLogin();
+
     }, [allInterests])
+
+    const redirectLogin = () => {
+        router.push('/login');
+    }
 
     const handleProfileChange = (e: any) => {
         const { name, value } = e.target;
@@ -103,7 +108,6 @@ const ProfilePage: React.FC = () => {
         if (!payload.gender) {
             payload.gender = 'other';
         }
-        console.log('Payload -> ', payload);
         const response = await fetch(`http://${serverIP}:3333/auth/first-log`, {
             method: 'POST',
             credentials: 'include',
@@ -141,24 +145,6 @@ const ProfilePage: React.FC = () => {
         });
     };
 
-    const handleFirstname = () => {
-        setUpdateFirstName(true);
-        setSaveFirstname(user.firstname);
-    }
-
-    const cancelFirstnameUpdate = () => {
-        setUpdateFirstName(false)
-        setUser({
-            ...user,
-            firstname: saveFirstname,
-        })
-    }
-
-    const confirmFirstnameUpdate = () => {
-        setUpdateFirstName(false)
-    }
-
-
     return (
         <>
             <div className={CLASSNAME}>
@@ -166,8 +152,7 @@ const ProfilePage: React.FC = () => {
                     <div className={`${CLASSNAME}__info-container`}>
                         <p className={`${CLASSNAME}__title`}>Firstname</p>
                                 <input
-                                    className={updateFirstname ? `${CLASSNAME}__update-input` :
-                                     `${CLASSNAME}__update-input`}
+                                    className={`${CLASSNAME}__update-input`}
                                     type="firstname"
                                     name="firstname"
                                     value={user.firstname}
@@ -175,18 +160,11 @@ const ProfilePage: React.FC = () => {
                                     required
                                     autoComplete="new-password"
                                 />
-                        {/* <Button className={`${CLASSNAME}__update-button`}
-                         title="update" onClick={handleFirstname} />
-                          <Button className={`${CLASSNAME}__update-button`}
-                         title="confirm" onClick={confirmFirstnameUpdate} />
-                          <Button className={`${CLASSNAME}__update-button`}
-                         title="cancel" onClick={cancelFirstnameUpdate} /> */}
                     </div>
                     <div className={`${CLASSNAME}__info-container`}>
                         <p className={`${CLASSNAME}__title`}>Lastname</p>
                             <input
-                                className={updateFirstname ? `${CLASSNAME}__update-input` :
-                                    `${CLASSNAME}__update-input`}
+                                className={`${CLASSNAME}__update-input`}
                                 type="lastname"
                                 name="lastname"
                                 value={user.lastname}
@@ -198,8 +176,7 @@ const ProfilePage: React.FC = () => {
                     <div className={`${CLASSNAME}__info-container`}>
                         <p className={`${CLASSNAME}__title`}>Email</p>
                             <input
-                                className={updateFirstname ? `${CLASSNAME}__update-input` :
-                                    `${CLASSNAME}__update-input`}
+                                className={`${CLASSNAME}__update-input`}
                                 type="email"
                                 name="email"
                                 value={user.email}

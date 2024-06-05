@@ -1,17 +1,15 @@
 'use client'
 
 import React, { useState } from 'react';
-import './reset-password.scss'
-import Button from '../../core/button/button';
-import { useRouter } from 'next/navigation';
 import { useAuth } from '@/app/authContext';
+import Button from '../../core/button/button';
 import Link from 'next/link';
-import { serverIP } from '@/app/constants';
+
+import './reset-password.scss'
 
 const CLASSNAME = 'reset-password'
 
 const ResetPasswordPage: React.FC = () => {
-    const router = useRouter();
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
@@ -35,6 +33,9 @@ const ResetPasswordPage: React.FC = () => {
         // } catch (e) {
         //     console.log(e);
         // }
+        // if (response.ok) {
+            // setIsValidUsername(true);
+        // }
     }
     const submitPassword = async (event: any) => {
         event.preventDefault();
@@ -56,6 +57,9 @@ const ResetPasswordPage: React.FC = () => {
         // 	});
         // } catch (e) {
         //     console.log(e);
+        // }
+        // if (response.ok) {
+        //     setUpdateMessage(true);
         // }
     }
     return (
@@ -123,7 +127,8 @@ const ResetPasswordPage: React.FC = () => {
                             </div>
                         )}
                     </form>
-                </div>}
+                </div>
+            }
         </>
     );
 }

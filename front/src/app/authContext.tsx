@@ -18,7 +18,8 @@ const initialPig: User = {
 	gender: '',
 	sexual_preferences: '',
 	biography: '',
-	interests: '',
+	interests: [],
+    photos: [],
 	created_at: '',
   firstTimeLogged: true,
 };
