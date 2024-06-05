@@ -11,7 +11,6 @@
     margin: auto;
     padding: 20px;
     border-radius: 10px;
-    margin-top: 60px;
 
     &__main-title {
         color: var(--primary-color);
@@ -22,13 +21,14 @@
     &__title {
         color: var(--primary-color);
         font-weight: bold;
-        text-decoration: underline;
+        font-size: 20px;
+        padding: 12px;
     }
 
     &__info-container {
         display: flex;
         gap: 16px;
-        flex-direction: row;
+        flex-direction: column;
         margin-bottom: 4px;
     }
 
@@ -36,30 +36,14 @@
         width: 70px;
         height: 24px;
         font-size: 12px;
-        // align-items: center;
-        // text-align: center;
-        // display: flex;
-        // justify-content: center;
-        // color: white;
-        // background-color: var(--primary-color);
-        // border-radius: 6px;
-        // width: 70px;
-        // height: 24px;
     }
 
     &__update-input  {
-        background-color:  transparent;
+        background-color: transparent;
+        padding: 6px;
         border: 1px solid var(--secondary-color);
+        color: var(--primary-color);
         border-radius: 4px;
-        color: var(--primary-color);
-    }
-
-    &__update-input-done  {
-        background-color:  transparent;
-    }
-
-    &__info {
-        color: var(--primary-color);
     }
 
     &__radio-button {

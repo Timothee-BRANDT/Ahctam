@@ -1,55 +1,60 @@
 @import '../../../styles/variables';
 
 .login {
-  &__form-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 20px;
-  }
-  &__helper {
-    display: block;
-    width: 100%;
-    padding: 10px;
-    text-align: center;
-    text-decoration: none;
-    margin-top: 8px;
-  }
-  &__helper-question {
-    color: var(--secondary-color);
-  }
-  &__helper-link {
-    color: var(--primary-color);
-    font-weight: bold;
-    text-decoration: underline;
-  }
-  &__bad-credentials {
-    text-align: center;
-    font-weight: bold;
-    color: var(--important-message);
-  }
+    &__form-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin-top: 20px;
+    }
+
+    &__helper {
+        display: block;
+        width: 100%;
+        padding: 10px;
+        text-align: center;
+        text-decoration: none;
+        margin-top: 8px;
+    }
+
+    &__helper-question {
+        color: var(--secondary-color);
+    }
+
+    &__helper-link {
+        color: var(--primary-color);
+        font-weight: bold;
+        text-decoration: underline;
+    }
+
+    &__bad-credentials {
+        text-align: center;
+        font-weight: bold;
+        color: var(--important-message);
+    }
 }
 
 .form {
-  width: 300px;
-  padding: 20px;
+    width: 300px;
+    padding: 20px;
 }
-  
+
 .form input {
-  width: 100%;
-  margin-bottom: 15px;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  color: var(--primary-color);
-  outline: none;
+    width: 100%;
+    background-color: transparent;
+    margin-bottom: 15px;
+    padding: 6px;
+    border: 1px solid var(--secondary-color);
+    border-radius: 4px;
+    color: var(--primary-color);
+    outline: none;
 }
 
 .form label {
-  color: var(--secondary-color);
-  font-weight: bold;
+    color: var(--primary-color);
+    font-weight: bold;
 }
 
 .form button {
-  width: 100%;
+    width: 100%;
 }

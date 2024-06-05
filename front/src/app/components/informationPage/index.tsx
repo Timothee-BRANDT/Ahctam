@@ -165,20 +165,9 @@ const InformationPage: React.FC = () => {
                 <form onSubmit={handleSubmit}>
                     <div className={`${CLASSNAME}__info-container`}>
                         <p className={`${CLASSNAME}__title`}>Firstname</p>
-                        <Button className={`${CLASSNAME}__update-button`}
-                         title="update" onClick={handleFirstname} />
-                          <Button className={`${CLASSNAME}__update-button`}
-                         title="confirm" onClick={confirmFirstnameUpdate} />
-                          <Button className={`${CLASSNAME}__update-button`}
-                         title="cancel" onClick={cancelFirstnameUpdate} />
-                    </div>
-                        {!updateFirstname ? (
-                            <p className={`${CLASSNAME}__info`}>{user.firstname}</p>
-                        ) : (
-                            <>
                                 <input
                                     className={updateFirstname ? `${CLASSNAME}__update-input` :
-                                     `${CLASSNAME}__update-input-done`}
+                                     `${CLASSNAME}__update-input`}
                                     type="firstname"
                                     name="firstname"
                                     value={user.firstname}
@@ -186,16 +175,39 @@ const InformationPage: React.FC = () => {
                                     required
                                     autoComplete="new-password"
                                 />
-                            </>
-                        )}
+                        {/* <Button className={`${CLASSNAME}__update-button`}
+                         title="update" onClick={handleFirstname} />
+                          <Button className={`${CLASSNAME}__update-button`}
+                         title="confirm" onClick={confirmFirstnameUpdate} />
+                          <Button className={`${CLASSNAME}__update-button`}
+                         title="cancel" onClick={cancelFirstnameUpdate} /> */}
+                    </div>
                     <div className={`${CLASSNAME}__info-container`}>
                         <p className={`${CLASSNAME}__title`}>Lastname</p>
+                            <input
+                                className={updateFirstname ? `${CLASSNAME}__update-input` :
+                                    `${CLASSNAME}__update-input`}
+                                type="lastname"
+                                name="lastname"
+                                value={user.lastname}
+                                onChange={handleUserChange}
+                                required
+                                autoComplete="new-password"
+                            />
                     </div>
-                        <p className={`${CLASSNAME}__info`}>{user.lastname}</p>
                     <div className={`${CLASSNAME}__info-container`}>
                         <p className={`${CLASSNAME}__title`}>Email</p>
+                            <input
+                                className={updateFirstname ? `${CLASSNAME}__update-input` :
+                                    `${CLASSNAME}__update-input`}
+                                type="email"
+                                name="email"
+                                value={user.email}
+                                onChange={handleUserChange}
+                                required
+                                autoComplete="new-password"
+                            />
                     </div> 
-                        <p className={`${CLASSNAME}__info`}>{user.email}</p>
                     <p className={`${CLASSNAME}__title`}>I am</p>
                     <div className={`${CLASSNAME}__radio-button`}>
                         <div>
@@ -264,7 +276,7 @@ const InformationPage: React.FC = () => {
                             </div>
                         ))}
                     </div>
-                    <p className={`${CLASSNAME}__title`}>Pictures</p>
+                    <p className={`${CLASSNAME}__title`}>My Pictures</p>
                     <div className="photo-upload-container">
                         {profile.photos.map((photo: string, index: number) => (
                             <div onClick={() => document.getElementsByName(`photoUpload${index}`)[0].click()}

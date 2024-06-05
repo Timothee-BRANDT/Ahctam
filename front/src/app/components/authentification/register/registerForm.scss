@@ -13,17 +13,18 @@
 }
   
 .form input {
-  width: 100%;
-  margin-bottom: 15px;
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  color: var(--primary-color);
-  outline: none;
+    width: 100%;
+    background-color: transparent;
+    margin-bottom: 15px;
+    padding: 6px;
+    border: 1px solid var(--secondary-color);
+    border-radius: 4px;
+    color: var(--primary-color);
+    outline: none;
 }
 
 .form label {
-  color: var(--secondary-color);
+  color: var(--primary-color);
   font-weight: bold;
 }
 
