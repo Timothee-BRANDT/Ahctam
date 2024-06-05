@@ -23,3 +23,11 @@ export enum State {
     done = "done",
     redirect = "redirect",
 }
+
+export interface ProfileInformations {
+    gender: string;
+    sexualPreference: string;
+    biography: string;
+    interests: number[];
+    photos: (string | null)[];
+}
