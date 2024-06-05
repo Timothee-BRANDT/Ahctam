@@ -1,17 +1,19 @@
+'use client'
 import React from 'react';
-import Header from "../components/header/header";
-import Footer from "../components/footer/footer"
-import ProfilePage from '../components/profilePage';
+import Header from '../components/header/header';
+import Footer from '../components/footer/footer';
 import RootLayout from '../layout';
+import ProfilePage from '../components/profilePage';
 
-export default function Profile() {
-    return (
-        <>
-            <Header />
-            <ProfilePage />
-            <Footer />
-        </>
-      );
-}
+export default function ProfileComponent() {
 
-Profile.layout = RootLayout;
+  return (
+    <>
+      <Header />
+      <ProfilePage />
+      <Footer />
+    </>
+  );
+};
+
+ProfileComponent.layout = RootLayout;

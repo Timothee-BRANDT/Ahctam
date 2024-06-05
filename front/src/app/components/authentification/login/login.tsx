@@ -13,7 +13,6 @@ import { serverIP } from '@/app/constants';
 
 // PERSONNAL DOC, I'M USING PASSWORD_HASH TO HANDLE ALL THE DIFFERENTS USE CASES
 // 1 => Log for the first time, redirect to information page
-// 2 => Log but not the first time, just setJwt and user
 // 3 => Bad credentials
 
 const CLASSNAME = 'login';
@@ -97,31 +96,6 @@ const Login: React.FC = () => {
                 gender: '',
                 sexual_preferences: '',
                 biography: '',
-                interests: [],
-                photos: [],
-                created_at: '1234567876543',
-                firstTimeLogged: true,
-            }
-            router.push('/informations');
-            setUser(myPig);
-            login(myPig);
-        }
-
-        // 2) logged success from API, but not the first time
-        if (password === '2') {
-            const myPig = {
-                id: 12,
-                username: 'JuJu',
-                firstname: 'Julie',
-                lastname: 'Juliette',
-                email: 'Juliette@gmail.com',
-                password: password,
-                is_active: true,
-                registration_token: 'qwertyuiop',
-                jwt_token: '123456789asdsfgbvncxvbn',
-                gender: 'female',
-                sexual_preferences: 'male',
-                biography: 'osef',
                 interests: [],
                 photos: [],
                 created_at: '1234567876543',
