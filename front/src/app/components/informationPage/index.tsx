@@ -70,10 +70,21 @@ const InformationPage: React.FC = () => {
     };
 
     const handleSubmit = async (e: any) => {
-        console.log(JSON.stringify({
-            ...profile,
-        }))
         e.preventDefault();
+        const payload = {
+            gender: profile.gender,
+            sexualPreference: profile.sexualPreference,
+            biography: profile.biography,
+            interests: profile.interests,
+            photos: profile.photos,
+        }
+        if (!payload.sexualPreference) {
+            payload.sexualPreference = 'both';
+        }
+        if (!payload.gender) {
+            payload.gender = 'other';
+        }
+        console.log(payload);
         // send the data to the backend
         // redirect the user to /
         const response = await fetch(`http://${serverIP}:3333/auth/first-log`, {
@@ -83,7 +94,7 @@ const InformationPage: React.FC = () => {
                 'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-                ...profile,
+                payload,
                 id: user.id,
             })
         })
@@ -120,21 +131,21 @@ const InformationPage: React.FC = () => {
                             <input type="radio"
                                 id="gender-female" name="gender" value="female"
                                 checked={profile.gender === 'female'}
-                                onChange={handleChange} required />
+                                onChange={handleChange}  />
                             <label htmlFor="gender-female">Female</label>
                         </div>
                         <div>
                             <input type="radio"
                                 id="gender-male" name="gender" value="male"
                                 checked={profile.gender === 'male'}
-                                onChange={handleChange} required />
+                                onChange={handleChange}  />
                             <label htmlFor="gender-male">Male</label>
                         </div>
                         <div>
                             <input type="radio"
                                 id="gender-other" name="gender" value="other"
                                 checked={profile.gender === 'other'}
-                                onChange={handleChange} required />
+                                onChange={handleChange}  />
                             <label htmlFor="gender-other">Other</label>
                         </div>
                     </div>
@@ -145,21 +156,21 @@ const InformationPage: React.FC = () => {
                             <input type="radio"
                                 id="sexual-female" name="sexualPreference" value="female"
                                 checked={profile.sexualPreference === 'female'}
-                                onChange={handleChange} required />
+                                onChange={handleChange}  />
                             <label htmlFor="sexual-female">Female</label>
                         </div>
                         <div>
                             <input type="radio"
                                 id="sexual-male" name="sexualPreference" value="male"
                                 checked={profile.sexualPreference === 'male'}
-                                onChange={handleChange} required />
+                                onChange={handleChange}  />
                             <label htmlFor="sexual-male">Male</label>
                         </div>
                         <div>
                             <input type="radio"
                                 id="sexual-both" name="sexualPreference" value="both"
                                 checked={profile.sexualPreference === 'both'}
-                                onChange={handleChange} required />
+                                onChange={handleChange}  />
                             <label htmlFor="sexual-both">Both</label>
                         </div>
                     </div>
