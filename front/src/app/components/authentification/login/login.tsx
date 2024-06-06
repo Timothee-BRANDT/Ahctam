@@ -7,6 +7,7 @@ import { useAuth } from '@/app/authContext';
 import { State } from '@/app/types';
 import Button from '@/app/components/core/button/button';
 import { useRouter } from 'next/navigation';
+import  data  from '../../../api.json';
 
 import './login.scss'
 import { serverIP } from '@/app/constants';
@@ -30,26 +31,8 @@ const LoginPage: React.FC = () => {
             // CALL ENDPOINT TO GET THE USER INFORMATIONS
             // GET METHOD WITH THE JWT IN HEADER
             // FOR NOW myPIG IS A MOCK :D
-            const myPig = {
-                id: 12,
-                username: 'Julie',
-                firstname: 'Brandt',
-                lastname: 'Juju',
-                email: 'Juliette@gmail.com',
-                password: password,
-                is_active: true,
-                registration_token: 'qwertyuiop',
-                jwt_token: '123456789asdsfgbvncxvbn',
-                gender: 'female',
-                sexual_preferences: 'male',
-                biography: 'osef',
-                interests: [],
-                photos: [],
-                created_at: '1234567876543',
-                firstTimeLogged: false,
-            }
-            setUser(myPig);
-            login(myPig);
+            setUser(data.user);
+            login(data.user);
         }
         setStatus(State.done)
     }, [user]);
@@ -82,28 +65,9 @@ const LoginPage: React.FC = () => {
         // if the user is logged for the first time;
         if (password === '1') {
             setStatus(State.redirect)
-            const myPig = {
-                id: 12,
-                username: 'JuJu',
-                firstname: 'Julie',
-                lastname: 'Juliette',
-                email: 'Juliette@gmail.com',
-                password: password,
-                confirmPassword: password,
-                is_active: true,
-                registration_token: 'qwertyuiop',
-                jwt_token: '123456789asdsfgbvncxvbn',
-                gender: '',
-                sexual_preferences: '',
-                biography: '',
-                interests: [],
-                photos: [],
-                created_at: '1234567876543',
-                firstTimeLogged: true,
-            }
             router.push('/profile');
-            setUser(myPig);
-            login(myPig);
+            setUser(data.user);
+            login(data.user);
         }
 
         // 3) bad credentials 

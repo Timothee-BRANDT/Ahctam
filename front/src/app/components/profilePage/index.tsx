@@ -25,27 +25,27 @@ const ProfilePage: React.FC = () => {
     });
 
     const [allInterests, setAllInterests] = useState<Record<string, boolean>>({
-        'Exploring tunnels and mazes': false,
-        'Running through obstacle courses': false,
-        'Group naps': false,
-        'Sharing fresh vegetable meals': false,
-        'Chewing on wooden toys': false,
-        'Rolling in exercise balls': false,
-        'Sand and dust baths': false,
-        'Hide and seek in tunnels': false,
-        'Collecting hay and leaves': false,
-        'Making cozy nests': false,
-        'Pelage beauty contests': false,
-        'Mutual grooming sessions': false,
-        'Nibbling on carrots together': false,
-        'Sharing cuddles and pets': false,
-        'Outdoor exploration': false,
-        'Enjoying group company': false,
-        'Listening to relaxing music': false,
-        'Participating in friendly races': false,
-        'Discovering new vegetable flavors': false,
-        'Experimenting with new hiding spots': false,
-        'Carrots are the best': false,
+        'Tunnels': false,
+        'Obstacle': false,
+        'Naps': false,
+        'Vegetable': false,
+        'Chewing': false,
+        'Rolling': false,
+        'Baths': false,
+        'Hide': false,
+        'Collecting': false,
+        'Nests': false,
+        'Contests': false,
+        'Grooming': false,
+        'Nibbling': false,
+        'Cuddles': false,
+        'Outdoor': false,
+        'Company': false,
+        'Music': false,
+        'Races': false,
+        'Flavors': false,
+        'Hiding': false,
+        'Carrots': false,
     });
 
     useEffect(() => {
@@ -108,6 +108,7 @@ const ProfilePage: React.FC = () => {
         if (!payload.gender) {
             payload.gender = 'other';
         }
+        console.log(payload)
         const response = await fetch(`http://${serverIP}:3333/auth/first-log`, {
             method: 'POST',
             credentials: 'include',
@@ -126,11 +127,11 @@ const ProfilePage: React.FC = () => {
 
     const getInterestsIndices = (record: Record<string, boolean>) => {
         return Object.entries(record)
-            .reduce((acc: number[], [key, value], index) => {
+            .reduce((acc: string[], [key, value], index) => {
                 if (value) {
-                    acc.push(index);
+                    acc.push(key);
                 }
-                return acc as number[];
+                return acc as string[];
             }, []);
     };
 

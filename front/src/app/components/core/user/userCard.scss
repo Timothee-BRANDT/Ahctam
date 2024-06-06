@@ -1,0 +1,72 @@
+.card {
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    padding: 6px;
+    max-width: 250px;
+    height: 500px;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    margin: 10px auto;
+    background-color: #fff;
+
+    &__photo {
+        border-radius: 8px;
+        height: 250px;
+        object-fit: cover;
+    }
+
+    &__informations {
+        background-color: white;
+        border-radius: 16px;
+        position: relative;
+        bottom: 20px;
+        padding: 8px;
+    }
+
+    &__informations-username {
+        font-size: 18px;
+        font-weight: bold;
+    }
+
+    &__informations-location {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 4px;
+    }
+
+    &__informations-location-icon {
+        color: #5d5d5d;
+        width: 16px;
+        height: 16px;
+    }
+
+    &__informations-location-text {
+        font-size: 14px;
+    }
+
+
+    &__informations-bio {
+        color: #5d5d5d;
+        font-size: 12px;
+    }
+
+    &__interests {
+        display: flex;
+        flex-direction: row;
+        gap: 4px;
+        margin-top: 10px;
+    }
+
+    &__tag {
+        color: var(--primary-color);
+        padding: 4px;
+        display: flex;
+        justify-content: center;
+        width: 80px;
+        height: 30px;
+        border: 1px solid var(--secondary-color);
+        border-radius: 4px;
+        text-align: center;
+        align-items: center;
+    }
+}
