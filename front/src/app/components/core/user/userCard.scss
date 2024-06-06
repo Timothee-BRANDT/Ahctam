@@ -3,7 +3,6 @@
     border-radius: 10px;
     padding: 6px;
     max-width: 250px;
-    height: 500px;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
     margin: 10px auto;
     background-color: #fff;
@@ -16,9 +15,6 @@
 
     &__informations {
         background-color: white;
-        border-radius: 16px;
-        position: relative;
-        bottom: 20px;
         padding: 8px;
     }
 
@@ -28,6 +24,8 @@
     }
 
     &__informations-location {
+        margin-left: -2px;
+        margin-bottom: 6px;
         display: flex;
         flex-direction: row;
         align-items: center;
@@ -47,23 +45,33 @@
 
     &__informations-bio {
         color: #5d5d5d;
+        text-align: left;
+        display: -webkit-box;
+        -webkit-line-clamp: 4;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        line-height: 1.5em;
+        max-height: 6em;
         font-size: 12px;
     }
 
     &__interests {
-        display: flex;
-        flex-direction: row;
-        gap: 4px;
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
         margin-top: 10px;
+        gap: 4px;
     }
 
     &__tag {
         color: var(--primary-color);
+        font-size: 12px;
         padding: 4px;
         display: flex;
         justify-content: center;
-        width: 80px;
+        min-width: 40px;
         height: 30px;
+        // width: 80px;
         border: 1px solid var(--secondary-color);
         border-radius: 4px;
         text-align: center;

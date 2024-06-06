@@ -6,6 +6,7 @@ import UserCard from '../core/user/userCard';
 import data from '../../api.json';
 
 import './homePage.scss';
+import { Input } from '@/components/ui/input';
 
 const mainPage: React.FC = () => {
     const router = useRouter();
@@ -23,7 +24,9 @@ const mainPage: React.FC = () => {
     }
 
     return (
-        <UserCard user={data.user} />
+        <>
+            <UserCard user={data.user} />
+        </>
     );
 }
 
