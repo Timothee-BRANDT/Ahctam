@@ -14,7 +14,7 @@ const Header: React.FC = () => {
         router.push('/');
     }
     const redirectProfile = () => {
-        router.push('/profile');
+        router.push('/profile/update');
     }
     const redirectLogin = () => {
         router.push('/login');

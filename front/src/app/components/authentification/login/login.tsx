@@ -65,7 +65,7 @@ const LoginPage: React.FC = () => {
         // if the user is logged for the first time;
         if (password === '1') {
             setStatus(State.redirect)
-            router.push('/profile');
+            router.push('/profile/update');
             setUser(data.user);
             login(data.user);
         }
