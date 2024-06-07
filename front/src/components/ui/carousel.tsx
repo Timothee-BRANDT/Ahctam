@@ -8,6 +8,10 @@ import { ArrowLeft, ArrowRight } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
+import { User } from "@/app/types"
+import './carousel.scss';
+
+const CLASSNAME = 'card';
 
 type CarouselApi = UseEmblaCarouselType[1]
 type UseCarouselParameters = Parameters<typeof useEmblaCarousel>
@@ -150,6 +154,50 @@ const Carousel = React.forwardRef<
 )
 Carousel.displayName = "Carousel"
 
+interface UserCardProps {
+    user: User,
+    className?: string,
+    liked: () => void;
+    disliked: () => void;
+    redirect: () => void;
+}
+
+
+const UserCard: React.FC<UserCardProps> = ({ user, liked, disliked, redirect }) => {
+
+  const { scrollNext } = useCarousel();
+
+    return (
+        <div className={CLASSNAME}>
+            <img  onClick={redirect} src={user?.photos[0]} alt={`${user.username}'s profile`}
+                className={`${CLASSNAME}__photo`} />
+            <div className={`${CLASSNAME}__informations`}>
+                <div className={`${CLASSNAME}__redirect`} onClick={redirect}>
+                    <p className={`${CLASSNAME}__informations-username`}>{user.username}, {user.age}</p>
+                    <div className={`${CLASSNAME}__informations-location`}>
+                        <img className={`${CLASSNAME}__informations-location-icon`} src='/alternate-map-marker.svg' alt='' />
+                        <p className={`${CLASSNAME}__informations-location-text`}>{user.location}</p>
+                    </div>
+                    <p className={`${CLASSNAME}__informations-bio`}>{user.biography}</p>
+                </div>
+                <div className={`${CLASSNAME}__interests`}>
+                    {user.interests.map((interest, index) => (
+                        <span key={index} className={`${CLASSNAME}__tag`}>{interest}</span>
+                    ))}
+                </div>
+                    <div className={`${CLASSNAME}__swipe`}>
+                        <div onClick={scrollNext}>
+                            <img className={`${CLASSNAME}__swipe-heart`} src='/like-dark-border.png' alt='' />
+                        </div>
+                        <div onClick={scrollNext}>
+                            <img className={`${CLASSNAME}__swipe-cross`} src='/cross.png' alt='' />
+                        </div>
+                    </div>
+            </div>
+        </div>
+    );
+}
+
 const CarouselContent = React.forwardRef<
   HTMLDivElement,
   React.HTMLAttributes<HTMLDivElement>
@@ -259,4 +307,5 @@ export {
   CarouselItem,
   CarouselPrevious,
   CarouselNext,
+  UserCard
 }

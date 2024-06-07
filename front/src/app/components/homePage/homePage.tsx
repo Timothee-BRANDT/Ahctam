@@ -2,7 +2,7 @@
 
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/app/authContext';
-import UserCard from '../core/user/userCard';
+// import UserCard from '../core/user/userCard';
 import data from '../../api.json';
 
 import './homePage.scss';
@@ -14,6 +14,7 @@ import {
     CarouselItem,
     CarouselNext,
     CarouselPrevious,
+    UserCard,
 } from "@/components/ui/carousel"
 
 const mainPage: React.FC = () => {
@@ -59,8 +60,6 @@ const mainPage: React.FC = () => {
                         </CarouselItem>
                     ))}
                 </CarouselContent>
-                <CarouselPrevious />
-                <CarouselNext />
             </Carousel>
         </div>
     );

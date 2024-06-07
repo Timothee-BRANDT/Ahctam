@@ -15,8 +15,8 @@ interface UserCardProps {
 
 const CLASSNAME = 'card';
 
-const UserCard: React.FC<UserCardProps> = ({ user, className, liked, disliked, redirect }) => {
-    
+const UserCard: React.FC<UserCardProps> = ({ user, liked, disliked, redirect }) => {
+
     return (
         <div className={CLASSNAME}>
             <img  onClick={redirect} src={user?.photos[0]} alt={`${user.username}'s profile`}
