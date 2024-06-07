@@ -16,8 +16,8 @@
     "jwt_token": "123456789asdsfgbvncxvbn",
     "gender": "female",
     "sexual_preferences": "male",
-    "biography": "Im a very cool Ginea Pig, i like leaf and grooming. Im a very cool Ginea Pig, i like leaf and grooming. Im a very cool Ginea Pig, i like leaf and grooming.Im a very cool Ginea Pig, i like leaf and grooming. Im a very cool Ginea Pig, i like leaf and grooming. Im a very cool Ginea Pig, i like leaf and grooming.",
-    "interests": ["Collecting", "Grooming", "Hiding"],
+    "biography": "Im a very cool Ginea Pig, i like leaf and grooming. Im a very cool Ginea Pig, i like leaf and grooming. Im a very cool Ginea Pig, i like leaf and grooming.Im a very cool Ginea Pig, i like leaf and grooming. Im a very cool Ginea Pig, i like leaf and grooming. Im a very cool Ginea Pig, i like leaf and grooming.  Im a very cool Ginea Pig, i like leaf and grooming. Im a very cool Ginea Pig, i like leaf and grooming.Im a very cool Ginea Pig, i like leaf and grooming. Im a very cool Ginea Pig, i like leaf and grooming. Im a very cool Ginea Pig, i like leaf and grooming.",
+    "interests": ["Collecting", "Grooming", "Hiding", "Collecting", "Grooming", "Hiding"],
     "photos": [
       "/pp1.png", "/pp2.png", "/pp3.png", "/pp4.png", "/pp5.png", "/pp6.png"
     ],

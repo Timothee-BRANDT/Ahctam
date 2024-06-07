@@ -16,12 +16,13 @@ import {
 
 import './index.scss';
 import { serverIP } from '@/app/constants';
+import StarRating from '../core/rate/rate';
 
 interface ProfileViewProps {
     id: string | string[];
 }
 
-const CLASSNAME = 'carousel';
+const CLASSNAME = 'profile';
 
 const ProfileView: React.FC<ProfileViewProps> = (id) => {
 
@@ -53,20 +54,22 @@ const ProfileView: React.FC<ProfileViewProps> = (id) => {
 
     return (
         <>
-            <div className="carousel">
+            <div className={CLASSNAME}>
                 <Carousel className="w-full max-w-xs">
                     <CarouselContent>
-                        {user.photos.map((photo, index) => (
-                            <CarouselItem key={index}>
-                                <div className="p-1">
-                                    <Card>
-                                        <CardContent className="flex aspect-square items-center justify-center p-6 custo">
-                                            <img className={`${CLASSNAME}__image`} src={photo} alt='user-photo' />
-                                        </CardContent>
-                                    </Card>
-                                </div>
-                            </CarouselItem>
-                        ))}
+                        {user.photos.map((photo, index) => {
+                            return (
+                                <CarouselItem key={index}>
+                                    <div className="p-1">
+                                        <Card>
+                                            <CardContent className="flex aspect-square items-center justify-center p-6 custo">
+                                                <img className={`${CLASSNAME}__image`} src={photo} alt='user-photo' />
+                                            </CardContent>
+                                        </Card>
+                                    </div>
+                                </CarouselItem>
+                            )
+                        })}
                     </CarouselContent>
                     <Pagination>
                         <PaginationContent>
@@ -79,6 +82,20 @@ const ProfileView: React.FC<ProfileViewProps> = (id) => {
                         </PaginationContent>
                     </Pagination>
                 </Carousel>
+            </div>
+            <div className={`${CLASSNAME}__informations`}>
+                    <p className={`${CLASSNAME}__informations-username`}>{user.username}, {user.age}</p>
+                    <div className={`${CLASSNAME}__informations-location`}>
+                        <img className={`${CLASSNAME}__informations-location-icon`} src='/alternate-map-marker.svg' alt='' />
+                        <p className={`${CLASSNAME}__informations-location-text`}>{user.location}</p>
+                    </div>
+                    <StarRating rate={user.fame_rating} />
+                    <p className={`${CLASSNAME}__informations-bio`}>{user.biography}</p>
+                <div className={`${CLASSNAME}__interests`}>
+                    {user.interests.map((interest, index) => (
+                        <span key={index} className={`${CLASSNAME}__tag`}>{interest}</span>
+                    ))}
+                </div>
             </div>
         </>
     );

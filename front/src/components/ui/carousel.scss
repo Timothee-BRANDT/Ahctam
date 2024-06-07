@@ -39,10 +39,6 @@
         height: 16px;
     }
 
-    &__redirect {
-        cursor: pointer;
-    }
-
     &__informations-location-text {
         font-size: 14px;
     }
@@ -60,6 +56,11 @@
         max-height: 6em;
         font-size: 12px;
     }
+
+    &__redirect {
+        cursor: pointer;
+    }
+
 
     &__interests {
         display: grid;
