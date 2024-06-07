@@ -10,7 +10,7 @@
     }
 
     &__informations {
-        display:flex;
+        display: flex;
         flex-direction: column;
         justify-content: center;
         margin-left: auto;
@@ -51,6 +51,7 @@
         text-align: left;
         line-height: 1.5em;
         font-size: 12px;
+        margin-top: 4px;
     }
 
     &__interests {
@@ -73,4 +74,17 @@
         text-align: center;
         align-items: center;
     }
+
+    &__swipe-heart {
+        cursor: pointer;
+        width: 32px;
+        height: 32px;
+    }
+
+    &__swipe-cross {
+        cursor: pointer;
+        width: 30px;
+        height: 30px;
+    }
+
 }

@@ -26,6 +26,11 @@ const CLASSNAME = 'profile';
 
 const ProfileView: React.FC<ProfileViewProps> = (id) => {
 
+    // need to init this state whith the reponse of the endpoint i asked to Edouard
+    // something like http://${serverIP}:5000/isLiked
+    // that just return true or false, if i've liked him or not
+    const [liked, setLiked] = useState(false);
+
     // const getUser = async () => {
     //     try {
     //         const response = await fetch(`http://${serverIP}:5000/getUser/${id}`, {
@@ -51,6 +56,10 @@ const ProfileView: React.FC<ProfileViewProps> = (id) => {
     // useEffect(() => {
     //     getUser();
     // })
+
+    const handleLike = () => {
+        setLiked((prev) => !prev);
+    }
 
     return (
         <>
@@ -84,13 +93,21 @@ const ProfileView: React.FC<ProfileViewProps> = (id) => {
                 </Carousel>
             </div>
             <div className={`${CLASSNAME}__informations`}>
-                    <p className={`${CLASSNAME}__informations-username`}>{user.username}, {user.age}</p>
-                    <div className={`${CLASSNAME}__informations-location`}>
-                        <img className={`${CLASSNAME}__informations-location-icon`} src='/alternate-map-marker.svg' alt='' />
-                        <p className={`${CLASSNAME}__informations-location-text`}>{user.location}</p>
-                    </div>
-                    <StarRating rate={user.fame_rating} />
-                    <p className={`${CLASSNAME}__informations-bio`}>{user.biography}</p>
+                <div onClick={handleLike} className='under-image'>
+                    {liked === true ? (
+                        <img className={`${CLASSNAME}__swipe-heart`} src='/like-dark-border.png' alt='' />
+
+                    ) : (
+                        <img className={`${CLASSNAME}__swipe-heart`} src='/like-white.png' alt='' />
+                    )}
+                </div>
+                <p className={`${CLASSNAME}__informations-username`}>{user.username}, {user.age}</p>
+                <div className={`${CLASSNAME}__informations-location`}>
+                    <img className={`${CLASSNAME}__informations-location-icon`} src='/alternate-map-marker.svg' alt='' />
+                    <p className={`${CLASSNAME}__informations-location-text`}>{user.location}</p>
+                </div>
+                <StarRating rate={user.fame_rating} />
+                <p className={`${CLASSNAME}__informations-bio`}>{user.biography}</p>
                 <div className={`${CLASSNAME}__interests`}>
                     {user.interests.map((interest, index) => (
                         <span key={index} className={`${CLASSNAME}__tag`}>{interest}</span>
