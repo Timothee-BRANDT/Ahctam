@@ -48,11 +48,11 @@ const mainPage: React.FC = () => {
         <div className="carousel">
             <Carousel className="w-full max-w-xs">
                 <CarouselContent>
-                    {Array.from({ length: 3 }).map((_, index) => (
+                    {Array.from({ length: 5 }).map((_, index) => (
                         <CarouselItem key={index}>
                             <div className="p-1">
                                 <Card>
-                                    <CardContent className="flex aspect-square items-center justify-center p-6">
+                                    <CardContent className="flex aspect-square items-center justify-center p-6 custo">
                                         <UserCard user={data.userArray[index]} liked={liked} disliked={disliked} redirect={() => redirect(data.userArray[index].id)} />
                                     </CardContent>
                                 </Card>

@@ -41,7 +41,7 @@
     &__redirect {
         cursor: pointer;
     }
-    
+
     &__informations-location-text {
         font-size: 14px;
     }
@@ -91,11 +91,13 @@
     }
 
     &__swipe-heart {
+        cursor: pointer;
         width: 32px;
         height: 32px;
     }
 
     &__swipe-cross {
+        cursor: pointer;
         width: 30px;
         height: 30px;
     }
