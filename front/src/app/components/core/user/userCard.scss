@@ -1,10 +1,9 @@
 .card {
-    border: 1px solid #ccc;
     border-radius: 10px;
     padding: 6px;
     max-width: 250px;
-    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
-    margin: 10px auto;
+    padding: -20px;
+    margin-bottom: 20px;
     background-color: #fff;
 
     &__photo {
@@ -42,7 +41,7 @@
     &__redirect {
         cursor: pointer;
     }
-
+    
     &__informations-location-text {
         font-size: 14px;
     }
@@ -85,9 +84,10 @@
     &__swipe {
         display: flex;
         justify-content: space-between;
-        margin-top: 8px;
+        margin-top: 16px;
         margin-left: 30px;
         margin-right: 30px;
+        margin-bottom: -30px;
     }
 
     &__swipe-heart {
