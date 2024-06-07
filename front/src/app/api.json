@@ -19,7 +19,7 @@
     "biography": "Im a very cool Ginea Pig, i like leaf and grooming. Im a very cool Ginea Pig, i like leaf and grooming. Im a very cool Ginea Pig, i like leaf and grooming.Im a very cool Ginea Pig, i like leaf and grooming. Im a very cool Ginea Pig, i like leaf and grooming. Im a very cool Ginea Pig, i like leaf and grooming.",
     "interests": ["Collecting", "Grooming", "Hiding"],
     "photos": [
-      "https://media.istockphoto.com/id/1094669620/fr/photo/un-doux-petit-cochon-gras.jpg?s=612x612&w=0&k=20&c=tgI9kdBZsjyCSKjulIWfb-40u2rAUsaZ-bV58a_NY6U="
+      "/pp1.png", "/pp2.png", "/pp3.png", "/pp4.png", "/pp5.png", "/pp6.png"
     ],
     "created_at": "1234567876543",
     "firstTimeLogged": false
@@ -42,7 +42,7 @@
       "jwt_token": "jwtAlice123",
       "gender": "female",
       "sexual_preferences": "male",
-      "biography": "Adventurer and explorer. Loves discovering new places and meeting new people.",
+      "biography": "Adventurer and explorer. Loves discovering new places and meeting new people. Construction worker by day, musician by night.",
       "interests": ["Traveling", "Rolling", "Reading"],
       "photos": [
         "https://media.istockphoto.com/id/470153376/photo/brown-and-white-guinea-pig-with-a-black-backside.jpg?s=612x612&w=0&k=20&c=IWvRu4kQ9k1ragMHFAg3dWT-y8pRr8fCJs8SppU68Zk="
@@ -67,7 +67,7 @@
       "jwt_token": "jwtBob456",
       "gender": "male",
       "sexual_preferences": "female",
-      "biography": "Construction worker by day, musician by night. Passionate about building and creating.",
+      "biography": "Rockstar and family man. Loves playing guitar and spending time with family. Construction worker by day, musician by night. Passionate about building and creating.",
       "interests": ["Music", "Carpentry", "Cooking"],
       "photos": [
         "https://thumbs.dreamstime.com/b/guinea-pig-over-white-373321.jpg"
@@ -92,7 +92,7 @@
       "jwt_token": "jwtCarol789",
       "gender": "female",
       "sexual_preferences": "female",
-      "biography": "Pilot and superhero. Always ready to save the day and enjoy some downtime.",
+      "biography": "Loves discovering new places and meeting new people. Pilot and superhero. Always ready to save the day and enjoy some downtime.",
       "interests": ["Flying", "Movies", "Fitness"],
       "photos": [
         "https://media.istockphoto.com/id/959889568/photo/guinea-pig-1-year-old-lying-against-white-background.jpg?s=612x612&w=0&k=20&c=FnM-RxNWHeq9DNC5Il0pJkPXyZItPNDL8AcvZzhKmik="
@@ -117,7 +117,7 @@
       "jwt_token": "jwtDave101112",
       "gender": "male",
       "sexual_preferences": "female",
-      "biography": "Rockstar and family man. Loves playing guitar and spending time with family.",
+      "biography": " Pilot and superhero. Always ready to save the day and enjoy some downtime. Rockstar and family man. Loves playing guitar and spending time with family.",
       "interests": ["Music", "Family", "Surfing"],
       "photos": [
         "https://upload.wikimedia.org/wikipedia/commons/thumb/3/30/George_the_amazing_guinea_pig.jpg/1200px-George_the_amazing_guinea_pig.jpg"
@@ -142,7 +142,7 @@
       "jwt_token": "jwtEve131415",
       "gender": "female",
       "sexual_preferences": "male",
-      "biography": "Tech enthusiast and entrepreneur. Always looking for the next big idea.",
+      "biography": "Rockstar and family man. Loves playing guitar and spending time with family. Tech enthusiast and entrepreneur. Always looking for the next big idea.",
       "interests": ["Technology", "Startups", "Yoga"],
       "photos": [
         "https://images.unsplash.com/photo-1533152162573-93ad94eb20f6?q=80&w=1000&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxzZWFyY2h8N3x8Z3VpbmVhJTIwcGlnfGVufDB8fDB8fHww"
