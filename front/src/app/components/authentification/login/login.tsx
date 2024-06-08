@@ -61,7 +61,7 @@ const Login: React.FC = () => {
 			password,
 		};
 		try {
-			const response = await fetch(`http://${serverIP}:3333/auth/first-log`, {
+			const response = await fetch(`http://${serverIP}:5000/auth/login`, {
 			  method: 'POST',
 			  headers: {
 				'Content-Type': 'application/json'

@@ -19,7 +19,7 @@ const RegisterForm: React.FC = () => {
 		lastname: '',
 		firstname: '',
 		password: '',
-		confirmPassword: '',
+		password2: '',
 	})
 
 	const handleChange = (e: any) => {
@@ -32,30 +32,30 @@ const RegisterForm: React.FC = () => {
 	
 	const submit = async (event: any) => {
 		event.preventDefault();
-		if (payload.firstname === 'success') {
-			console.log(payload.email);
-			const user = {
-				id: 1,
-				username: payload.username,
-				firstname: payload.firstname,
-				lastname: payload.lastname,
-				email: payload.email,
-				password: payload.password,
-				confirmPassword: payload.confirmPassword,
-				is_active: false,
-				registration_token: '',
-				jwt_token: '',
-				gender: '',
-				sexual_preferences: '',
-				biography: '',
-				interests: '',
-				created_at: '',
-				firstTimeLogged: false,
-			}
-			setUser(user);
-			router.push('register-confirm')
-			return;
-		}
+		// if (payload.firstname === 'success') {
+		// 	console.log(payload.email);
+		// 	const user = {
+		// 		id: 1,
+		// 		username: payload.username,
+		// 		firstname: payload.firstname,
+		// 		lastname: payload.lastname,
+		// 		email: payload.email,
+		// 		password: payload.password,
+		// 		confirmPassword: payload.confirmPassword,
+		// 		is_active: false,
+		// 		registration_token: '',
+		// 		jwt_token: '',
+		// 		gender: '',
+		// 		sexual_preferences: '',
+		// 		biography: '',
+		// 		interests: '',
+		// 		created_at: '',
+		// 		firstTimeLogged: false,
+		// 	}
+		// 	setUser(user);
+		// 	router.push('register-confirm')
+		// 	return;
+		// }
 		try {
 			const response = await fetch(`http://${serverIP}:5000/auth/register`, {
 			  method: 'POST',
@@ -73,7 +73,7 @@ const RegisterForm: React.FC = () => {
 					lastname: payload.lastname,
 					email: payload.email,
 					password: payload.password,
-					confirmPassword: payload.confirmPassword,
+					password2: payload.password2,
 					is_active: false,
 					registration_token: '',
 					jwt_token: '',
@@ -152,11 +152,11 @@ const RegisterForm: React.FC = () => {
 					/>
 				</div>
 				<div>
-					<label htmlFor="confirmPassword">Confirm Password</label>
+					<label htmlFor="password2">Confirm Password</label>
 					<input
-						type="password"
-						name="confirmPassword"
-						value={payload.confirmPassword}
+						type="password2"
+						name="password2"
+						value={payload.password2}
 						onChange={handleChange}
 						required
 						autoComplete="new-password"
