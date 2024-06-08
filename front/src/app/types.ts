@@ -14,6 +14,7 @@ export interface User {
     last_connexion: Date | string;
     registration_token: string;
     jwt_token: string;
+    refresh_token: string;
     gender: string;
     sexual_preferences: string;
     biography: string;
@@ -30,12 +31,10 @@ export enum State {
 }
 
 export interface ProfileInformations {
-    firstname: string,
-    lastname: string,
-    email: string,
-    gender: string,
-    sexualPreference: string,
-    biography: string,
-    interests: string[],
-    photos: string[],
+    age: number;
+    gender: string;
+    sexualPreference: string;
+    biography: string;
+    interests: string[];
+    photos: string[];
 }

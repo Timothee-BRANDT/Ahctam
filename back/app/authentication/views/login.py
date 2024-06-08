@@ -37,15 +37,6 @@ def login():
     except Exception as e:
         return jsonify({'error': str(e)}), 400
     else:
-        cur.execute('SELECT gender FROM users WHERE id = %s',
-                    (user_id,))
-        gender = cur.fetchone()[0]
-        if not gender:
-            return jsonify({
-                'message': 'First login',
-                'user_id': user_id,
-            }), 200
-
         jwt_token = jwt.encode({
             'id': user_id,
             'username': data['username'],
@@ -63,6 +54,17 @@ VALUES (%s, %s, %s)
         cur.execute(query, (refresh_token, user_id,
                     datetime.utcnow() + timedelta(days=30)))
         conn.commit()
+
+        cur.execute('SELECT gender FROM users WHERE id = %s',
+                    (user_id,))
+        gender = cur.fetchone()[0]
+        if not gender:
+            return jsonify({
+                'message': 'First login',
+                'jwt_token': jwt_token,
+                'refresh_token': refresh_token,
+                'user_id': user_id
+            }), 200
     finally:
         cur.close()
         conn.close()
@@ -87,12 +89,16 @@ def first_login():
     cur = conn.cursor()
     try:
         data = request.get_json()
-        profile = data.get('profile', {})
-        user_id = data.get('user_id')
+        profile = data.get('payload', {})
+        print('profile')
+        for key, value in profile.items():
+            print(key, value)
+        user_id = data.get('id')
         form = InformationsForm(data=profile)
-        print(form)
+        print('form elements')
         for element in form:
             print(element)
+        return jsonify({'message': 'First login successful'}), 200
         form.validate()
         print('validated')
         store_informations(conn, cur, form, user_id)
