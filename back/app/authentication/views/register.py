@@ -77,13 +77,13 @@ VALUES (%s, %s, %s, %s, %s)
     conn = get_db_connection()
     cur = conn.cursor()
     try:
+        send_confirmation_email(email, token)
         cur.execute(
             sql,
             (username, hashed_password,
              email, firstname, lastname)
         )
         conn.commit()
-        send_confirmation_email(email, token)
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     finally:
