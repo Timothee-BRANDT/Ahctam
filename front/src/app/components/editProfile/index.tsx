@@ -50,7 +50,11 @@ const ProfilePage: React.FC = () => {
     });
 
     useEffect(() => {
-        if (pathname !== "/login" && !user.jwt_token) redirectLogin();
+        if (pathname !== "/login" && !user.jwt_token) {
+            console.log('profile/update', user)
+            console.log('il rentre la le salaud')
+            redirectLogin();
+        }
     }, [allInterests]);
 
     const redirectLogin = () => {
@@ -121,6 +125,7 @@ const ProfilePage: React.FC = () => {
             }),
         });
         if (response.ok) {
+            router.push('/');
             // WARNING: I removed the redirection for testing purposes
             console.log("Profile updated");
             // router.push("/");

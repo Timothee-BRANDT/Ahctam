@@ -27,16 +27,15 @@ const LoginPage: React.FC = () => {
     const [isBadCredentials, setIsBadCredentials] = useState<boolean>(false);
 
     useEffect(() => {
-        if (
-            status == State.initial &&
-            !user?.username &&
-            isJwtInCookie("jwtToken")
-        ) {
+        if (status == State.initial && !user?.username && isJwtInCookie("jwtToken")) {
             // CALL ENDPOINT TO GET THE USER INFORMATIONS
             // GET METHOD WITH THE JWT IN HEADER
             // FOR NOW myPIG IS A MOCK :D
             setUser(data.user);
             login(data.user);
+        }
+        if (user.jwt_token && user.refresh_token && user.id) {
+            login(user);
         }
         setStatus(State.done);
     }, [user]);
@@ -61,7 +60,6 @@ const LoginPage: React.FC = () => {
             }
             const data = await response.json();
             if (data.message === "First login") {
-                console.log("First login");
                 setUser({
                     ...user,
                     jwt_token: data.jwt_token,
@@ -70,6 +68,16 @@ const LoginPage: React.FC = () => {
                 });
                 router.push("/profile/update");
             } else {
+                console.log("ELSE");
+                setUser({
+                    ...user,
+                    // username: data.username,
+                    // firstname: data.firstname,
+                    // lastname: data.lastname,
+                    jwt_token: data.jwt_token,
+                    refresh_token: data.refresh_token,
+                    id: data.user_id,
+                });
                 router.push("/");
             }
             console.log("Server response:", data);

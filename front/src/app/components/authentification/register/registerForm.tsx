@@ -55,6 +55,7 @@ const RegisterForm: React.FC = () => {
         // 	router.push('register-confirm')
         // 	return;
         // }
+        console.log('eqwrgifhsgysdufdjaifughjowid')
         try {
             const response = await fetch(`http://${serverIP}:5000/auth/register`, {
                 method: 'POST',
@@ -80,6 +81,7 @@ const RegisterForm: React.FC = () => {
                     fame_rating: 0,
                     last_connexion: '',
                     registration_token: '',
+                    refresh_token: '',
                     jwt_token: '',
                     gender: '',
                     sexual_preferences: '',
@@ -91,6 +93,10 @@ const RegisterForm: React.FC = () => {
                 }
                 setUser(user);
                 router.push('register-confirm')
+            }
+            // si le token est expire, fait l'appel au endpoint qui le renouvelle
+            if (response.status === 401) {
+                // call endpoint
             }
         }
         catch (e) {

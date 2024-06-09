@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 
 const initialPig: User = {
     id: 1,
-    username: 'test',
+    username: '',
     firstname: '',
     lastname: '',
     age: 0,
@@ -20,6 +20,7 @@ const initialPig: User = {
     last_connexion: new Date(),
     registration_token: '',
     jwt_token: '',
+    refresh_token: '',
     gender: '',
     sexual_preferences: '',
     biography: '',
@@ -103,6 +104,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
 
     const login = (user: User) => {
+        console.log('user in my login function', user);
         setCookie('jwtToken', user.jwt_token, 7);
         if (typeof window !== "undefined") {
             localStorage.setItem('user', JSON.stringify(user));
