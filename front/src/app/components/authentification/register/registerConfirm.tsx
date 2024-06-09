@@ -1,16 +1,26 @@
 'use client'
 
-import React from 'react';
+import React, { useEffect } from 'react';
 import './registerConfirm.scss'
 import Button from '../../core/button/button';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/app/authContext';
 
 const CLASSNAME = 'confirm-registration'
 
 const RegisterForm: React.FC = () => {
 	const router =  useRouter();
+        const pathname = usePathname();
 	const  { user } = useAuth();
+
+    useEffect(() => {
+        if (pathname !== '/login' && !user.jwt_token)
+        redirectLogin();
+    })
+
+    const redirectLogin = () => {
+        router.push('/login');
+    }
 
 	const redirectToLogin = () => {
 		router.push('/')
