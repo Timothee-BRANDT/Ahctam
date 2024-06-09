@@ -13,7 +13,7 @@ import jwt
 from datetime import datetime, timedelta
 from ...database import get_db_connection
 from .decorators import jwt_required
-from .utils import store_informations
+from .utils import store_profile_informations
 
 
 @auth.route('/login', methods=['POST'])
@@ -37,15 +37,6 @@ def login():
     except Exception as e:
         return jsonify({'error': str(e)}), 400
     else:
-        cur.execute('SELECT gender FROM users WHERE id = %s',
-                    (user_id,))
-        gender = cur.fetchone()[0]
-        if not gender:
-            return jsonify({
-                'message': 'First login',
-                'user_id': user_id,
-            }), 200
-
         jwt_token = jwt.encode({
             'id': user_id,
             'username': data['username'],
@@ -63,6 +54,17 @@ VALUES (%s, %s, %s)
         cur.execute(query, (refresh_token, user_id,
                     datetime.utcnow() + timedelta(days=30)))
         conn.commit()
+
+        cur.execute('SELECT gender FROM users WHERE id = %s',
+                    (user_id,))
+        gender = cur.fetchone()[0]
+        if not gender:
+            return jsonify({
+                'message': 'First login',
+                'jwt_token': jwt_token,
+                'refresh_token': refresh_token,
+                'user_id': user_id
+            }), 200
     finally:
         cur.close()
         conn.close()
@@ -87,31 +89,16 @@ def first_login():
     cur = conn.cursor()
     try:
         data = request.get_json()
-        profile = data.get('profile', {})
-        user_id = data.get('user_id')
+        profile = data.get('payload', {})
+        user_id = data.get('id')
+        print('The Id is:', user_id)
         form = InformationsForm(data=profile)
-        print(form)
-        for element in form:
-            print(element)
         form.validate()
-        print('validated')
-        store_informations(conn, cur, form, user_id)
-        # age = profile.get('age')
-        # gender = profile.get('gender')
-        # print(gender)
-        # sexual_preferences = profile.get('sexualPreference')
-        # print(sexual_preferences)
-        # biography = profile.get('biography')
-        # print(biography)
-        # interests = profile.get('interests')
-        # print(interests)
-        # pictures = profile.get('photos')
-        # print(pictures)
-        # location = profile.get('location')
+        print('Profile form Validated!!!')
     except Exception as e:
         return jsonify({'error': str(e)}), 400
     else:
-        pass
+        store_profile_informations(conn, cur, form, user_id)
     finally:
         cur.close()
         conn.close()

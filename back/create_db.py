@@ -55,7 +55,7 @@ def create_pictures_table(cursor):
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS pictures (
             id SERIAL PRIMARY KEY,
-            url VARCHAR(255) NOT NULL,
+            url VARCHAR NOT NULL,
             is_profile_picture BOOLEAN DEFAULT FALSE,
             owner INTEGER NOT NULL,
             FOREIGN KEY (owner) REFERENCES users(id)
@@ -165,6 +165,23 @@ def create_refresh_tokens_table(cursor):
     """)
 
 
+def insert_interests(conn, cursor):
+    interests = [
+        'Tunnels', 'Obstacle', 'Naps', 'Vegetable', 'Chewing', 'Rolling',
+        'Baths', 'Hide', 'Collecting', 'Nests', 'Contests', 'Grooming',
+        'Nibbling', 'Cuddles', 'Outdoor', 'Company', 'Music',
+        'Races', 'Flavors', 'Hiding', 'Carrots'
+    ]
+    query = """
+INSERT INTO interests (name)
+VALUES (%s)
+    """
+    try:
+        cursor.executemany(query, [(interest,) for interest in interests])
+    except Exception as e:
+        raise ValueError(e)
+
+
 def create_all_tables():
     conn = psycopg2.connect(
         dbname=os.getenv('POSTGRES_DB'),
@@ -185,6 +202,9 @@ def create_all_tables():
         create_interests_table(cursor)
         create_user_interests_table(cursor)
         create_refresh_tokens_table(cursor)
+
+        insert_interests(conn, cursor)
+
         conn.commit()
     except Exception as e:
         conn.rollback()
