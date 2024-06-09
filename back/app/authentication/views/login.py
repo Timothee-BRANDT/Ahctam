@@ -13,7 +13,7 @@ import jwt
 from datetime import datetime, timedelta
 from ...database import get_db_connection
 from .decorators import jwt_required
-from .utils import store_informations
+from .utils import store_profile_informations
 
 
 @auth.route('/login', methods=['POST'])
@@ -90,34 +90,15 @@ def first_login():
     try:
         data = request.get_json()
         profile = data.get('payload', {})
-        print('profile')
-        for key, value in profile.items():
-            print(key, value)
         user_id = data.get('id')
+        print('The Id is:', user_id)
         form = InformationsForm(data=profile)
-        print('form elements')
-        for element in form:
-            print(element)
-        return jsonify({'message': 'First login successful'}), 200
         form.validate()
-        print('validated')
-        store_informations(conn, cur, form, user_id)
-        # age = profile.get('age')
-        # gender = profile.get('gender')
-        # print(gender)
-        # sexual_preferences = profile.get('sexualPreference')
-        # print(sexual_preferences)
-        # biography = profile.get('biography')
-        # print(biography)
-        # interests = profile.get('interests')
-        # print(interests)
-        # pictures = profile.get('photos')
-        # print(pictures)
-        # location = profile.get('location')
+        print('Profile form Validated!!!')
     except Exception as e:
         return jsonify({'error': str(e)}), 400
     else:
-        pass
+        store_profile_informations(conn, cur, form, user_id)
     finally:
         cur.close()
         conn.close()

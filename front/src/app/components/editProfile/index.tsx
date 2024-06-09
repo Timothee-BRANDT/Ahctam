@@ -15,6 +15,9 @@ const ProfilePage: React.FC = () => {
     const router = useRouter();
     const [profile, setProfile] = useState<ProfileInformations>({
         age: 0,
+        firstname: user.firstname,
+        lastname: user.lastname,
+        email: user.email,
         gender: "",
         sexualPreference: "",
         biography: "",
@@ -89,7 +92,9 @@ const ProfilePage: React.FC = () => {
     const handleSubmit = async (e: any) => {
         e.preventDefault();
         const payload = {
-            age: profile.age,
+            firstname: user.firstname,
+            lastname: user.lastname,
+            email: user.email,
             gender: profile.gender,
             sexualPreference: profile.sexualPreference,
             biography: profile.biography,
@@ -116,7 +121,9 @@ const ProfilePage: React.FC = () => {
             }),
         });
         if (response.ok) {
-            router.push("/");
+            // WARNING: I removed the redirection for testing purposes
+            console.log("Profile updated");
+            // router.push("/");
         }
     };
 
@@ -147,13 +154,40 @@ const ProfilePage: React.FC = () => {
         <>
             <div className={CLASSNAME}>
                 <form onSubmit={handleSubmit}>
-                    <p className={`${CLASSNAME}__title`}>My age</p>
-                    <div>
+                    <div className={`${CLASSNAME}__info-container`}>
+                        <p className={`${CLASSNAME}__title`}>Firstname</p>
                         <input
-                            type="number"
-                            name="age"
-                            value={profile.age}
-                            onChange={handleProfileChange}
+                            className={`${CLASSNAME}__update-input`}
+                            type="firstname"
+                            name="firstname"
+                            value={user.firstname}
+                            onChange={handleUserChange}
+                            required
+                            autoComplete="new-password"
+                        />
+                    </div>
+                    <div className={`${CLASSNAME}__info-container`}>
+                        <p className={`${CLASSNAME}__title`}>Lastname</p>
+                        <input
+                            className={`${CLASSNAME}__update-input`}
+                            type="lastname"
+                            name="lastname"
+                            value={user.lastname}
+                            onChange={handleUserChange}
+                            required
+                            autoComplete="new-password"
+                        />
+                    </div>
+                    <div className={`${CLASSNAME}__info-container`}>
+                        <p className={`${CLASSNAME}__title`}>Email</p>
+                        <input
+                            className={`${CLASSNAME}__update-input`}
+                            type="email"
+                            name="email"
+                            value={user.email}
+                            onChange={handleUserChange}
+                            required
+                            autoComplete="new-password"
                         />
                     </div>
                     <p className={`${CLASSNAME}__title`}>I am</p>

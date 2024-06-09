@@ -42,34 +42,56 @@ def send_reset_password_email(email):
         print('Email sent')
 
 
-def store_informations(conn, cur, form):
-    # TODO: tolower for the interests
-    # TODO: check if the interest already exists or give it unique in the db
-    user_query = """
-UPDATE users
-SET age = %s, gender = %s, sexual_preferences = %s, biography = %s
-WHERE id = %s
-    """
-    picture_query = """
-INSERT INTO pictures (url, owner)
-VALUES (%s, %s)
-    """
-    profile_picture_query = """
-UPDATE pictures
-SET is_profile_picture = TRUE
-WHERE url = %s
-    """
-    interests_query = """
-INSERT INTO interests (name)
-VALUES (%s)
-    """
+def store_profile_informations(conn, cur, form, user_id):
     try:
+        # User
+        user_query = """
+UPDATE users
+SET age = %s, gender = %s, sexual_preferences = %s, biography = %s, firstname = %s, lastname = %s, email = %s
+WHERE id = %s
+        """
         cur.execute(user_query, (
             form.age.data,
             form.gender.data,
-            form.sexual_preferences.data,
-            form.biography.data
+            form.sexualPreference.data,
+            form.biography.data,
+            form.firstname.data,
+            form.lastname.data,
+            form.email.data,
+            user_id
         ))
+
+        # Pictures
+        picture_query = """
+INSERT INTO pictures (url, owner)
+VALUES (%s, %s)
+        """
+        profile_picture_query = """
+UPDATE pictures
+SET is_profile_picture = TRUE
+WHERE url = %s AND owner = %s
+        """
+        raw_photos: list = form.photos.data
+        print(len(raw_photos))
+        photos: list = [photo for photo in raw_photos if photo]
+        print(len(photos))
+        for photo in photos:
+            cur.execute(picture_query, (photo, user_id))
+        cur.execute(profile_picture_query, (photos[0], user_id))
+
+        # Interests
+        interests: list = form.interests.data
+        interests_query = """
+SELECT id FROM interests WHERE name = %s
+        """
+        for interest in interests:
+            cur.execute(interests_query, (interest,))
+            interest_id = cur.fetchone()[0]
+            user_interest_query = """
+INSERT INTO user_interests (user_id, interest_id)
+VALUES (%s, %s)
+            """
+            cur.execute(user_interest_query, (user_id, interest_id))
         conn.commit()
     except Exception as e:
         raise ValueError(e)

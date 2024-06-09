@@ -32,6 +32,9 @@ export enum State {
 
 export interface ProfileInformations {
     age: number;
+    firstname: string;
+    lastname: string;
+    email: string;
     gender: string;
     sexualPreference: string;
     biography: string;

@@ -163,10 +163,13 @@ one digit and one special character
 
 class InformationsForm(Form):
     age = StringField('Age')
+    firstname = StringField('First Name')
+    lastname = StringField('Last Name')
+    email = EmailField('Email')
     gender = StringField('Gender')
     sexualPreference = StringField('Sexual Preferences')
     biography = TextAreaField('Biography')
-    pictures = FieldList(FileField('Pictures'))
+    photos = FieldList(StringField('Pictures'))
     interests = FieldList(StringField('Interests'))
     location = StringField('Can we use your location?')
     submit = StringField('Submit')
@@ -184,8 +187,57 @@ Please select at least one sexual preference
             """)
 
     def validate_pictures(self, field):
-        if len(field.data) > 5:
-            raise ValueError('You can upload up to 5 pictures')
-        for file in field.data:
-            if not file.filename.endswith(('.jpg', '.jpeg', '.png')):
-                raise ValueError('Only jpg, jpeg and png files are allowed')
+        if len(field.data) > 6:
+            raise ValueError('You can upload up to 6 pictures')
+
+    def validate_email(self, field):
+        if field.data == self.email.data:
+            return
+        if not field.data:
+            raise ValueError('Please provide an email address')
+        regex = r'^[\w\.-]+@[\w\.-]+\.\w+$'
+        if not re.match(regex, field.data):
+            raise ValueError('Invalid email address')
+
+        query = 'SELECT * FROM users WHERE email = %s'
+        conn = get_db_connection()
+        cur = conn.cursor()
+        try:
+            cur.execute(query, (field.data,))
+            user = cur.fetchone()
+        except Exception as e:
+            raise ValueError(f"An error occurred: {e}")
+        else:
+            if user:
+                raise ValueError('Email already exists')
+        finally:
+            cur.close()
+            conn.close()
+
+    def validate_firstname(self, field):
+        if self.firstname.data == field.data:
+            return
+        if len(field.data) < 2:
+            raise ValueError("""
+First name must be at least 2 characters long
+            """)
+        if len(field.data) > 20:
+            raise ValueError("""
+First name must be less than 20 characters long
+            """)
+        if not field.data.isalpha():
+            raise ValueError('First name must contain only letters')
+
+    def validate_lastname(self, field):
+        if self.lastname.data == field.data:
+            return
+        if len(field.data) < 2:
+            raise ValueError("""
+Last name must be at least 2 characters long
+            """)
+        if len(field.data) > 20:
+            raise ValueError("""
+Last name must be less than 20 characters long
+            """)
+        if not field.data.isalpha():
+            raise ValueError('Last name must contain only letters')
