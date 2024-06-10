@@ -168,8 +168,6 @@ interface UserCardProps {
 
 const UserCard: React.FC<UserCardProps> = ({ user, liked, disliked, redirect }) => {
 
-    const { scrollNext } = useCarousel();
-
     return (
         <div className={CLASSNAME}>
             <img onClick={redirect} src={user?.photos[0]} alt={`${user.username}'s profile`}
@@ -189,10 +187,10 @@ const UserCard: React.FC<UserCardProps> = ({ user, liked, disliked, redirect }) 
                     ))}
                 </div>
                 <div className={`${CLASSNAME}__swipe`}>
-                    <div onClick={scrollNext}>
+                    <div>
                         <img className={`${CLASSNAME}__swipe-heart`} src='/like-dark-border.png' alt='' />
                     </div>
-                    <div onClick={scrollNext}>
+                    <div>
                         <img className={`${CLASSNAME}__swipe-cross`} src='/cross.png' alt='' />
                     </div>
                 </div>

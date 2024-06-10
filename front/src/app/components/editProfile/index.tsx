@@ -6,26 +6,26 @@ import { serverIP } from "@/app/constants";
 import { useAuth } from "@/app/authContext";
 import { ProfileInformations } from "@/app/types";
 import { usePathname, useRouter } from "next/navigation";
+import data from '../../api.json';
 
 const CLASSNAME = "profile";
 
 const ProfilePage: React.FC = () => {
     const { user, setUser, isJwtInCookie } = useAuth();
-    const pathname = usePathname();
     const router = useRouter();
     const [latitude, setLatitude] = useState(0);
     const [longitude, setLongitude] = useState(0);
-    const [profile, setProfile] = useState<ProfileInformations>({
-        age: 0,
-        firstname: user.firstname,
-        lastname: user.lastname,
-        email: user.email,
-        gender: "",
-        sexualPreference: "",
-        biography: "",
-        interests: [],
-        photos: Array(6).fill(null),
-    });
+    // const [profile, setProfile] = useState<ProfileInformations>({
+    //     age: 0,
+    //     firstname: user.firstname,
+    //     lastname: user.lastname,
+    //     email: user.email,
+    //     gender: "",
+    //     sexualPreference: "",
+    //     biography: "",
+    //     interests: [],
+    //     photos: Array(6).fill(null),
+    // });
 
     const [allInterests, setAllInterests] = useState<Record<string, boolean>>({
         Tunnels: false,
@@ -51,6 +51,26 @@ const ProfilePage: React.FC = () => {
         Carrots: false,
     });
 
+    const getProfile = async () => {
+        // [MOCK]
+        // const response = await fetch(`http://${serverIP}:5000/getUserInfo`, {
+        //     method: "POST",
+        //     credentials: "include",
+        //     headers: {
+        //         "Content-Type": "application/json",
+        //     },
+        // });
+        // const data = await response.json();
+        // if (response.ok) {
+        //     setUser(data);
+        // }
+
+        setUser(data.user);
+        data.user.interests.map((interest) => {
+            allInterests[interest] = true;
+        })
+    }
+
     useEffect(() => {
         if (!isJwtInCookie("jwtToken")) {
             redirectLogin();
@@ -63,18 +83,11 @@ const ProfilePage: React.FC = () => {
                 console.log('Geolocation error');
             })
         }
-    }, [allInterests]);
+        getProfile();
+    }, []);
 
     const redirectLogin = () => {
         router.push("/login");
-    };
-
-    const handleProfileChange = (e: any) => {
-        const { name, value } = e.target;
-        setProfile({
-            ...profile,
-            [name]: value,
-        });
     };
 
     const handleUserChange = (e: any) => {
@@ -89,10 +102,10 @@ const ProfilePage: React.FC = () => {
         const file = e.target.files[0];
         const reader = new FileReader();
         reader.onloadend = () => {
-            const newPhotos = [...profile.photos];
+            const newPhotos = [...user.photos];
             newPhotos[index] = reader.result as string;
-            setProfile({
-                ...profile,
+            setUser({
+                ...user,
                 photos: newPhotos,
             });
         };
@@ -108,20 +121,21 @@ const ProfilePage: React.FC = () => {
             firstname: user.firstname,
             lastname: user.lastname,
             email: user.email,
-            gender: profile.gender,
-            sexualPreference: profile.sexualPreference,
-            biography: profile.biography,
-            interests: profile.interests,
-            photos: profile.photos,
+            gender: user.gender,
+            sexual_preferences: user.sexual_preferences,
+            biography: user.biography,
+            interests: user.interests,
+            photos: user.photos,
             latitude,
             longitude,
         };
-        if (!payload.sexualPreference) {
-            payload.sexualPreference = "both";
+        if (!payload.sexual_preferences) {
+            payload.sexual_preferences = "both";
         }
         if (!payload.gender) {
             payload.gender = "other";
         }
+        console.log(payload);
         // TODO: C'EST ICI POUR L'ENDPOINT
         const response = await fetch(`http://${serverIP}:5000/auth/first-login`, {
             method: "POST",
@@ -157,8 +171,8 @@ const ProfilePage: React.FC = () => {
         newInterests[interest] = !newInterests[interest];
         setAllInterests(newInterests);
         const trueIndices = getInterestsIndices(newInterests);
-        setProfile({
-            ...profile,
+        setUser({
+            ...user,
             interests: trueIndices,
         });
     };
@@ -192,6 +206,18 @@ const ProfilePage: React.FC = () => {
                         />
                     </div>
                     <div className={`${CLASSNAME}__info-container`}>
+                        <p className={`${CLASSNAME}__title`}>Age</p>
+                        <input
+                            className={`${CLASSNAME}__update-input`}
+                            type="age"
+                            name="age"
+                            value={user.age}
+                            onChange={handleUserChange}
+                            required
+                            autoComplete="new-password"
+                        />
+                    </div>
+                    <div className={`${CLASSNAME}__info-container`}>
                         <p className={`${CLASSNAME}__title`}>Email</p>
                         <input
                             className={`${CLASSNAME}__update-input`}
@@ -211,8 +237,8 @@ const ProfilePage: React.FC = () => {
                                 id="gender-female"
                                 name="gender"
                                 value="female"
-                                checked={profile.gender === "female"}
-                                onChange={handleProfileChange}
+                                checked={user.gender === "female"}
+                                onChange={handleUserChange}
                             />
                             <label htmlFor="gender-female">Female</label>
                         </div>
@@ -222,8 +248,8 @@ const ProfilePage: React.FC = () => {
                                 id="gender-male"
                                 name="gender"
                                 value="male"
-                                checked={profile.gender === "male"}
-                                onChange={handleProfileChange}
+                                checked={user.gender === "male"}
+                                onChange={handleUserChange}
                             />
                             <label htmlFor="gender-male">Male</label>
                         </div>
@@ -233,8 +259,8 @@ const ProfilePage: React.FC = () => {
                                 id="gender-other"
                                 name="gender"
                                 value="other"
-                                checked={profile.gender === "other"}
-                                onChange={handleProfileChange}
+                                checked={user.gender === "other"}
+                                onChange={handleUserChange}
                             />
                             <label htmlFor="gender-other">Other</label>
                         </div>
@@ -246,10 +272,10 @@ const ProfilePage: React.FC = () => {
                             <input
                                 type="radio"
                                 id="sexual-female"
-                                name="sexualPreference"
+                                name="sexual_preferences"
                                 value="female"
-                                checked={profile.sexualPreference === "female"}
-                                onChange={handleProfileChange}
+                                checked={user.sexual_preferences === "female"}
+                                onChange={handleUserChange}
                             />
                             <label htmlFor="sexual-female">Female</label>
                         </div>
@@ -257,10 +283,10 @@ const ProfilePage: React.FC = () => {
                             <input
                                 type="radio"
                                 id="sexual-male"
-                                name="sexualPreference"
+                                name="sexual_preferences"
                                 value="male"
-                                checked={profile.sexualPreference === "male"}
-                                onChange={handleProfileChange}
+                                checked={user.sexual_preferences === "male"}
+                                onChange={handleUserChange}
                             />
                             <label htmlFor="sexual-male">Male</label>
                         </div>
@@ -268,10 +294,10 @@ const ProfilePage: React.FC = () => {
                             <input
                                 type="radio"
                                 id="sexual-both"
-                                name="sexualPreference"
+                                name="sexual_preferences"
                                 value="both"
-                                checked={profile.sexualPreference === "both"}
-                                onChange={handleProfileChange}
+                                checked={user.sexual_preferences === "both"}
+                                onChange={handleUserChange}
                             />
                             <label htmlFor="sexual-both">Both</label>
                         </div>
@@ -281,8 +307,8 @@ const ProfilePage: React.FC = () => {
                     <textarea
                         name="biography"
                         spellCheck="false"
-                        value={profile.biography}
-                        onChange={handleProfileChange}
+                        value={user.biography}
+                        onChange={handleUserChange}
                     />
                     <p className={`${CLASSNAME}__title`}>My interests</p>
                     <div className={`${CLASSNAME}__interests-container`}>
@@ -304,7 +330,7 @@ const ProfilePage: React.FC = () => {
                     </div>
                     <p className={`${CLASSNAME}__title`}>My Pictures</p>
                     <div className="photo-upload-container">
-                        {profile.photos.map((photo: string, index: number) => (
+                        {user.photos.map((photo: string, index: number) => (
                             <div
                                 onClick={() =>
                                     document.getElementsByName(`photoUpload${index}`)[0].click()
