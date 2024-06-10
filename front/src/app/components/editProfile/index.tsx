@@ -10,7 +10,7 @@ import { usePathname, useRouter } from "next/navigation";
 const CLASSNAME = "profile";
 
 const ProfilePage: React.FC = () => {
-    const { user, setUser } = useAuth();
+    const { user, setUser, isJwtInCookie } = useAuth();
     const pathname = usePathname();
     const router = useRouter();
     const [profile, setProfile] = useState<ProfileInformations>({
@@ -50,9 +50,7 @@ const ProfilePage: React.FC = () => {
     });
 
     useEffect(() => {
-        if (pathname !== "/login" && !user.jwt_token) {
-            console.log('profile/update', user)
-            console.log('il rentre la le salaud')
+        if (!isJwtInCookie("jwtToken")) {
             redirectLogin();
         }
     }, [allInterests]);
@@ -111,7 +109,6 @@ const ProfilePage: React.FC = () => {
         if (!payload.gender) {
             payload.gender = "other";
         }
-        console.log(payload);
         // TODO: C'EST ICI POUR L'ENDPOINT
         const response = await fetch(`http://${serverIP}:5000/auth/first-login`, {
             method: "POST",
@@ -127,7 +124,6 @@ const ProfilePage: React.FC = () => {
         if (response.ok) {
             router.push('/');
             // WARNING: I removed the redirection for testing purposes
-            console.log("Profile updated");
             // router.push("/");
         }
     };

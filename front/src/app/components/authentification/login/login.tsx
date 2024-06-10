@@ -21,23 +21,15 @@ const CLASSNAME = "login";
 const LoginPage: React.FC = () => {
     const router = useRouter();
     const { login, isJwtInCookie, user, setUser } = useAuth();
+    const [loginSucces, setLoginSucces] = useState(false);
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-    const [status, setStatus] = useState<State>(State.initial);
     const [isBadCredentials, setIsBadCredentials] = useState<boolean>(false);
 
     useEffect(() => {
-        if (status == State.initial && !user?.username && isJwtInCookie("jwtToken")) {
-            // CALL ENDPOINT TO GET THE USER INFORMATIONS
-            // GET METHOD WITH THE JWT IN HEADER
-            // FOR NOW myPIG IS A MOCK :D
-            setUser(data.user);
-            login(data.user);
-        }
-        if (user.jwt_token && user.refresh_token && user.id) {
+        if (loginSucces) {
             login(user);
         }
-        setStatus(State.done);
     }, [user]);
 
     const submit = async (event: any) => {
@@ -68,7 +60,6 @@ const LoginPage: React.FC = () => {
                 });
                 router.push("/profile/update");
             } else {
-                console.log("ELSE");
                 setUser({
                     ...user,
                     // username: data.username,
@@ -78,20 +69,12 @@ const LoginPage: React.FC = () => {
                     refresh_token: data.refresh_token,
                     id: data.user_id,
                 });
+                setLoginSucces(true);
                 router.push("/");
             }
-            console.log("Server response:", data);
         } catch (e) {
             console.log(e);
         }
-
-        // if the user is logged for the first time;
-        // if (password === "1") {
-        //     setStatus(State.redirect);
-        //     router.push("/profile/update");
-        //     setUser(data.user);
-        //     login(data.user);
-        // }
 
         // 3) bad credentials
         // if (password === "3") {
@@ -107,7 +90,7 @@ const LoginPage: React.FC = () => {
             {isBadCredentials && (
                 <p className={`${CLASSNAME}__bad-credentials`}>Bad credentials</p>
             )}
-            {!user.jwt_token && (
+            {!isJwtInCookie("jwtToken") && (
                 <div className={`${CLASSNAME}__form-container`}>
                     <form onSubmit={submit} className="form">
                         <div>

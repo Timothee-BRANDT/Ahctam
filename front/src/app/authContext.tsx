@@ -53,6 +53,14 @@ export function useAuth() {
     return useContext(AuthContext);
 }
 
+export const getUserFromLocalStorage = () => {
+    if (typeof window !== "undefined") {
+        const userString = localStorage.getItem('user');
+        return userString ? JSON.parse(userString) : null;
+    }
+    return null;
+}
+
 interface AuthProviderProps {
     children: ReactNode;
 }
@@ -67,14 +75,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             setUser(userFromStorage);
         }
     }, []);
-
-    const getUserFromLocalStorage = () => {
-        if (typeof window !== "undefined") {
-            const userString = localStorage.getItem('user');
-            return userString ? JSON.parse(userString) : null;
-        }
-        return null;
-    }
 
     const setCookie = (name: string, value: string, days?: number) => {
         let expires = "";
@@ -104,7 +104,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
 
     const login = (user: User) => {
-        console.log('user in my login function', user);
         setCookie('jwtToken', user.jwt_token, 7);
         if (typeof window !== "undefined") {
             localStorage.setItem('user', JSON.stringify(user));
@@ -116,7 +115,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setUser(initialPig);
         deleteCookie('jwtToken');
         localStorage.removeItem('user');
-        router.push('/');
+        router.push('/login');
     };
 
     return (

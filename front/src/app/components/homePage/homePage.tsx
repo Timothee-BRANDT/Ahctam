@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, usePathname } from "next/navigation";
-import { useAuth } from "@/app/authContext";
+import { getUserFromLocalStorage, useAuth } from "@/app/authContext";
 // import UserCard from '../core/user/userCard';
 import data from "../../api.json";
 import { useEffect } from "react";
@@ -21,7 +21,7 @@ import {
 const mainPage: React.FC = () => {
     const router = useRouter();
     const pathname = usePathname();
-    const { user } = useAuth();
+    const { user, setUser, isJwtInCookie } = useAuth();
 
     const liked = () => {
         console.log("LIKED");
@@ -37,8 +37,10 @@ const mainPage: React.FC = () => {
 
     // [WARNING] Removed for dev mode confort, need to be uncommented
     useEffect(() => {
-        if (pathname !== "/login" && !user.jwt_token) redirectLogin();
-    });
+        if (!isJwtInCookie("jwtToken")) {
+            redirectLogin();
+        }
+    }, []);
 
     const redirectLogin = () => {
         router.push("/login");

@@ -55,7 +55,6 @@ const RegisterForm: React.FC = () => {
         // 	router.push('register-confirm')
         // 	return;
         // }
-        console.log('eqwrgifhsgysdufdjaifughjowid')
         try {
             const response = await fetch(`http://${serverIP}:5000/auth/register`, {
                 method: 'POST',
