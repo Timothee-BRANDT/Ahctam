@@ -24,11 +24,21 @@ const LoginPage: React.FC = () => {
     const [loginSucces, setLoginSucces] = useState(false);
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
+    const [latitude, setLatitude] = useState(0);
+    const [longitude, setLongitude] = useState(0);
     const [isBadCredentials, setIsBadCredentials] = useState<boolean>(false);
 
     useEffect(() => {
         if (loginSucces) {
             login(user);
+        }
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition((pos) => {
+                setLatitude(pos.coords.latitude);
+                setLongitude(pos.coords.longitude);
+            }, (e) => {
+                console.log('Geolocation error');
+            })
         }
     }, [user]);
 
