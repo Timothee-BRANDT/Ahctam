@@ -13,6 +13,8 @@ const ProfilePage: React.FC = () => {
     const { user, setUser, isJwtInCookie } = useAuth();
     const pathname = usePathname();
     const router = useRouter();
+    const [latitude, setLatitude] = useState(0);
+    const [longitude, setLongitude] = useState(0);
     const [profile, setProfile] = useState<ProfileInformations>({
         age: 0,
         firstname: user.firstname,
@@ -52,6 +54,14 @@ const ProfilePage: React.FC = () => {
     useEffect(() => {
         if (!isJwtInCookie("jwtToken")) {
             redirectLogin();
+        }
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition((pos) => {
+                setLatitude(pos.coords.latitude);
+                setLongitude(pos.coords.longitude);
+            }, (e) => {
+                console.log('Geolocation error');
+            })
         }
     }, [allInterests]);
 
@@ -94,6 +104,7 @@ const ProfilePage: React.FC = () => {
     const handleSubmit = async (e: any) => {
         e.preventDefault();
         const payload = {
+            id: user.id,
             firstname: user.firstname,
             lastname: user.lastname,
             email: user.email,
@@ -102,6 +113,8 @@ const ProfilePage: React.FC = () => {
             biography: profile.biography,
             interests: profile.interests,
             photos: profile.photos,
+            latitude,
+            longitude,
         };
         if (!payload.sexualPreference) {
             payload.sexualPreference = "both";
@@ -118,7 +131,6 @@ const ProfilePage: React.FC = () => {
             },
             body: JSON.stringify({
                 payload,
-                id: user.id,
             }),
         });
         if (response.ok) {
@@ -311,8 +323,8 @@ const ProfilePage: React.FC = () => {
                                 {!photo && (
                                     <div
                                         className={`upload-text ${index === 0
-                                                ? `${CLASSNAME}__profile-picture-uploader`
-                                                : ""
+                                            ? `${CLASSNAME}__profile-picture-uploader`
+                                            : ""
                                             }`}
                                     >
                                         {index === 0

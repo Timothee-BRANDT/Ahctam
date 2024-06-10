@@ -12,10 +12,6 @@ import data from "../../../api.json";
 import "./login.scss";
 import { serverIP } from "@/app/constants";
 
-// PERSONNAL DOC, I'M USING PASSWORD_HASH TO HANDLE ALL THE DIFFERENTS USE CASES
-// 1 => Log for the first time, redirect to information page
-// 3 => Bad credentials
-
 const CLASSNAME = "login";
 
 const LoginPage: React.FC = () => {
@@ -24,21 +20,11 @@ const LoginPage: React.FC = () => {
     const [loginSucces, setLoginSucces] = useState(false);
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-    const [latitude, setLatitude] = useState(0);
-    const [longitude, setLongitude] = useState(0);
     const [isBadCredentials, setIsBadCredentials] = useState<boolean>(false);
 
     useEffect(() => {
         if (loginSucces) {
             login(user);
-        }
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition((pos) => {
-                setLatitude(pos.coords.latitude);
-                setLongitude(pos.coords.longitude);
-            }, (e) => {
-                console.log('Geolocation error');
-            })
         }
     }, [user]);
 
@@ -57,10 +43,16 @@ const LoginPage: React.FC = () => {
                 body: JSON.stringify(payload),
             });
 
+            const data = await response.json();
             if (!response.ok) {
+                if (data.error === 'Invalid username' || data.error === 'Invalid password') {
+                    setIsBadCredentials(true);
+                    setTimeout(() => {
+                        setIsBadCredentials(false);
+                    }, 2000);
+                }
                 throw new Error("Network response was not ok");
             }
-            const data = await response.json();
             if (data.message === "First login") {
                 setUser({
                     ...user,
@@ -85,14 +77,6 @@ const LoginPage: React.FC = () => {
         } catch (e) {
             console.log(e);
         }
-
-        // 3) bad credentials
-        // if (password === "3") {
-        //     setIsBadCredentials(true);
-        //     setTimeout(() => {
-        //         setIsBadCredentials(false);
-        //     }, 2000);
-        // }
     };
 
     return (
