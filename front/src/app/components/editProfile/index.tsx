@@ -10,23 +10,15 @@ import data from '../../api.json';
 
 const CLASSNAME = "profile";
 
+var requestOptions = {
+    method: 'GET',
+};
 const ProfilePage: React.FC = () => {
     const { user, setUser, isJwtInCookie } = useAuth();
     const router = useRouter();
+    const [adressInput, setAdressInput] = useState('');
     const [latitude, setLatitude] = useState(0);
     const [longitude, setLongitude] = useState(0);
-    // const [profile, setProfile] = useState<ProfileInformations>({
-    //     age: 0,
-    //     firstname: user.firstname,
-    //     lastname: user.lastname,
-    //     email: user.email,
-    //     gender: "",
-    //     sexualPreference: "",
-    //     biography: "",
-    //     interests: [],
-    //     photos: Array(6).fill(null),
-    // });
-
     const [allInterests, setAllInterests] = useState<Record<string, boolean>>({
         Tunnels: false,
         Obstacle: false,
@@ -83,12 +75,31 @@ const ProfilePage: React.FC = () => {
                 console.log('Geolocation error');
             })
         }
+
+
         getProfile();
     }, []);
+
+    const convertAdressIntoCoordonates = async () => {
+        console.log(adressInput);
+        const formattedAddress = encodeURIComponent(adressInput);
+        console.log(formattedAddress)
+        const apiKey = '0b45c5495f8e4f9b8246deebf999830d';
+
+        await fetch(`https://api.geoapify.com/v1/geocode/search?text=${formattedAddress}&apiKey=${apiKey}`,
+            requestOptions)
+            .then(response => response.json())
+            .then(result => {
+                console.log(result)
+            })
+            .catch(error => console.log('error', error));
+        
+    }
 
     const redirectLogin = () => {
         router.push("/login");
     };
+
 
     const handleUserChange = (e: any) => {
         const { name, value } = e.target;
@@ -97,6 +108,12 @@ const ProfilePage: React.FC = () => {
             [name]: value,
         });
     };
+
+    const handleAdressChange = (e: any) => {
+        const { name, value } = e.target;
+        setAdressInput(value);
+    };
+
 
     const handleImageChange = (index: any, e: any) => {
         const file = e.target.files[0];
@@ -135,6 +152,7 @@ const ProfilePage: React.FC = () => {
         if (!payload.gender) {
             payload.gender = "other";
         }
+        convertAdressIntoCoordonates();
         console.log(payload);
         // TODO: C'EST ICI POUR L'ENDPOINT
         const response = await fetch(`http://${serverIP}:5000/auth/first-login`, {
@@ -213,6 +231,18 @@ const ProfilePage: React.FC = () => {
                             name="age"
                             value={user.age}
                             onChange={handleUserChange}
+                            required
+                            autoComplete="new-password"
+                        />
+                    </div>
+                    <div className={`${CLASSNAME}__info-container`}>
+                        <p className={`${CLASSNAME}__title`}>Location</p>
+                        <input
+                            className={`${CLASSNAME}__update-input`}
+                            type="location"
+                            name="location"
+                            value={user.location}
+                            onChange={handleAdressChange}
                             required
                             autoComplete="new-password"
                         />
