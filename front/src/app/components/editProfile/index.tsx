@@ -10,15 +10,10 @@ import data from '../../api.json';
 
 const CLASSNAME = "profile";
 
-var requestOptions = {
-    method: 'GET',
-};
+
 const ProfilePage: React.FC = () => {
     const { user, setUser, isJwtInCookie } = useAuth();
     const router = useRouter();
-    const [adressInput, setAdressInput] = useState('');
-    const [latitude, setLatitude] = useState(0);
-    const [longitude, setLongitude] = useState(0);
     const [allInterests, setAllInterests] = useState<Record<string, boolean>>({
         Tunnels: false,
         Obstacle: false,
@@ -67,33 +62,40 @@ const ProfilePage: React.FC = () => {
         if (!isJwtInCookie("jwtToken")) {
             redirectLogin();
         }
+        getProfile();
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition((pos) => {
-                setLatitude(pos.coords.latitude);
-                setLongitude(pos.coords.longitude);
+                const array = [pos.coords.latitude, pos.coords.longitude];
+                setUser({
+                    ...user,
+                    location: array,
+                })
             }, (e) => {
                 console.log('Geolocation error');
             })
         }
-
-
-        getProfile();
     }, []);
 
     const convertAdressIntoCoordonates = async () => {
-        console.log(adressInput);
-        const formattedAddress = encodeURIComponent(adressInput);
-        console.log(formattedAddress)
+        var requestOptions = {
+            method: 'GET',
+        };
+
+        const formattedAddress = encodeURIComponent(user.address);
         const apiKey = '0b45c5495f8e4f9b8246deebf999830d';
 
         await fetch(`https://api.geoapify.com/v1/geocode/search?text=${formattedAddress}&apiKey=${apiKey}`,
             requestOptions)
             .then(response => response.json())
             .then(result => {
-                console.log(result)
+                if (result && result.features[0]) {
+                    setUser({
+                        ...user,
+                        location: result.features[0].geometry.coordinates,
+                    })
+                }
             })
             .catch(error => console.log('error', error));
-        
     }
 
     const redirectLogin = () => {
@@ -111,7 +113,10 @@ const ProfilePage: React.FC = () => {
 
     const handleAdressChange = (e: any) => {
         const { name, value } = e.target;
-        setAdressInput(value);
+        setUser({
+            ...user,
+            [name]: value,
+        });
     };
 
 
@@ -133,6 +138,7 @@ const ProfilePage: React.FC = () => {
 
     const handleSubmit = async (e: any) => {
         e.preventDefault();
+        await convertAdressIntoCoordonates();
         const payload = {
             id: user.id,
             firstname: user.firstname,
@@ -143,8 +149,8 @@ const ProfilePage: React.FC = () => {
             biography: user.biography,
             interests: user.interests,
             photos: user.photos,
-            latitude,
-            longitude,
+            location: user.location,
+            address: user.address,
         };
         if (!payload.sexual_preferences) {
             payload.sexual_preferences = "both";
@@ -152,8 +158,6 @@ const ProfilePage: React.FC = () => {
         if (!payload.gender) {
             payload.gender = "other";
         }
-        convertAdressIntoCoordonates();
-        console.log(payload);
         // TODO: C'EST ICI POUR L'ENDPOINT
         const response = await fetch(`http://${serverIP}:5000/auth/first-login`, {
             method: "POST",
@@ -167,8 +171,6 @@ const ProfilePage: React.FC = () => {
         });
         if (response.ok) {
             router.push('/');
-            // WARNING: I removed the redirection for testing purposes
-            // router.push("/");
         }
     };
 
@@ -239,9 +241,9 @@ const ProfilePage: React.FC = () => {
                         <p className={`${CLASSNAME}__title`}>Location</p>
                         <input
                             className={`${CLASSNAME}__update-input`}
-                            type="location"
-                            name="location"
-                            value={user.location}
+                            type="address"
+                            name="address"
+                            value={user.address}
                             onChange={handleAdressChange}
                             required
                             autoComplete="new-password"

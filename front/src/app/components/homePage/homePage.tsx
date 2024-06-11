@@ -33,7 +33,6 @@ const mainPage: React.FC = () => {
             redirectLogin();
         }
         getProfiles()
-        console.log(profiles);
     }, [profiles]);
 
     const getProfiles = () => {
