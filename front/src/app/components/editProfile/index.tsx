@@ -15,6 +15,7 @@ const ProfilePage: React.FC = () => {
     const { user, setUser, isJwtInCookie } = useAuth();
     const router = useRouter();
     const [tamerelapute, setTamerelapute] = useState<number[]>([]);
+    const [town, setTown] = useState('');
     const [allInterests, setAllInterests] = useState<Record<string, boolean>>({
         Tunnels: false,
         Obstacle: false,
@@ -74,6 +75,10 @@ const ProfilePage: React.FC = () => {
         }
     }, []);
 
+    function capitalizeFirstLetter(value: string) {
+        return value.charAt(0).toUpperCase() + value.slice(1);
+    }
+
     const convertAdressIntoCoordonates = async () => {
         var requestOptions = {
             method: 'GET',
@@ -87,10 +92,14 @@ const ProfilePage: React.FC = () => {
             .then(response => response.json())
             .then(result => {
                 if (result && result.features[0]) {
+                    console.log(result)
                     setUser({
                         ...user,
                         location: result.features[0].geometry.coordinates,
                     })
+                }
+                if (result && result.query && result.query.parsed && result.query.parsed.city) {
+                    setTown(capitalizeFirstLetter(result.query.parsed.city));
                 }
             })
             .catch(error => console.log('error', error));
@@ -140,6 +149,7 @@ const ProfilePage: React.FC = () => {
             photos: user.photos,
             location: tamerelapute,
             address: user.address,
+            town: town,
         };
         if (!payload.sexual_preferences) {
             payload.sexual_preferences = "both";
@@ -148,6 +158,7 @@ const ProfilePage: React.FC = () => {
             payload.gender = "other";
         }
         // TODO: C'EST ICI POUR L'ENDPOINT
+        console.log(payload);
         const response = await fetch(`http://${serverIP}:5000/auth/first-login`, {
             method: "POST",
             credentials: "include",

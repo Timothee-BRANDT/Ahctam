@@ -9,6 +9,7 @@ export interface User {
     confirmPassword?: string;
     location: number[];
     address: string;
+    town: string;
     fame_rating: number;
     is_active: boolean;
     is_connected: boolean;
