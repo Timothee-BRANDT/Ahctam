@@ -22,7 +22,7 @@ interface ProfileViewProps {
     id: string | string[];
 }
 
-const CLASSNAME = 'profile';
+const CLASSNAME = "profile-1";
 
 const ProfileView: React.FC<ProfileViewProps> = (id) => {
 

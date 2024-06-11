@@ -17,7 +17,7 @@ var townjpp: string = '';
 const ProfilePage: React.FC = () => {
     const { user, setUser, isJwtInCookie } = useAuth();
     const router = useRouter();
-    const [allInterests, setAllInterests] = useState<Record<string, boolean>>({
+    const initInterests: Record<string, boolean> = {
         Tunnels: false,
         Obstacle: false,
         Naps: false,
@@ -39,7 +39,22 @@ const ProfilePage: React.FC = () => {
         Flavors: false,
         Hiding: false,
         Carrots: false,
-    });
+    };
+
+    const initializeInterests = (initialState: Record<string, boolean>, interestsArray: string[]): Record<string, boolean> => {
+        const updatedState = { ...initialState };
+        interestsArray.forEach(interest => {
+            if (updatedState.hasOwnProperty(interest)) {
+                updatedState[interest] = true;
+            }
+        });
+        return updatedState;
+    };
+
+    // [MOCK]
+    const [allInterests, setAllInterests] = useState<Record<string, boolean>>(
+        initializeInterests(initInterests, data.user.interests)
+    );
 
     const getProfile = async () => {
         // [MOCK]
