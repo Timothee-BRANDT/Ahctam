@@ -10,12 +10,13 @@ import data from '../../api.json';
 
 const CLASSNAME = "profile";
 
+var localisationjpp: number[] = [];
+var townjpp: string = '';
+
 
 const ProfilePage: React.FC = () => {
     const { user, setUser, isJwtInCookie } = useAuth();
     const router = useRouter();
-    const [tamerelapute, setTamerelapute] = useState<number[]>([]);
-    const [town, setTown] = useState('');
     const [allInterests, setAllInterests] = useState<Record<string, boolean>>({
         Tunnels: false,
         Obstacle: false,
@@ -68,7 +69,7 @@ const ProfilePage: React.FC = () => {
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition((pos) => {
                 const array = [pos.coords.latitude, pos.coords.longitude];
-                setTamerelapute(array);
+                localisationjpp = array;
             }, (e) => {
                 console.log('Geolocation error');
             })
@@ -92,14 +93,10 @@ const ProfilePage: React.FC = () => {
             .then(response => response.json())
             .then(result => {
                 if (result && result.features[0]) {
-                    console.log(result)
-                    setUser({
-                        ...user,
-                        location: result.features[0].geometry.coordinates,
-                    })
+                    localisationjpp = result.features[0].geometry.coordinates;
                 }
                 if (result && result.query && result.query.parsed && result.query.parsed.city) {
-                    setTown(capitalizeFirstLetter(result.query.parsed.city));
+                    townjpp = capitalizeFirstLetter(result.query.parsed.city)
                 }
             })
             .catch(error => console.log('error', error));
@@ -147,9 +144,9 @@ const ProfilePage: React.FC = () => {
             biography: user.biography,
             interests: user.interests,
             photos: user.photos,
-            location: tamerelapute,
+            location: localisationjpp,
             address: user.address,
-            town: town,
+            town: townjpp,
         };
         if (!payload.sexual_preferences) {
             payload.sexual_preferences = "both";
