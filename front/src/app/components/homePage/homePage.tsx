@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter, usePathname } from "next/navigation";
-import { getUserFromLocalStorage, useAuth } from "@/app/authContext";
+import { useAuth } from "@/app/authContext";
 // import UserCard from '../core/user/userCard';
 import data from "../../api.json";
 import { useEffect, useState } from "react";
@@ -29,7 +29,7 @@ const mainPage: React.FC = () => {
     const [profiles, setProfiles] = useState<User[]>([]);
 
     useEffect(() => {
-        if (!isJwtInCookie("jwtToken")) {
+        if (!isJwtInCookie("jwt_token")) {
             redirectLogin();
         }
         getProfiles()

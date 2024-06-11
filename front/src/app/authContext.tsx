@@ -2,19 +2,19 @@
 import React, { createContext, useContext, ReactNode, useState, useEffect } from 'react';
 import { User } from './types';
 import { useRouter } from 'next/navigation';
-
+import data from './api.json';
 
 const initialPig: User = {
     id: 1,
     username: '',
     firstname: '',
     lastname: '',
-    age: 0,
+    age: 42432,
     email: '',
     password: '',
     location: [],
     address: '',
-    fame_rating: 0,
+    fame_rating: 3,
     confirmPassword: '',
     is_active: false,
     is_connected: false,
@@ -29,7 +29,7 @@ const initialPig: User = {
     photos: [],
     created_at: '',
     firstTimeLogged: true,
-};
+}
 
 interface AuthContextType {
     login: (user: User) => void;
@@ -42,24 +42,17 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType>({
+    user: initialPig,
     login: (user: User) => { },
     logout: () => { },
     setUser: () => { },
     setCookie: (name: string, value: string, days?: number) => { },
-    deleteCookie: (name: string) => { }, user: initialPig,
+    deleteCookie: (name: string) => { },
     isJwtInCookie: (name: string) => false,
 });
 
 export function useAuth() {
     return useContext(AuthContext);
-}
-
-export const getUserFromLocalStorage = () => {
-    if (typeof window !== "undefined") {
-        const userString = localStorage.getItem('user');
-        return userString ? JSON.parse(userString) : null;
-    }
-    return null;
 }
 
 interface AuthProviderProps {
@@ -71,9 +64,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const router = useRouter();
 
     useEffect(() => {
-        const userFromStorage = getUserFromLocalStorage();
-        if (userFromStorage) {
-            setUser(userFromStorage);
+        if (isJwtInCookie("jwt_token")) {
+            // [MOCK]
+            // should call the endpoint with the cookie to get all the userInfo
+            setUser(data.user);
         }
     }, []);
 
@@ -105,17 +99,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
 
     const login = (user: User) => {
-        setCookie('jwtToken', user.jwt_token, 7);
-        if (typeof window !== "undefined") {
-            localStorage.setItem('user', JSON.stringify(user));
-        }
+        setCookie('jwt_token', user.jwt_token, 7);
         setUser(user);
     }
 
     const logout = () => {
         setUser(initialPig);
-        deleteCookie('jwtToken');
-        localStorage.removeItem('user');
+        deleteCookie('jwt_token');
         router.push('/login');
     };
 

@@ -14,6 +14,7 @@ const CLASSNAME = "profile";
 const ProfilePage: React.FC = () => {
     const { user, setUser, isJwtInCookie } = useAuth();
     const router = useRouter();
+    const [tamerelapute, setTamerelapute] = useState<number[]>([]);
     const [allInterests, setAllInterests] = useState<Record<string, boolean>>({
         Tunnels: false,
         Obstacle: false,
@@ -59,17 +60,14 @@ const ProfilePage: React.FC = () => {
     }
 
     useEffect(() => {
-        if (!isJwtInCookie("jwtToken")) {
+        if (!isJwtInCookie("jwt_token")) {
             redirectLogin();
         }
         getProfile();
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition((pos) => {
                 const array = [pos.coords.latitude, pos.coords.longitude];
-                setUser({
-                    ...user,
-                    location: array,
-                })
+                setTamerelapute(array);
             }, (e) => {
                 console.log('Geolocation error');
             })
@@ -111,15 +109,6 @@ const ProfilePage: React.FC = () => {
         });
     };
 
-    const handleAdressChange = (e: any) => {
-        const { name, value } = e.target;
-        setUser({
-            ...user,
-            [name]: value,
-        });
-    };
-
-
     const handleImageChange = (index: any, e: any) => {
         const file = e.target.files[0];
         const reader = new FileReader();
@@ -149,7 +138,7 @@ const ProfilePage: React.FC = () => {
             biography: user.biography,
             interests: user.interests,
             photos: user.photos,
-            location: user.location,
+            location: tamerelapute,
             address: user.address,
         };
         if (!payload.sexual_preferences) {
@@ -244,7 +233,7 @@ const ProfilePage: React.FC = () => {
                             type="address"
                             name="address"
                             value={user.address}
-                            onChange={handleAdressChange}
+                            onChange={handleUserChange}
                             required
                             autoComplete="new-password"
                         />

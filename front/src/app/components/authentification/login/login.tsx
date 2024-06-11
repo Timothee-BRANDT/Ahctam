@@ -84,7 +84,7 @@ const LoginPage: React.FC = () => {
             {isBadCredentials && (
                 <p className={`${CLASSNAME}__bad-credentials`}>Bad credentials</p>
             )}
-            {!isJwtInCookie("jwtToken") && (
+            {!isJwtInCookie("jwt_token") && (
                 <div className={`${CLASSNAME}__form-container`}>
                     <form onSubmit={submit} className="form">
                         <div>
