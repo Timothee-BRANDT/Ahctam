@@ -6,13 +6,18 @@
     align-items: center;
     color: var(--primary-color);
     padding: 16px;
-  }
-  
-  .navLinks {
+        position: relative; /* Add this to make the absolute positioning of .navLinks relative to .header */
+}
+
+.navLinks {
     display: flex;
     list-style: none;
-  }
-  
+}
+
+.menuButton {
+    display: none;
+}
+
 //   .home {
 //     background-color: var(--primary-color);
 //     color: white;
@@ -28,6 +33,23 @@
 //     }
 //   }
 
-  .navLinks a {
+.navLinks a {
     text-decoration: none;
+}
+
+@media (max-width: 700px) {
+    .navLinks {
+        display: none;
+        flex-direction: column;
+        position: relative;
+        gap: 4px;
+    }
+
+    .navLinks.show {
+        display: flex;
+    }
+
+    .menuButton {
+        display: flex;
+    }
 }
