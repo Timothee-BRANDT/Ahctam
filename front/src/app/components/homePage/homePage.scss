@@ -18,3 +18,23 @@
 
     }
 }
+
+.filters {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 32px;
+}
+
+.search-filters {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+.sort-filters {
+    display: flex;
+    gap: 16px;
+}

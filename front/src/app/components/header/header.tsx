@@ -47,8 +47,6 @@ const Header: React.FC = () => {
             <nav>
                 <ul className="navLinks">
                     <Button title="Home" onClick={redirectHome} className="home" />
-                    {user.jwt_token && <Button title="They Likes Me" onClick={redirectLikes} />}
-                    {user.jwt_token && <Button title="They Saw Me" onClick={redirectSaw} />}
                     {user.jwt_token && <Button title="Profile" onClick={redirectProfile} />}
                     {user.jwt_token && <Button title="Logout" onClick={logout} />}
                 </ul>
@@ -59,12 +57,6 @@ const Header: React.FC = () => {
                     <DropdownMenuContent className="w-56">
                         <DropdownMenuItem>
                             <Button title="Home" onClick={redirectHome} className="home" />
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                            {user.jwt_token && <Button title="They Likes Me" onClick={redirectLikes} />}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                            {user.jwt_token && <Button title="They Saw Me" onClick={redirectSaw} />}
                         </DropdownMenuItem>
                         <DropdownMenuItem>
                             {user.jwt_token && <Button title="Profile" onClick={redirectProfile} />}

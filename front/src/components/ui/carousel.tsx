@@ -160,13 +160,11 @@ Carousel.displayName = "Carousel"
 interface UserCardProps {
     user: User,
     className?: string,
-    liked: () => void;
-    disliked: () => void;
     redirect: () => void;
 }
 
 
-const UserCard: React.FC<UserCardProps> = ({ user, liked, disliked, redirect }) => {
+const UserCard: React.FC<UserCardProps> = ({ user, redirect }) => {
 
     return (
         <div className={CLASSNAME}>
@@ -186,14 +184,6 @@ const UserCard: React.FC<UserCardProps> = ({ user, liked, disliked, redirect }) 
                         <span key={index} className={`${CLASSNAME}__tag`}>{interest}</span>
                     ))}
                 </div>
-                {/* <div className={`${CLASSNAME}__swipe`}>
-                    <div>
-                        <img className={`${CLASSNAME}__swipe-heart`} src='/like-dark-border.png' alt='' />
-                    </div>
-                    <div>
-                        <img className={`${CLASSNAME}__swipe-cross`} src='/cross.png' alt='' />
-                    </div>
-                </div> */}
             </div>
         </div>
     );
