@@ -68,19 +68,23 @@ const mainPage: React.FC = () => {
     };
 
     return (
-        <div className={CLASSNAME}>
-            <div className={`${CLASSNAME}__list`}>
-                {profiles.map((profile, index) => {
-                    return <UserCard
-                        key={index}
-                        user={profile}
-                        liked={liked}
-                        disliked={disliked}
-                        redirect={() => redirect(profile.id)}
-                    />
-                })}
-            </div>
-        </div>
+        <>
+            {user.jwt_token &&
+                <div className={CLASSNAME}>
+                    <div className={`${CLASSNAME}__list`}>
+                        {profiles.map((profile, index) => {
+                            return <UserCard
+                                key={index}
+                                user={profile}
+                                liked={liked}
+                                disliked={disliked}
+                                redirect={() => redirect(profile.id)}
+                            />
+                        })}
+                    </div>
+                </div>
+            }
+        </>
     )
 };
 

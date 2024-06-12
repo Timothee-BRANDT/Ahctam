@@ -49,14 +49,17 @@ const Header: React.FC = () => {
                     <Button title="Home" onClick={redirectHome} className="home" />
                     {user.jwt_token && <Button title="They Likes Me" onClick={redirectLikes} />}
                     {user.jwt_token && <Button title="They Saw Me" onClick={redirectSaw} />}
-                    {user.jwt_token && <Button title="Logout" onClick={logout} />}
                     {user.jwt_token && <Button title="Profile" onClick={redirectProfile} />}
+                    {user.jwt_token && <Button title="Logout" onClick={logout} />}
                 </ul>
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <button className="menuButton" onClick={toggleMenu}>Menu</button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-56">
+                        <DropdownMenuItem>
+                            <Button title="Home" onClick={redirectHome} className="home" />
+                        </DropdownMenuItem>
                         <DropdownMenuItem>
                             {user.jwt_token && <Button title="They Likes Me" onClick={redirectLikes} />}
                         </DropdownMenuItem>
