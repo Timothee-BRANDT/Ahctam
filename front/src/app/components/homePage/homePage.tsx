@@ -62,6 +62,9 @@ const mainPage: React.FC = () => {
     const [location, setLocation] = useState('');
     const [filterBy, setFilterBy] = useState('');
     const [sortBy, setSortBy] = useState('');
+    const [filterByAgeValue, setFilterByAgeValue] = useState(0);
+    const [filterByLocationValue, setFilterByLocationValue] = useState(0);
+    const [filterByFameValue, setFilterByFameValue] = useState(0);
     const [tags, setTags] = useState<Record<string, Checked>>(initialTags);
 
     useEffect(() => {
@@ -69,8 +72,7 @@ const mainPage: React.FC = () => {
             redirectLogin();
         }
         getProfiles()
-        console.log(tags)
-    }, [profiles, tags]);
+    }, [profiles]);
 
     const handleCheckedChange = (tag: string, checked: Checked) => {
         setTags((prevTags) => ({
@@ -81,6 +83,18 @@ const mainPage: React.FC = () => {
 
     const handleAgeGapChange = (event: any) => {
         setAgeGap(Number(event.target.value));
+    };
+
+    const handleFilterByAgeValueChange = (event: any) => {
+        setFilterByAgeValue(Number(event.target.value));
+    };
+
+    const handleFilterByLocationValueChange = (event: any) => {
+        setFilterByLocationValue(event.target.value);
+    };
+
+    const handleFilterByFameValueChange = (event: any) => {
+        setFilterByFameValue(event.target.value);
     };
 
     const handleFameGapChange = (event: any) => {
@@ -118,8 +132,8 @@ const mainPage: React.FC = () => {
         <>
             {user.jwt_token && (
                 <>
-                    <div className="filters">
-                        <div className="search-filters">
+                    <div className="search-and-filters">
+                        <div className="search">
                             <Input
                                 onChange={handleAgeGapChange}
                                 type="number"
@@ -152,36 +166,78 @@ const mainPage: React.FC = () => {
                                     ))}
                                 </DropdownMenuContent>
                             </DropdownMenu>
+                            <Button className="search-button">Search</Button>
                         </div>
-                        <div className="sort-filters">
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button variant="outline">Sort By</Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent className="w-56">
-                                    <DropdownMenuRadioGroup value={sortBy} onValueChange={setSortBy}>
-                                        <DropdownMenuRadioItem value="age">Age</DropdownMenuRadioItem>
-                                        <DropdownMenuRadioItem value="location">Location</DropdownMenuRadioItem>
-                                        <DropdownMenuRadioItem value="fame_rating">Fame Rating</DropdownMenuRadioItem>
-                                        <DropdownMenuRadioItem value="common_tags">Common Tags</DropdownMenuRadioItem>
-                                    </DropdownMenuRadioGroup>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button variant="outline">Filter By</Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent className="w-56">
-                                    <DropdownMenuRadioGroup value={filterBy} onValueChange={setFilterBy}>
-                                        <DropdownMenuRadioItem value="age">Age</DropdownMenuRadioItem>
-                                        <DropdownMenuRadioItem value="location">Location</DropdownMenuRadioItem>
-                                        <DropdownMenuRadioItem value="fame_rating">Fame Rating</DropdownMenuRadioItem>
-                                        <DropdownMenuRadioItem value="common_tags">Common Tags</DropdownMenuRadioItem>
-                                        <DropdownMenuRadioItem value="likes">People Who Likes Me</DropdownMenuRadioItem>
-                                        <DropdownMenuRadioItem value="saw">People Who Saw Me</DropdownMenuRadioItem>
-                                    </DropdownMenuRadioGroup>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
+                        <div className="filters">
+                            <div className="filters-selectors">
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button variant="outline">Sort By</Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent className="w-56">
+                                        <DropdownMenuRadioGroup value={sortBy} onValueChange={setSortBy}>
+                                            <DropdownMenuRadioItem value="age">Age</DropdownMenuRadioItem>
+                                            <DropdownMenuRadioItem value="location">Location</DropdownMenuRadioItem>
+                                            <DropdownMenuRadioItem value="fame_rating">Fame Rating</DropdownMenuRadioItem>
+                                            <DropdownMenuRadioItem value="common_tags">Common Tags</DropdownMenuRadioItem>
+                                        </DropdownMenuRadioGroup>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                                <DropdownMenu>
+                                    <DropdownMenuTrigger asChild>
+                                        <Button variant="outline">Filter By</Button>
+                                    </DropdownMenuTrigger>
+                                    <DropdownMenuContent className="w-56">
+                                        <DropdownMenuRadioGroup value={filterBy} onValueChange={setFilterBy}>
+                                            <DropdownMenuRadioItem value="age">Age</DropdownMenuRadioItem>
+                                            <DropdownMenuRadioItem value="location">Location</DropdownMenuRadioItem>
+                                            <DropdownMenuRadioItem value="fame_rating">Fame Rating</DropdownMenuRadioItem>
+                                            <DropdownMenuRadioItem value="common_tags">Common Tags</DropdownMenuRadioItem>
+                                        </DropdownMenuRadioGroup>
+                                    </DropdownMenuContent>
+                                </DropdownMenu>
+                                {filterBy === 'age' && (
+                                    <Input
+                                        onChange={handleFilterByAgeValueChange}
+                                        type="number"
+                                        placeholder="What age ?"
+                                    />
+                                )}
+                                {filterBy === 'location' && (
+                                    <Input
+                                        onChange={handleFilterByLocationValueChange}
+                                        type="string"
+                                        placeholder="Which town ?"
+                                    />
+                                )}
+                                {filterBy === 'fame_rating' && (
+                                    <Input
+                                        onChange={handleFilterByFameValueChange}
+                                        type="number"
+                                        placeholder="How much fame ?"
+                                    />
+                                )}
+                                {filterBy === 'common_tags' && (
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <Button variant="outline">Filter By Tags</Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent className="w-56 max-h-60 overflow-y-auto">
+                                            {Object.keys(tags).map((tag) => (
+                                                <DropdownMenuCheckboxItem
+                                                    key={tag}
+                                                    onSelect={(event) => event.preventDefault()}
+                                                    checked={tags[tag]}
+                                                    onCheckedChange={(checked) => handleCheckedChange(tag, checked)}
+                                                >
+                                                    {tag}
+                                                </DropdownMenuCheckboxItem>
+                                            ))}
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+                                )}
+                            </div>
+                            <Button className="search-button">Apply filters</Button>
                         </div>
                     </div>
                     <div className={CLASSNAME}>
