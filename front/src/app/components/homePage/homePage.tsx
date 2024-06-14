@@ -22,6 +22,7 @@ import { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu"
 
 import data from "../../api.json";
 import "./homePage.scss";
+import { serverIP } from "@/app/constants";
 
 const CLASSNAME = 'browse'
 
@@ -105,6 +106,33 @@ const mainPage: React.FC = () => {
         setLocation(event.target.value);
     };
 
+    const handleSearch = async () => {
+        //[MOCK]
+        let tagsArray: string[] = [];
+        Object.keys(tags).map((tag) => {
+            if (tags[tag]) {
+                tagsArray.push(tag);
+            }
+        })
+        console.log(tagsArray);
+        const response = await fetch(`http://${serverIP}:5000/browse?` + new URLSearchParams({
+            ageGap: String(ageGap),
+            fameGap: String(fameGap),
+            location: location,
+            tags: tagsArray.join(','),
+        }), {
+            method: "POST",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+        const data = await response.json();
+        if (response.ok) {
+            setProfiles(data);
+        }
+    };
+
     const getProfiles = () => {
         //[MOCK]
         // const response = await fetch(`http://${serverIP}:5000/browse`, {
@@ -166,7 +194,7 @@ const mainPage: React.FC = () => {
                                     ))}
                                 </DropdownMenuContent>
                             </DropdownMenu>
-                            <Button className="search-button">Search</Button>
+                            <Button onClick={handleSearch} className="search-button">Search</Button>
                         </div>
                         <div className="filters">
                             <div className="filters-selectors">
