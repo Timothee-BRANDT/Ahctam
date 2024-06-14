@@ -67,6 +67,7 @@ const mainPage: React.FC = () => {
     const [filterByLocationValue, setFilterByLocationValue] = useState(0);
     const [filterByFameValue, setFilterByFameValue] = useState(0);
     const [tags, setTags] = useState<Record<string, Checked>>(initialTags);
+    const [filterTags, setFilterTags] = useState<Record<string, Checked>>(initialTags);
 
     useEffect(() => {
         if (!isJwtInCookie("jwt_token")) {
@@ -75,8 +76,15 @@ const mainPage: React.FC = () => {
         getProfiles()
     }, [profiles]);
 
-    const handleCheckedChange = (tag: string, checked: Checked) => {
+    const handleTagsChange = (tag: string, checked: Checked) => {
         setTags((prevTags) => ({
+            ...prevTags,
+            [tag]: checked,
+        }));
+    };
+
+    const handleFiltersTagsChange = (tag: string, checked: Checked) => {
+        setFilterTags((prevTags) => ({
             ...prevTags,
             [tag]: checked,
         }));
@@ -114,7 +122,32 @@ const mainPage: React.FC = () => {
                 tagsArray.push(tag);
             }
         })
-        console.log(tagsArray);
+        const response = await fetch(`http://${serverIP}:5000/browse?` + new URLSearchParams({
+            ageGap: String(ageGap),
+            fameGap: String(fameGap),
+            location: location,
+            tags: tagsArray.join(','),
+        }), {
+            method: "POST",
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json",
+            },
+        });
+        const data = await response.json();
+        if (response.ok) {
+            setProfiles(data);
+        }
+    };
+
+    const handleFilters = async () => {
+        //[MOCK]
+        let tagsArray: string[] = [];
+        Object.keys(tags).map((tag) => {
+            if (tags[tag]) {
+                tagsArray.push(tag);
+            }
+        })
         const response = await fetch(`http://${serverIP}:5000/browse?` + new URLSearchParams({
             ageGap: String(ageGap),
             fameGap: String(fameGap),
@@ -187,7 +220,7 @@ const mainPage: React.FC = () => {
                                             key={tag}
                                             onSelect={(event) => event.preventDefault()}
                                             checked={tags[tag]}
-                                            onCheckedChange={(checked) => handleCheckedChange(tag, checked)}
+                                            onCheckedChange={(checked) => handleTagsChange(tag, checked)}
                                         >
                                             {tag}
                                         </DropdownMenuCheckboxItem>
@@ -251,12 +284,12 @@ const mainPage: React.FC = () => {
                                             <Button variant="outline">Filter By Tags</Button>
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent className="w-56 max-h-60 overflow-y-auto">
-                                            {Object.keys(tags).map((tag) => (
+                                            {Object.keys(filterTags).map((tag) => (
                                                 <DropdownMenuCheckboxItem
                                                     key={tag}
                                                     onSelect={(event) => event.preventDefault()}
-                                                    checked={tags[tag]}
-                                                    onCheckedChange={(checked) => handleCheckedChange(tag, checked)}
+                                                    checked={filterTags[tag]}
+                                                    onCheckedChange={(checked) => handleFiltersTagsChange(tag, checked)}
                                                 >
                                                     {tag}
                                                 </DropdownMenuCheckboxItem>
