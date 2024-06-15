@@ -1,7 +1,9 @@
 from flask import (
     jsonify,
     request,
+    current_app,
 )
+import jwt
 from psycopg2.extras import RealDictCursor
 from . import api
 from ..database import get_db_connection
@@ -12,6 +14,39 @@ from ..authentication.views.decorators import jwt_required
 def get_test():
     data = {"message": "Hello World from the API!"}
     return jsonify(data)
+
+
+@api.route('/getUserInfo', methods=['GET'])
+def get_user_info():
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    token = request.headers.get('Authorization').split(' ')[1]
+    user = jwt.decode(
+        token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
+    user_query = """
+    SELECT firstname, lastname, password, age, email, biography, gender, sexual_preferences
+    FROM Users
+    WHERE id = %s
+    """
+    location_query = """
+    SELECT city, lattitude, longitude
+    FROM Locations
+    WHERE located_user = %s
+    """
+    try:
+        cur.execute(user_query, (user['id'],))
+        user_info = cur.fetchone()
+        cur.execute(location_query, (user['id'],))
+        location_info = cur.fetchone()
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+    finally:
+        cur.close()
+        conn.close()
+    return jsonify({
+        'user': user_info,
+        'location': location_info
+    }), 200
 
 
 @api.route('/interests')
@@ -33,6 +68,33 @@ def get_interests():
     finally:
         cur.close()
         conn.close()
+
+
+@api.route('/getMyLikes', methods=['GET'])
+@jwt_required
+def get_user_likes():
+    conn = get_db_connection()
+    cur = conn.cursor()
+    token = request.headers.get('Authorization').split(' ')[1]
+    user = jwt.decode(
+        token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
+    print(user)
+    # Query that counts in Likes table where 'user_liked' is the user's id
+    query = """
+    SELECT COUNT(*)
+    FROM likes
+    WHERE user_liked = %s
+    """
+    try:
+        cur.execute(query, (user['id'],))
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+    else:
+        likes = cur.fetchone()
+    finally:
+        cur.close()
+        conn.close()
+    return jsonify({'likes': likes}), 200
 
 
 @api.route('/filterUsers', methods=['GET'])
