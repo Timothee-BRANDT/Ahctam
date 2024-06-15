@@ -71,7 +71,8 @@ VALUES (%s, %s, %s)
     return jsonify({
         'message': 'Login successful',
         'jwt_token': jwt_token,
-        'refresh_token': refresh_token
+        'refresh_token': refresh_token,
+        'user_id': user_id
     }), 200
 
 
