@@ -122,7 +122,7 @@ class LoginForm(FlaskForm):
             raise ValueError(f"An error occurred: {e}")
         else:
             if not user:
-                raise ValueError('Invalid username')
+                raise ValueError('Invalid credentials')
         finally:
             cur.close()
             conn.close()
@@ -138,7 +138,7 @@ class LoginForm(FlaskForm):
             raise ValueError(f"An error occurred: {e}")
         else:
             if not check_password_hash(user[0], field.data):
-                raise ValueError('Invalid password')
+                raise ValueError('Invalid credentials')
         finally:
             cur.close()
             conn.close()
