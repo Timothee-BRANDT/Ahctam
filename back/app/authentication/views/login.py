@@ -34,6 +34,7 @@ def login():
         cur.execute('SELECT id FROM users WHERE username = %s',
                     (data['username'],))
         user_id = cur.fetchone()[0]
+        print('our user id is:', user_id)
     except Exception as e:
         return jsonify({'error': str(e)}), 400
     else:
@@ -91,8 +92,13 @@ def first_login():
     try:
         data = request.get_json()
         profile = data.get('payload', {})
+        print('THE PROFILE WE RECEIVE:')
+        for element in profile:
+            print(type(profile[element]))
+            print(element, profile[element])
         user_id = data.get('id')
         print('The Id is:', user_id)
+        return jsonify({'message': 'We test'}), 200
         form = InformationsForm(data=profile)
         form.validate()
         print('Profile form Validated!!!')

@@ -1,10 +1,12 @@
 from flask import (
     current_app,
     url_for,
-    render_template
+    render_template,
+    request,
 )
 from flask_mail import Message
 from itsdangerous import URLSafeTimedSerializer
+import requests
 
 
 def send_confirmation_email(email, token):
@@ -44,6 +46,7 @@ def send_reset_password_email(email):
 
 def store_profile_informations(conn, cur, form, user_id):
     try:
+        user_id = 5
         # User
         user_query = """
 UPDATE users
@@ -92,9 +95,33 @@ INSERT INTO user_interests (user_id, interest_id)
 VALUES (%s, %s)
             """
             cur.execute(user_interest_query, (user_id, interest_id))
+
+        # Location
+        town = form.town.data
+        print('town from form is', town)
+        if not town:
+            longitude, latitude, town = get_location_from_ip()
+            print('town is', town)
+        return
         conn.commit()
     except Exception as e:
         raise ValueError(e)
     finally:
         cur.close()
         conn.close()
+
+
+def get_location_from_ip():
+    response = requests.get('https://api.ipify.org?format=json')
+    print(response.json())
+    user_ip = response.json()['ip']
+    # user_ip = request.remote_addr
+    # print(user_ip)
+    response = requests.get(f'http://ipinfo.io/{user_ip}/json')
+    print(response.json())
+    if response.status_code == 200:
+        longitude, latitude = response.json()['loc'].split(',')
+        town = response.json()['city']
+        return longitude, latitude, town
+    else:
+        return None, None, None

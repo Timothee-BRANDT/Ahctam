@@ -3,6 +3,7 @@ from flask_wtf import FlaskForm
 from wtforms import (
     Form,
     StringField,
+    FloatField,
     FieldList,
     SubmitField,
     PasswordField,
@@ -171,7 +172,9 @@ class InformationsForm(Form):
     biography = TextAreaField('Biography')
     photos = FieldList(StringField('Pictures'))
     interests = FieldList(StringField('Interests'))
-    location = StringField('Can we use your location?')
+    location = FieldList(FloatField('Location'))
+    address = StringField('Address')
+    town = StringField('Town')
     submit = StringField('Submit')
 
     def validate_gender(self, field):

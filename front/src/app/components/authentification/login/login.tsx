@@ -33,6 +33,7 @@ const LoginPage: React.FC = () => {
     const payload = {
       username,
       password,
+      // id: user.id,
     };
     try {
       const response = await fetch(`http://${serverIP}:5000/auth/login`, {
@@ -45,10 +46,7 @@ const LoginPage: React.FC = () => {
 
       const data = await response.json();
       if (!response.ok) {
-        if (
-          data.error === "Invalid username" ||
-          data.error === "Invalid password"
-        ) {
+        if (data.error === "Invalid credentials") {
           setIsBadCredentials(true);
           setTimeout(() => {
             setIsBadCredentials(false);
@@ -57,14 +55,19 @@ const LoginPage: React.FC = () => {
         throw new Error("Network response was not ok");
       }
       if (data.message === "First login") {
+        console.log("first login");
+        console.log("id", data.user_id);
         setUser({
           ...user,
           jwt_token: data.jwt_token,
           refresh_token: data.refresh_token,
           id: data.user_id,
         });
+        setLoginSucces(true);
         router.push("/profile/update");
       } else {
+        console.log("success login");
+        console.log("id", data.user_id);
         setUser({
           ...user,
           // username: data.username,
@@ -112,7 +115,7 @@ const LoginPage: React.FC = () => {
                 autoComplete="new-password"
               />
             </div>
-            <Button title="Log in" type="submit" onClick={() => {}} />
+            <Button title="Log in" type="submit" onClick={() => { }} />
             <div className={`${CLASSNAME}__helper`}>
               <p className={`${CLASSNAME}__helper-question`}>
                 Password forgot ?
