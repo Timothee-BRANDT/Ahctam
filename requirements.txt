@@ -9,3 +9,4 @@ Flask-SocketIO==5.3.6
 itsdangerous==2.2.0
 Flask-Mail2==1.0.2
 Flask-Cors==4.0.1
+Faker==25.8.0
