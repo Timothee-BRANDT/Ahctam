@@ -228,9 +228,9 @@ def insert_random_users(cursor, num_users=100):
 
         # User
         cursor.execute("""
-            INSERT INTO users (username, firstname, lastname, age, email, password, is_active, gender, sexual_preferences, biography, fame)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-            RETURNING id
+INSERT INTO users (username, firstname, lastname, age, email, password, is_active, gender, sexual_preferences, biography, fame)
+VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+RETURNING id
         """, (username, firstname, lastname, age, email, password, True, gender, sexual_preference, biography, fame))
 
         user_id = cursor.fetchone()[0]
@@ -238,16 +238,16 @@ def insert_random_users(cursor, num_users=100):
         # Picture
         image = generate_random_image_string()
         cursor.execute("""
-            INSERT INTO pictures (url, is_profile_picture, owner)
-            VALUES (%s, %s, %s)
+INSERT INTO pictures (url, is_profile_picture, owner)
+VALUES (%s, %s, %s)
         """, (image, True, user_id))
 
         # Interests
         user_interests = random.sample(interests, random.randint(1, 5))
         for interest in user_interests:
             cursor.execute("""
-                INSERT INTO user_interests (user_id, interest_id)
-                VALUES (%s, (SELECT id FROM interests WHERE name=%s))
+INSERT INTO user_interests (user_id, interest_id)
+VALUES (%s, (SELECT id FROM interests WHERE name=%s))
             """, (user_id, interest))
 
 
