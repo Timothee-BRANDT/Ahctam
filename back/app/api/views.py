@@ -35,16 +35,43 @@ FROM Locations
 WHERE located_user = %s
     """
     # TODO: On continue ici
+    user_interests_query = """
+SELECT interest_id
+FROM User_interests
+WHERE user_id = %s
+    """
     interests_query = """
 SELECT name
 FROM Interests
-WHERE user_id = %s
+WHERE id = %s
     """
+    picture_query = """
+SELECT url
+FROM Pictures
+WHERE owner = %s
+AND is_profile_picture = TRUE
+    """
+    all_pictures_query = """
+SELECT url
+FROM Pictures
+WHERE owner = %s
+    """
+    interests = []
     try:
         cur.execute(user_query, (user['id'],))
         user_info = cur.fetchone()
         cur.execute(location_query, (user['id'],))
         location_info = cur.fetchone()
+        cur.execute(user_interests_query, (user['id'],))
+        user_interests = cur.fetchall()
+        for user_interest in user_interests:
+            cur.execute(interests_query, (user_interest['interest_id'],))
+            interest = cur.fetchone()
+            interests.append(interest)
+        cur.execute(picture_query, (user['id'],))
+        profile_picture = cur.fetchone()
+        cur.execute(all_pictures_query, (user['id'],))
+        all_pictures = cur.fetchall()
     except Exception as e:
         return jsonify({'error': str(e)}), 400
     finally:
@@ -52,7 +79,10 @@ WHERE user_id = %s
         conn.close()
     return jsonify({
         'user': user_info,
-        'location': location_info
+        'location': location_info,
+        'interests': interests,
+        'profile_picture': profile_picture,
+        'all_pictures': all_pictures
     }), 200
 
 
