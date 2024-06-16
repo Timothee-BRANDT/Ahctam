@@ -7,7 +7,9 @@ export interface User {
     email: string;
     password: string;
     confirmPassword?: string;
-    location: string;
+    location: number[];
+    address: string;
+    town: string;
     fame_rating: number;
     is_active: boolean;
     is_connected: boolean;

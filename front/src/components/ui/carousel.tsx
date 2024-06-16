@@ -160,15 +160,11 @@ Carousel.displayName = "Carousel"
 interface UserCardProps {
     user: User,
     className?: string,
-    liked: () => void;
-    disliked: () => void;
     redirect: () => void;
 }
 
 
-const UserCard: React.FC<UserCardProps> = ({ user, liked, disliked, redirect }) => {
-
-    const { scrollNext } = useCarousel();
+const UserCard: React.FC<UserCardProps> = ({ user, redirect }) => {
 
     return (
         <div className={CLASSNAME}>
@@ -179,7 +175,7 @@ const UserCard: React.FC<UserCardProps> = ({ user, liked, disliked, redirect }) 
                     <p className={`${CLASSNAME}__informations-username`}>{user.username}, {user.age}</p>
                     <div className={`${CLASSNAME}__informations-location`}>
                         <img className={`${CLASSNAME}__informations-location-icon`} src='/alternate-map-marker.svg' alt='' />
-                        <p className={`${CLASSNAME}__informations-location-text`}>{user.location}</p>
+                        <p className={`${CLASSNAME}__informations-location-text`}>{user.town}</p>
                     </div>
                     <p className={`${CLASSNAME}__informations-bio`}>{user.biography}</p>
                 </div>
@@ -187,14 +183,6 @@ const UserCard: React.FC<UserCardProps> = ({ user, liked, disliked, redirect }) 
                     {user.interests.map((interest, index) => (
                         <span key={index} className={`${CLASSNAME}__tag`}>{interest}</span>
                     ))}
-                </div>
-                <div className={`${CLASSNAME}__swipe`}>
-                    <div onClick={scrollNext}>
-                        <img className={`${CLASSNAME}__swipe-heart`} src='/like-dark-border.png' alt='' />
-                    </div>
-                    <div onClick={scrollNext}>
-                        <img className={`${CLASSNAME}__swipe-cross`} src='/cross.png' alt='' />
-                    </div>
                 </div>
             </div>
         </div>

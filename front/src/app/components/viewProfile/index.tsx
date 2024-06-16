@@ -22,7 +22,7 @@ interface ProfileViewProps {
     id: string | string[];
 }
 
-const CLASSNAME = 'profile';
+const CLASSNAME = "profile-1";
 
 const ProfileView: React.FC<ProfileViewProps> = (id) => {
 
@@ -49,6 +49,10 @@ const ProfileView: React.FC<ProfileViewProps> = (id) => {
     //         console.log(e);
     //     }
     // }
+
+
+    useEffect(() => {
+    })
 
     const user = data.user; // mock
     // should be the const user = response.data;
@@ -104,7 +108,7 @@ const ProfileView: React.FC<ProfileViewProps> = (id) => {
                 <p className={`${CLASSNAME}__informations-username`}>{user.username}, {user.age}</p>
                 <div className={`${CLASSNAME}__informations-location`}>
                     <img className={`${CLASSNAME}__informations-location-icon`} src='/alternate-map-marker.svg' alt='' />
-                    <p className={`${CLASSNAME}__informations-location-text`}>{user.location}</p>
+                    <p className={`${CLASSNAME}__informations-location-text`}>{user.town}</p>
                 </div>
                 <StarRating rate={user.fame_rating} />
                 <p className={`${CLASSNAME}__informations-bio`}>{user.biography}</p>

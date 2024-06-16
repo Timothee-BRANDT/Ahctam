@@ -8,6 +8,7 @@ import Button from '../../core/button/button';
 import { serverIP } from '@/app/constants';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/app/authContext';
+import data from '../../../api.json';
 
 const RegisterForm: React.FC = () => {
     const router = useRouter();
@@ -31,30 +32,6 @@ const RegisterForm: React.FC = () => {
 
     const submit = async (event: any) => {
         event.preventDefault();
-        // if (payload.firstname === 'success') {
-        // 	console.log(payload.email);
-        // 	const user = {
-        // 		id: 1,
-        // 		username: payload.username,
-        // 		firstname: payload.firstname,
-        // 		lastname: payload.lastname,
-        // 		email: payload.email,
-        // 		password: payload.password,
-        // 		confirmPassword: payload.confirmPassword,
-        // 		is_active: false,
-        // 		registration_token: '',
-        // 		jwt_token: '',
-        // 		gender: '',
-        // 		sexual_preferences: '',
-        // 		biography: '',
-        // 		interests: '',
-        // 		created_at: '',
-        // 		firstTimeLogged: false,
-        // 	}
-        // 	setUser(user);
-        // 	router.push('register-confirm')
-        // 	return;
-        // }
         try {
             const response = await fetch(`http://${serverIP}:5000/auth/register`, {
                 method: 'POST',
@@ -65,32 +42,12 @@ const RegisterForm: React.FC = () => {
                 body: JSON.stringify(payload)
             });
             if (response.ok) {
-                const user = {
-                    id: 1,
-                    username: payload.username,
-                    firstname: payload.firstname,
-                    lastname: payload.lastname,
-                    age: 0,
-                    email: payload.email,
-                    password: payload.password,
-                    password2: payload.password2,
-                    is_active: false,
-                    is_connected: false,
-                    location: '',
-                    fame_rating: 0,
-                    last_connexion: '',
-                    registration_token: '',
-                    jwt_token: '',
-                    gender: '',
-                    sexual_preferences: '',
-                    biography: '',
-                    interests: [],
-                    photos: [],
-                    created_at: '',
-                    firstTimeLogged: false,
-                }
-                setUser(user);
+                setUser(data.user);
                 router.push('register-confirm')
+            }
+            // si le token est expire, fait l'appel au endpoint qui le renouvelle
+            if (response.status === 401) {
+                // call endpoint
             }
         }
         catch (e) {
@@ -170,7 +127,7 @@ const RegisterForm: React.FC = () => {
                     <Button title="Register" type="submit" onClick={() => { }} />
                     <div className="new_member">
                         <p className="new_member-question">Already have an Account ?</p>
-                        <Link className="new_member-creation" href="/">
+                        <Link className="new_member-creation" href="/login">
                             Login!
                         </Link>
                     </div>

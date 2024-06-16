@@ -6,26 +6,18 @@ import { serverIP } from "@/app/constants";
 import { useAuth } from "@/app/authContext";
 import { ProfileInformations } from "@/app/types";
 import { usePathname, useRouter } from "next/navigation";
+import data from '../../api.json';
 
 const CLASSNAME = "profile";
 
-const ProfilePage: React.FC = () => {
-    const { user, setUser } = useAuth();
-    const pathname = usePathname();
-    const router = useRouter();
-    const [profile, setProfile] = useState<ProfileInformations>({
-        age: 0,
-        firstname: user.firstname,
-        lastname: user.lastname,
-        email: user.email,
-        gender: "",
-        sexualPreference: "",
-        biography: "",
-        interests: [],
-        photos: Array(6).fill(null),
-    });
+var localisationjpp: number[] = [];
+var townjpp: string = '';
 
-    const [allInterests, setAllInterests] = useState<Record<string, boolean>>({
+
+const ProfilePage: React.FC = () => {
+    const { user, setUser, isJwtInCookie } = useAuth();
+    const router = useRouter();
+    const initInterests: Record<string, boolean> = {
         Tunnels: false,
         Obstacle: false,
         Naps: false,
@@ -47,23 +39,88 @@ const ProfilePage: React.FC = () => {
         Flavors: false,
         Hiding: false,
         Carrots: false,
-    });
+    };
+
+    const initializeInterests = (initialState: Record<string, boolean>, interestsArray: string[]): Record<string, boolean> => {
+        const updatedState = { ...initialState };
+        interestsArray.forEach(interest => {
+            if (updatedState.hasOwnProperty(interest)) {
+                updatedState[interest] = true;
+            }
+        });
+        return updatedState;
+    };
+
+    // [MOCK]
+    const [allInterests, setAllInterests] = useState<Record<string, boolean>>(
+        initializeInterests(initInterests, data.user.interests)
+    );
+
+    const getProfile = async () => {
+        // [MOCK]
+        // const response = await fetch(`http://${serverIP}:5000/getUserInfo`, {
+        //     method: "POST",
+        //     credentials: "include",
+        //     headers: {
+        //         "Content-Type": "application/json",
+        //     },
+        // });
+        // const data = await response.json();
+        // if (response.ok) {
+        //     setUser(data);
+        // }
+
+        setUser(data.user);
+        data.user.interests.map((interest) => {
+            allInterests[interest] = true;
+        })
+    }
 
     useEffect(() => {
-        if (pathname !== "/login" && !user.jwt_token) redirectLogin();
-    }, [allInterests]);
+        if (!isJwtInCookie("jwt_token")) {
+            redirectLogin();
+        }
+        getProfile();
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition((pos) => {
+                const array = [pos.coords.latitude, pos.coords.longitude];
+                localisationjpp = array;
+            }, (e) => {
+                console.log('Geolocation error');
+            })
+        }
+    }, []);
+
+    function capitalizeFirstLetter(value: string) {
+        return value.charAt(0).toUpperCase() + value.slice(1);
+    }
+
+    const convertAdressIntoCoordonates = async () => {
+        var requestOptions = {
+            method: 'GET',
+        };
+
+        const formattedAddress = encodeURIComponent(user.address);
+        const apiKey = '0b45c5495f8e4f9b8246deebf999830d';
+
+        await fetch(`https://api.geoapify.com/v1/geocode/search?text=${formattedAddress}&apiKey=${apiKey}`,
+            requestOptions)
+            .then(response => response.json())
+            .then(result => {
+                if (result && result.features[0]) {
+                    localisationjpp = result.features[0].geometry.coordinates;
+                }
+                if (result && result.query && result.query.parsed && result.query.parsed.city) {
+                    townjpp = capitalizeFirstLetter(result.query.parsed.city)
+                }
+            })
+            .catch(error => console.log('error', error));
+    }
 
     const redirectLogin = () => {
         router.push("/login");
     };
 
-    const handleProfileChange = (e: any) => {
-        const { name, value } = e.target;
-        setProfile({
-            ...profile,
-            [name]: value,
-        });
-    };
 
     const handleUserChange = (e: any) => {
         const { name, value } = e.target;
@@ -77,10 +134,10 @@ const ProfilePage: React.FC = () => {
         const file = e.target.files[0];
         const reader = new FileReader();
         reader.onloadend = () => {
-            const newPhotos = [...profile.photos];
+            const newPhotos = [...user.photos];
             newPhotos[index] = reader.result as string;
-            setProfile({
-                ...profile,
+            setUser({
+                ...user,
                 photos: newPhotos,
             });
         };
@@ -91,24 +148,29 @@ const ProfilePage: React.FC = () => {
 
     const handleSubmit = async (e: any) => {
         e.preventDefault();
+        await convertAdressIntoCoordonates();
         const payload = {
+            id: user.id,
             firstname: user.firstname,
             lastname: user.lastname,
             email: user.email,
-            gender: profile.gender,
-            sexualPreference: profile.sexualPreference,
-            biography: profile.biography,
-            interests: profile.interests,
-            photos: profile.photos,
+            gender: user.gender,
+            sexual_preferences: user.sexual_preferences,
+            biography: user.biography,
+            interests: user.interests,
+            photos: user.photos,
+            location: localisationjpp,
+            address: user.address,
+            town: townjpp,
         };
-        if (!payload.sexualPreference) {
-            payload.sexualPreference = "both";
+        if (!payload.sexual_preferences) {
+            payload.sexual_preferences = "both";
         }
         if (!payload.gender) {
             payload.gender = "other";
         }
-        console.log(payload);
         // TODO: C'EST ICI POUR L'ENDPOINT
+        console.log(payload);
         const response = await fetch(`http://${serverIP}:5000/auth/first-login`, {
             method: "POST",
             credentials: "include",
@@ -117,13 +179,10 @@ const ProfilePage: React.FC = () => {
             },
             body: JSON.stringify({
                 payload,
-                id: user.id,
             }),
         });
         if (response.ok) {
-            // WARNING: I removed the redirection for testing purposes
-            console.log("Profile updated");
-            // router.push("/");
+            router.push('/');
         }
     };
 
@@ -144,8 +203,8 @@ const ProfilePage: React.FC = () => {
         newInterests[interest] = !newInterests[interest];
         setAllInterests(newInterests);
         const trueIndices = getInterestsIndices(newInterests);
-        setProfile({
-            ...profile,
+        setUser({
+            ...user,
             interests: trueIndices,
         });
     };
@@ -179,6 +238,30 @@ const ProfilePage: React.FC = () => {
                         />
                     </div>
                     <div className={`${CLASSNAME}__info-container`}>
+                        <p className={`${CLASSNAME}__title`}>Age</p>
+                        <input
+                            className={`${CLASSNAME}__update-input`}
+                            type="age"
+                            name="age"
+                            value={user.age}
+                            onChange={handleUserChange}
+                            required
+                            autoComplete="new-password"
+                        />
+                    </div>
+                    <div className={`${CLASSNAME}__info-container`}>
+                        <p className={`${CLASSNAME}__title`}>Location</p>
+                        <input
+                            className={`${CLASSNAME}__update-input`}
+                            type="address"
+                            name="address"
+                            value={user.address}
+                            onChange={handleUserChange}
+                            required
+                            autoComplete="new-password"
+                        />
+                    </div>
+                    <div className={`${CLASSNAME}__info-container`}>
                         <p className={`${CLASSNAME}__title`}>Email</p>
                         <input
                             className={`${CLASSNAME}__update-input`}
@@ -198,8 +281,8 @@ const ProfilePage: React.FC = () => {
                                 id="gender-female"
                                 name="gender"
                                 value="female"
-                                checked={profile.gender === "female"}
-                                onChange={handleProfileChange}
+                                checked={user.gender === "female"}
+                                onChange={handleUserChange}
                             />
                             <label htmlFor="gender-female">Female</label>
                         </div>
@@ -209,8 +292,8 @@ const ProfilePage: React.FC = () => {
                                 id="gender-male"
                                 name="gender"
                                 value="male"
-                                checked={profile.gender === "male"}
-                                onChange={handleProfileChange}
+                                checked={user.gender === "male"}
+                                onChange={handleUserChange}
                             />
                             <label htmlFor="gender-male">Male</label>
                         </div>
@@ -220,8 +303,8 @@ const ProfilePage: React.FC = () => {
                                 id="gender-other"
                                 name="gender"
                                 value="other"
-                                checked={profile.gender === "other"}
-                                onChange={handleProfileChange}
+                                checked={user.gender === "other"}
+                                onChange={handleUserChange}
                             />
                             <label htmlFor="gender-other">Other</label>
                         </div>
@@ -233,10 +316,10 @@ const ProfilePage: React.FC = () => {
                             <input
                                 type="radio"
                                 id="sexual-female"
-                                name="sexualPreference"
+                                name="sexual_preferences"
                                 value="female"
-                                checked={profile.sexualPreference === "female"}
-                                onChange={handleProfileChange}
+                                checked={user.sexual_preferences === "female"}
+                                onChange={handleUserChange}
                             />
                             <label htmlFor="sexual-female">Female</label>
                         </div>
@@ -244,10 +327,10 @@ const ProfilePage: React.FC = () => {
                             <input
                                 type="radio"
                                 id="sexual-male"
-                                name="sexualPreference"
+                                name="sexual_preferences"
                                 value="male"
-                                checked={profile.sexualPreference === "male"}
-                                onChange={handleProfileChange}
+                                checked={user.sexual_preferences === "male"}
+                                onChange={handleUserChange}
                             />
                             <label htmlFor="sexual-male">Male</label>
                         </div>
@@ -255,10 +338,10 @@ const ProfilePage: React.FC = () => {
                             <input
                                 type="radio"
                                 id="sexual-both"
-                                name="sexualPreference"
+                                name="sexual_preferences"
                                 value="both"
-                                checked={profile.sexualPreference === "both"}
-                                onChange={handleProfileChange}
+                                checked={user.sexual_preferences === "both"}
+                                onChange={handleUserChange}
                             />
                             <label htmlFor="sexual-both">Both</label>
                         </div>
@@ -268,8 +351,8 @@ const ProfilePage: React.FC = () => {
                     <textarea
                         name="biography"
                         spellCheck="false"
-                        value={profile.biography}
-                        onChange={handleProfileChange}
+                        value={user.biography}
+                        onChange={handleUserChange}
                     />
                     <p className={`${CLASSNAME}__title`}>My interests</p>
                     <div className={`${CLASSNAME}__interests-container`}>
@@ -291,7 +374,7 @@ const ProfilePage: React.FC = () => {
                     </div>
                     <p className={`${CLASSNAME}__title`}>My Pictures</p>
                     <div className="photo-upload-container">
-                        {profile.photos.map((photo: string, index: number) => (
+                        {user.photos.map((photo: string, index: number) => (
                             <div
                                 onClick={() =>
                                     document.getElementsByName(`photoUpload${index}`)[0].click()
@@ -310,8 +393,8 @@ const ProfilePage: React.FC = () => {
                                 {!photo && (
                                     <div
                                         className={`upload-text ${index === 0
-                                                ? `${CLASSNAME}__profile-picture-uploader`
-                                                : ""
+                                            ? `${CLASSNAME}__profile-picture-uploader`
+                                            : ""
                                             }`}
                                     >
                                         {index === 0

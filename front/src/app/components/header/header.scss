@@ -6,28 +6,36 @@
     align-items: center;
     color: var(--primary-color);
     padding: 16px;
-  }
-  
-  .navLinks {
-    display: flex;
-    list-style: none;
-  }
-  
-//   .home {
-//     background-color: var(--primary-color);
-//     color: white;
-//     border: none;
-//     padding: 10px 20px;
-//     text-transform: uppercase;
-//     font-weight: bold;
-//     border-radius: 8px;
-//     cursor: pointer;
-//     margin-right: 18px;
-//     &:hover {
-//       background-color: var(--secondary-color);
-//     }
-//   }
+    margin-bottom: 32px;
+}
 
-  .navLinks a {
+.navLinks {
+    display: flex;
+    gap: 8px;
+    list-style: none;
+}
+
+.menuButton {
+    display: none;
+}
+
+.navLinks a {
     text-decoration: none;
+}
+
+@media (max-width: 700px) {
+    .navLinks {
+        display: none;
+        flex-direction: column;
+        position: relative;
+        gap: 4px;
+    }
+
+    .navLinks.show {
+        display: flex;
+    }
+
+    .menuButton {
+        display: flex;
+    }
 }

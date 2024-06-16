@@ -2,17 +2,19 @@
 import React, { createContext, useContext, ReactNode, useState, useEffect } from 'react';
 import { User } from './types';
 import { useRouter } from 'next/navigation';
-
+import data from './api.json';
 
 const initialPig: User = {
     id: 1,
-    username: 'test',
+    username: '',
     firstname: '',
     lastname: '',
     age: 0,
     email: '',
     password: '',
-    location: '',
+    location: [],
+    address: '',
+    town: '',
     fame_rating: 0,
     confirmPassword: '',
     is_active: false,
@@ -20,6 +22,7 @@ const initialPig: User = {
     last_connexion: new Date(),
     registration_token: '',
     jwt_token: '',
+    refresh_token: '',
     gender: '',
     sexual_preferences: '',
     biography: '',
@@ -27,7 +30,7 @@ const initialPig: User = {
     photos: [],
     created_at: '',
     firstTimeLogged: true,
-};
+}
 
 interface AuthContextType {
     login: (user: User) => void;
@@ -40,11 +43,12 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType>({
+    user: initialPig,
     login: (user: User) => { },
     logout: () => { },
     setUser: () => { },
     setCookie: (name: string, value: string, days?: number) => { },
-    deleteCookie: (name: string) => { }, user: initialPig,
+    deleteCookie: (name: string) => { },
     isJwtInCookie: (name: string) => false,
 });
 
@@ -61,19 +65,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const router = useRouter();
 
     useEffect(() => {
-        const userFromStorage = getUserFromLocalStorage();
-        if (userFromStorage) {
-            setUser(userFromStorage);
+        if (isJwtInCookie("jwt_token")) {
+            // [MOCK]
+            // should call the endpoint with the cookie to get all the userInfo
+            setUser(data.user);
         }
     }, []);
-
-    const getUserFromLocalStorage = () => {
-        if (typeof window !== "undefined") {
-            const userString = localStorage.getItem('user');
-            return userString ? JSON.parse(userString) : null;
-        }
-        return null;
-    }
 
     const setCookie = (name: string, value: string, days?: number) => {
         let expires = "";
@@ -103,18 +100,14 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
 
     const login = (user: User) => {
-        setCookie('jwtToken', user.jwt_token, 7);
-        if (typeof window !== "undefined") {
-            localStorage.setItem('user', JSON.stringify(user));
-        }
+        setCookie('jwt_token', user.jwt_token, 7);
         setUser(user);
     }
 
     const logout = () => {
         setUser(initialPig);
-        deleteCookie('jwtToken');
-        localStorage.removeItem('user');
-        router.push('/');
+        deleteCookie('jwt_token');
+        router.push('/login');
     };
 
     return (
