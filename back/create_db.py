@@ -106,6 +106,7 @@ def create_locations_table(cursor):
             longitude DECIMAL(9, 6) NOT NULL,
             latitude DECIMAL(9, 6) NOT NULL,
             city VARCHAR(100),
+            address VARCHAR(100),
             located_user INTEGER NOT NULL,
             FOREIGN KEY (located_user) REFERENCES users(id) ON DELETE CASCADE
         );

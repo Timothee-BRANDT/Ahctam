@@ -85,7 +85,7 @@ def login_page():
     return render_template('login.html', **context), 200
 
 
-@auth.route('/first-login', methods=['POST'])
+@auth.route('/profile-complete-same-endpoint-as-update-zizitoudur', methods=['POST'])
 def first_login():
     conn = get_db_connection()
     cur = conn.cursor()

@@ -25,14 +25,20 @@ def get_user_info():
     user = jwt.decode(
         token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
     user_query = """
-SELECT firstname, lastname, password, age, email, biography, gender, sexual_preferences
+SELECT firstname, lastname, age, email, biography, gender, sexual_preferences
 FROM Users
 WHERE id = %s
     """
     location_query = """
-SELECT city, lattitude, longitude
+SELECT city, latitude, longitude, address
 FROM Locations
 WHERE located_user = %s
+    """
+    # TODO: On continue ici
+    interests_query = """
+SELECT name
+FROM Interests
+WHERE user_id = %s
     """
     try:
         cur.execute(user_query, (user['id'],))
