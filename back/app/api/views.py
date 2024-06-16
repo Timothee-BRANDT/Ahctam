@@ -17,6 +17,7 @@ def get_test():
 
 
 @api.route('/getUserInfo', methods=['GET'])
+@jwt_required
 def get_user_info():
     conn = get_db_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
@@ -24,14 +25,14 @@ def get_user_info():
     user = jwt.decode(
         token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
     user_query = """
-    SELECT firstname, lastname, password, age, email, biography, gender, sexual_preferences
-    FROM Users
-    WHERE id = %s
+SELECT firstname, lastname, password, age, email, biography, gender, sexual_preferences
+FROM Users
+WHERE id = %s
     """
     location_query = """
-    SELECT city, lattitude, longitude
-    FROM Locations
-    WHERE located_user = %s
+SELECT city, lattitude, longitude
+FROM Locations
+WHERE located_user = %s
     """
     try:
         cur.execute(user_query, (user['id'],))
@@ -55,8 +56,8 @@ def get_interests():
     conn = get_db_connection()
     cur = conn.cursor()
     query = """
-    SELECT name
-    FROM interests
+SELECT name
+FROM interests
     """
     try:
         cur.execute(query)
@@ -81,9 +82,9 @@ def get_user_likes():
     print(user)
     # Query that counts in Likes table where 'user_liked' is the user's id
     query = """
-    SELECT COUNT(*)
-    FROM likes
-    WHERE user_liked = %s
+SELECT COUNT(*)
+FROM likes
+WHERE user_liked = %s
     """
     try:
         cur.execute(query, (user['id'],))
