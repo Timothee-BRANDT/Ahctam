@@ -25,7 +25,7 @@ def get_user_info():
     user = jwt.decode(
         token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
     user_query = """
-SELECT firstname, lastname, age, email, biography, gender, sexual_preferences
+SELECT firstname, lastname, age, email, biography, gender, sexual_preferences, fame
 FROM Users
 WHERE id = %s
     """
@@ -34,7 +34,6 @@ SELECT city, latitude, longitude, address
 FROM Locations
 WHERE located_user = %s
     """
-    # TODO: On continue ici
     user_interests_query = """
 SELECT interest_id
 FROM User_interests
@@ -115,8 +114,6 @@ def get_user_likes():
     token = request.headers.get('Authorization').split(' ')[1]
     user = jwt.decode(
         token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
-    print(user)
-    # Query that counts in Likes table where 'user_liked' is the user's id
     query = """
 SELECT COUNT(*)
 FROM likes
@@ -124,14 +121,37 @@ WHERE user_liked = %s
     """
     try:
         cur.execute(query, (user['id'],))
+        likes = cur.fetchone()
     except Exception as e:
         return jsonify({'error': str(e)}), 400
-    else:
-        likes = cur.fetchone()
     finally:
         cur.close()
         conn.close()
     return jsonify({'likes': likes}), 200
+
+
+@api.route('/getMyViews', methods=['GET'])
+@jwt_required
+def get_user_views():
+    conn = get_db_connection()
+    cur = conn.cursor()
+    token = request.headers.get('Authorization').split(' ')[1]
+    user = jwt.decode(
+        token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
+    query = """
+SELECT COUNT(*)
+FROM views
+WHERE user_viewed = %s
+    """
+    try:
+        cur.execute(query, (user['id'],))
+        views = cur.fetchone()
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+    finally:
+        cur.close()
+        conn.close()
+    return jsonify({'views': views}), 200
 
 
 @api.route('/filterUsers', methods=['GET'])
