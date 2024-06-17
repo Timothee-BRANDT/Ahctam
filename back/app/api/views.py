@@ -154,6 +154,32 @@ WHERE user_viewed = %s
     return jsonify({'views': views}), 200
 
 
+@api.route('/isThisUserBlocked', methods=['GET'])
+def is_this_user_blocked():
+    conn = get_db_connection()
+    cur = conn.cursor()
+    token = request.headers.get('Authorization').split(' ')[1]
+    user = jwt.decode(
+        token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
+    data = request.get_json()
+    user_blocked = data.get('user_blocked')
+    query = """
+SELECT COUNT(*)
+FROM blocks
+WHERE blocker = %s
+AND user_blocked = %s
+    """
+    try:
+        cur.execute(query, (user['id'], user_blocked))
+        is_blocked = cur.fetchone()
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+    finally:
+        cur.close()
+        conn.close()
+    return jsonify({'is_blocked': is_blocked}), 200
+
+
 @api.route('/filterUsers', methods=['GET'])
 @jwt_required
 def get_profiles():

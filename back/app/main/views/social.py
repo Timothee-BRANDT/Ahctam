@@ -76,3 +76,38 @@ WHERE id = %s
         cur.close()
         conn.close()
     return jsonify({'message': 'User unliked'}), 200
+
+
+@main.route('/blockUser', methods=['POST'])
+@jwt_required
+def block_a_user():
+    # TODO: Logic after blocking a user:
+    """
+Blocking a user also reduces his fame by 6
+    """
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    token = request.headers.get('Authorization').split(' ')[1]
+    user = jwt.decode(
+        token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
+    data = request.get_json()
+    user_blocked = data.get('user_blocked')
+    block_query = """
+INSERT INTO blocks (blocker, user_blocked)
+VALUES (%s, %s)
+    """
+    fame_query = """
+UPDATE users
+SET fame = fame - 6
+WHERE id = %s
+    """
+    try:
+        cur.execute(block_query, (user['id'], user_blocked))
+        cur.execute(fame_query, (user_blocked,))
+        conn.commit()
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+    finally:
+        cur.close()
+        conn.close()
+    return jsonify({'message': 'User blocked'}), 200
