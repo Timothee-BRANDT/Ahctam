@@ -10,6 +10,29 @@ from app.database import get_db_connection
 from app.authentication.views.decorators import jwt_required
 
 
+@main.route('/viewUser', methods=['POST'])
+@jwt_required
+def view_a_user():
+    """
+    Viewing a user also increases his fame by 1
+    """
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    try:
+        token = request.headers.get('Authorization').split(' ')[1]
+        user = jwt.decode(
+            token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
+        data = request.get_json()
+        user_viewed = data.get('user_viewed')
+        # TODO: We are here
+        pass
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+    finally:
+        cur.close()
+        conn.close()
+
+
 @main.route('/likeUser', methods=['POST'])
 @jwt_required
 def like_a_user():
@@ -81,9 +104,8 @@ WHERE id = %s
 @main.route('/blockUser', methods=['POST'])
 @jwt_required
 def block_a_user():
-    # TODO: Logic after blocking a user:
     """
-Blocking a user also reduces his fame by 6
+Blocking a user also reduces his fame by 5
     """
     conn = get_db_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
@@ -98,7 +120,7 @@ VALUES (%s, %s)
     """
     fame_query = """
 UPDATE users
-SET fame = fame - 6
+SET fame = fame - 5
 WHERE id = %s
     """
     try:

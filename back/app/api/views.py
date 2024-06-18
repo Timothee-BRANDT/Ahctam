@@ -21,9 +21,6 @@ def get_test():
 def get_user_info():
     conn = get_db_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
-    token = request.headers.get('Authorization').split(' ')[1]
-    user = jwt.decode(
-        token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
     user_query = """
 SELECT firstname, lastname, age, email, biography, gender, sexual_preferences, fame
 FROM Users
@@ -57,20 +54,32 @@ WHERE owner = %s
     """
     interests = []
     try:
+        token = request.headers.get('Authorization').split(' ')[1]
+        user = jwt.decode(
+            token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
+
+        # User data
         cur.execute(user_query, (user['id'],))
         user_info = cur.fetchone()
+
+        # Location
         cur.execute(location_query, (user['id'],))
         location_info = cur.fetchone()
+
+        # Interests
         cur.execute(user_interests_query, (user['id'],))
         user_interests = cur.fetchall()
         for user_interest in user_interests:
             cur.execute(interests_query, (user_interest['interest_id'],))
             interest = cur.fetchone()
             interests.append(interest)
+
+        # Pictures
         cur.execute(picture_query, (user['id'],))
         profile_picture = cur.fetchone()
         cur.execute(all_pictures_query, (user['id'],))
         all_pictures = cur.fetchall()
+
     except Exception as e:
         return jsonify({'error': str(e)}), 400
     finally:
@@ -111,15 +120,15 @@ FROM interests
 def get_user_likes():
     conn = get_db_connection()
     cur = conn.cursor()
-    token = request.headers.get('Authorization').split(' ')[1]
-    user = jwt.decode(
-        token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
     query = """
 SELECT COUNT(*)
 FROM likes
 WHERE user_liked = %s
     """
     try:
+        token = request.headers.get('Authorization').split(' ')[1]
+        user = jwt.decode(
+            token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
         cur.execute(query, (user['id'],))
         likes = cur.fetchone()
     except Exception as e:
@@ -135,15 +144,15 @@ WHERE user_liked = %s
 def get_user_views():
     conn = get_db_connection()
     cur = conn.cursor()
-    token = request.headers.get('Authorization').split(' ')[1]
-    user = jwt.decode(
-        token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
     query = """
 SELECT COUNT(*)
 FROM views
 WHERE user_viewed = %s
     """
     try:
+        token = request.headers.get('Authorization').split(' ')[1]
+        user = jwt.decode(
+            token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
         cur.execute(query, (user['id'],))
         views = cur.fetchone()
     except Exception as e:
@@ -158,11 +167,6 @@ WHERE user_viewed = %s
 def is_this_user_blocked():
     conn = get_db_connection()
     cur = conn.cursor()
-    token = request.headers.get('Authorization').split(' ')[1]
-    user = jwt.decode(
-        token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
-    data = request.get_json()
-    user_blocked = data.get('user_blocked')
     query = """
 SELECT COUNT(*)
 FROM blocks
@@ -170,6 +174,13 @@ WHERE blocker = %s
 AND user_blocked = %s
     """
     try:
+        data = request.get_json()
+        user_blocked = data.get('user_blocked')
+
+        token = request.headers.get('Authorization').split(' ')[1]
+        user = jwt.decode(
+            token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
+
         cur.execute(query, (user['id'], user_blocked))
         is_blocked = cur.fetchone()
     except Exception as e:

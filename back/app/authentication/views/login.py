@@ -48,6 +48,7 @@ def login():
             'username': data['username'],
             'exp': datetime.utcnow() + timedelta(days=30)
         }, current_app.config['SECRET_KEY'], algorithm='HS256')
+
         query = """
 INSERT INTO refresh_tokens (token, user_id, expiration_date)
 VALUES (%s, %s, %s)
@@ -55,9 +56,10 @@ VALUES (%s, %s, %s)
         cur.execute(query, (refresh_token, user_id,
                     datetime.utcnow() + timedelta(days=30)))
         conn.commit()
-
+        # We use gender to check if the user has already completed his profile
         cur.execute('SELECT gender FROM users WHERE id = %s',
                     (user_id,))
+
         gender = cur.fetchone()[0]
         if not gender:
             return jsonify({
@@ -160,6 +162,9 @@ def test_protected():
 
 @auth.route('/refresh', methods=['POST'])
 def refresh():
+    """
+    If 401, we must logout the user
+    """
     data = request.get_json()
     refresh_token = data.get('refresh_token')
     conn = get_db_connection()

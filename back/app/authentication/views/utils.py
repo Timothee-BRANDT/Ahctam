@@ -50,7 +50,12 @@ def store_profile_informations(conn, cur, form, user_id):
         # User
         user_query = """
 UPDATE users
-SET age = %s, gender = %s, sexual_preferences = %s, biography = %s, firstname = %s, lastname = %s, email = %s
+SET age = %s, gender = %s,\
+sexual_preferences = %s,\
+biography = %s,\
+firstname = %s,\
+lastname = %s,\
+email = %s
 WHERE id = %s
         """
         cur.execute(user_query, (
