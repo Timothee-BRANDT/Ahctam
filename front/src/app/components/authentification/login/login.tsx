@@ -67,7 +67,6 @@ const LoginPage: React.FC = () => {
         router.push("/profile/update");
       } else {
         console.log("success login");
-        console.log("id", data.user_id);
         setUser({
           ...user,
           // username: data.username,

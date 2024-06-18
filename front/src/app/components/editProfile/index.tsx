@@ -6,13 +6,12 @@ import { serverIP } from "@/app/constants";
 import { useAuth } from "@/app/authContext";
 import { ProfileInformations } from "@/app/types";
 import { usePathname, useRouter } from "next/navigation";
-import data from '../../api.json';
+import data from "../../api.json";
 
 const CLASSNAME = "profile";
 
 var localisationjpp: number[] = [];
-var townjpp: string = '';
-
+var townjpp: string = "";
 
 const ProfilePage: React.FC = () => {
     const { user, setUser, isJwtInCookie } = useAuth();
@@ -41,9 +40,12 @@ const ProfilePage: React.FC = () => {
         Carrots: false,
     };
 
-    const initializeInterests = (initialState: Record<string, boolean>, interestsArray: string[]): Record<string, boolean> => {
+    const initializeInterests = (
+        initialState: Record<string, boolean>,
+        interestsArray: string[],
+    ): Record<string, boolean> => {
         const updatedState = { ...initialState };
-        interestsArray.forEach(interest => {
+        interestsArray.forEach((interest) => {
             if (updatedState.hasOwnProperty(interest)) {
                 updatedState[interest] = true;
             }
@@ -53,28 +55,29 @@ const ProfilePage: React.FC = () => {
 
     // [MOCK]
     const [allInterests, setAllInterests] = useState<Record<string, boolean>>(
-        initializeInterests(initInterests, data.user.interests)
+        initializeInterests(initInterests, data.user.interests),
     );
 
     const getProfile = async () => {
-        // [MOCK]
-        // const response = await fetch(`http://${serverIP}:5000/getUserInfo`, {
-        //     method: "POST",
-        //     credentials: "include",
-        //     headers: {
-        //         "Content-Type": "application/json",
-        //     },
-        // });
-        // const data = await response.json();
-        // if (response.ok) {
-        //     setUser(data);
-        // }
+        const response = await fetch(`http://${serverIP}:5000/api/getUserInfo`, {
+            method: "GET",
+            credentials: "include",
+            headers: {
+                Authorization: "Bearer " + user.jwt_token,
+                "Content-Type": "application/json",
+            },
+        });
+        const data = await response.json();
+        console.log(data);
+        if (response.ok) {
+            setUser(data);
+        }
 
-        setUser(data.user);
-        data.user.interests.map((interest) => {
-            allInterests[interest] = true;
-        })
-    }
+        // setUser(data.user);
+        // data.user.interests.map((interest) => {
+        //     allInterests[interest] = true;
+        // })
+    };
 
     useEffect(() => {
         if (!isJwtInCookie("jwt_token")) {
@@ -82,12 +85,15 @@ const ProfilePage: React.FC = () => {
         }
         getProfile();
         if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition((pos) => {
-                const array = [pos.coords.latitude, pos.coords.longitude];
-                localisationjpp = array;
-            }, (e) => {
-                console.log('Geolocation error');
-            })
+            navigator.geolocation.getCurrentPosition(
+                (pos) => {
+                    const array = [pos.coords.latitude, pos.coords.longitude];
+                    localisationjpp = array;
+                },
+                (e) => {
+                    console.log("Geolocation error");
+                },
+            );
         }
     }, []);
 
@@ -97,30 +103,36 @@ const ProfilePage: React.FC = () => {
 
     const convertAdressIntoCoordonates = async () => {
         var requestOptions = {
-            method: 'GET',
+            method: "GET",
         };
 
         const formattedAddress = encodeURIComponent(user.address);
-        const apiKey = '0b45c5495f8e4f9b8246deebf999830d';
+        const apiKey = "0b45c5495f8e4f9b8246deebf999830d";
 
-        await fetch(`https://api.geoapify.com/v1/geocode/search?text=${formattedAddress}&apiKey=${apiKey}`,
-            requestOptions)
-            .then(response => response.json())
-            .then(result => {
+        await fetch(
+            `https://api.geoapify.com/v1/geocode/search?text=${formattedAddress}&apiKey=${apiKey}`,
+            requestOptions,
+        )
+            .then((response) => response.json())
+            .then((result) => {
                 if (result && result.features[0]) {
                     localisationjpp = result.features[0].geometry.coordinates;
                 }
-                if (result && result.query && result.query.parsed && result.query.parsed.city) {
-                    townjpp = capitalizeFirstLetter(result.query.parsed.city)
+                if (
+                    result &&
+                    result.query &&
+                    result.query.parsed &&
+                    result.query.parsed.city
+                ) {
+                    townjpp = capitalizeFirstLetter(result.query.parsed.city);
                 }
             })
-            .catch(error => console.log('error', error));
-    }
+            .catch((error) => console.log("error", error));
+    };
 
     const redirectLogin = () => {
         router.push("/login");
     };
-
 
     const handleUserChange = (e: any) => {
         const { name, value } = e.target;
@@ -171,18 +183,22 @@ const ProfilePage: React.FC = () => {
         }
         // TODO: C'EST ICI POUR L'ENDPOINT
         console.log(payload);
-        const response = await fetch(`http://${serverIP}:5000/auth/first-login`, {
-            method: "POST",
-            credentials: "include",
-            headers: {
-                "Content-Type": "application/json",
+        const response = await fetch(
+            `http://${serverIP}:5000/auth/profile-complete-same-endpoint-as-update-zizitoudur`,
+            {
+                method: "POST",
+                credentials: "include",
+                headers: {
+                    Authorization: "Bearer " + user.jwt_token,
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    payload,
+                }),
             },
-            body: JSON.stringify({
-                payload,
-            }),
-        });
+        );
         if (response.ok) {
-            router.push('/');
+            router.push("/");
         }
     };
 
@@ -393,8 +409,8 @@ const ProfilePage: React.FC = () => {
                                 {!photo && (
                                     <div
                                         className={`upload-text ${index === 0
-                                            ? `${CLASSNAME}__profile-picture-uploader`
-                                            : ""
+                                                ? `${CLASSNAME}__profile-picture-uploader`
+                                                : ""
                                             }`}
                                     >
                                         {index === 0
