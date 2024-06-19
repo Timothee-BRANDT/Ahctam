@@ -105,7 +105,7 @@ WHERE id = %s
 @jwt_required
 def block_a_user():
     """
-Blocking a user also reduces his fame by 5
+    Blocking a user also reduces his fame by 5
     """
     conn = get_db_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
