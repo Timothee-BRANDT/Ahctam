@@ -64,7 +64,7 @@ const mainPage: React.FC = () => {
     const [filterBy, setFilterBy] = useState('');
     const [sortBy, setSortBy] = useState('');
     const [filterByAgeValue, setFilterByAgeValue] = useState(0);
-    const [filterByLocationValue, setFilterByLocationValue] = useState(0);
+    const [filterByLocationValue, setFilterByLocationValue] = useState('');
     const [filterByFameValue, setFilterByFameValue] = useState(0);
     const [tags, setTags] = useState<Record<string, Checked>>(initialTags);
     const [filterTags, setFilterTags] = useState<Record<string, Checked>>(initialTags);
@@ -114,6 +114,14 @@ const mainPage: React.FC = () => {
         setLocation(event.target.value);
     };
 
+    // const getFilterValue = (): URLSearchParams => {
+    //     return new URLSearchParams({
+    //         sortBy: sortBy,
+    //         filterBy: filterBy,
+    //         filterAge: filterByAgeValue,
+    //     });
+    // }
+
     const handleSearch = async () => {
         //[MOCK]
         let tagsArray: string[] = [];
@@ -142,17 +150,18 @@ const mainPage: React.FC = () => {
 
     const handleFilters = async () => {
         //[MOCK]
-        let tagsArray: string[] = [];
-        Object.keys(tags).map((tag) => {
-            if (tags[tag]) {
-                tagsArray.push(tag);
+        let filterTagsArray: string[] = [];
+        Object.keys(filterTags).map((tag) => {
+            if (filterTags[tag]) {
+                filterTagsArray.push(tag);
             }
         })
         const response = await fetch(`http://${serverIP}:5000/browse?` + new URLSearchParams({
-            ageGap: String(ageGap),
-            fameGap: String(fameGap),
-            location: location,
-            tags: tagsArray.join(','),
+            sortBy: String(sortBy),
+            filterAge: String(filterByAgeValue),
+            filterFame: String(filterByFameValue),
+            filterLocation: filterByLocationValue,
+            filterTags: filterTagsArray.join(','),
         }), {
             method: "POST",
             credentials: "include",
@@ -298,7 +307,7 @@ const mainPage: React.FC = () => {
                                     </DropdownMenu>
                                 )}
                             </div>
-                            <Button className="search-button">Apply filters</Button>
+                            <Button onClick={handleFilters} className="search-button">Apply filters</Button>
                         </div>
                     </div>
                     <div className={CLASSNAME}>
