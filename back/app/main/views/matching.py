@@ -4,13 +4,59 @@ from flask import (
     current_app,
 )
 import jwt
+import math
+from numpy import dot
+from numpy.linalg import norm
 from psycopg2.extras import RealDictCursor
 from .. import main
 from app.database import get_db_connection
 from app.authentication.views.decorators import jwt_required
 
 
+def haversine(lat1, lon1, lat2, lon2):
+    earth_radius = 6371
+    dlat = math.radians(lat2 - lat1)
+    dlon = math.radians(lon2 - lon1)
+    a = math.sin(dlat / 2) ** 2 + math.cos(math.radians(lat1)) * \
+        math.cos(math.radians(lat2)) * math.sin(dlon / 2) ** 2
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    distance = earth_radius * c
+
+    return distance
+
+
+def age_similarity(age1, age2):
+    return 1 / (1 + abs(age1 - age2))
+
+
+def interest_similarity(interests1, interests2):
+    return dot(interests1, interests2) / (norm(interests1) * norm(interests2))
+
+
+def fame_similarity(fame1, fame2):
+    return 1 / (1 + abs(fame1 - fame2))
+
+
+def matching_score(user1, user2):
+    geo_weight = 0.5
+    age_weight = 0.3
+    interest_weight = 0.3
+    fame_weight = 0.1
+
+    geo_score = haversine(user1['latitude'], user1['longitude'],
+                          user2['latitude'], user2['longitude']) * geo_weight
+    age_score = age_similarity(user1['age'], user2['age']) * age_weight
+    interest_score = interest_similarity(
+        user1['interests'], user2['interests']) * interest_weight
+    fame_score = fame_similarity(user1['fame'], user2['fame']) * fame_weight
+
+    return geo_score + age_score + interest_score + fame_score
+
+
 def get_matching_users(user_data, cursor, offset, limit):
+    """
+    1. Get all the users with the matching gender and sexual preferences
+    """
     correct_gender_query = """
 SELECT id,
        firstname,
@@ -35,14 +81,24 @@ WHERE id != %s
     try:
         cursor.execute(correct_gender_query, params)
         matching_users = cursor.fetchall()
+        for user in matching_users:
+            user['matching_score'] = matching_score(user_data, user)
+        matching_users = sorted(
+            matching_users, key=lambda x: x['matching_score'], reverse=True)
         print(matching_users)
     except Exception as e:
         raise Exception(str(e))
+
+    return matching_users[offset:offset + limit]
 
 
 @main.route('/browse', methods=['GET'])
 @jwt_required
 def browse():
+    """
+    Actually it will compute the algorithm every time a user wants to browse
+    It would be better to return them all, then the front-end will handle the pagination
+    """
     offset = request.args.get('offset', 0)
     limit = request.args.get('limit', 10)
     conn = get_db_connection()
@@ -65,9 +121,10 @@ WHERE id = %s
         result = cur.execute(user_query, (user['id'],))
         user_data = cur.fetchone()
         matching_users = get_matching_users(user_data, cur, offset, limit)
-        print(matching_users)
+
     except Exception as e:
         return jsonify({'error': str(e)}), 400
     finally:
         cur.close()
         conn.close()
+    return jsonify({'users': matching_users}), 200
