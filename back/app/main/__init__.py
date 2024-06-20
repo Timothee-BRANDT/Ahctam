@@ -5,4 +5,5 @@ main = Blueprint('main', __name__)
 from .views import (
     social,
     views,
+    matching,
 )

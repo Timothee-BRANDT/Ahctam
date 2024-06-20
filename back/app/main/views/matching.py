@@ -73,16 +73,35 @@ WHERE id != %s
       )
 """
 
-    params = (user_data['id'],
-              user_data['sexual_preferences'],
-              user_data['gender'],
-              user_data['gender'],
-              user_data['sexual_preferences'])
+    correct_gender_query_params = (user_data['id'],
+                                   user_data['sexual_preferences'],
+                                   user_data['gender'],
+                                   user_data['gender'],
+                                   user_data['sexual_preferences'])
+    location_query = """
+SELECT latitude,
+         longitude
+FROM locations
+WHERE located_user = %s
+"""
     try:
-        cursor.execute(correct_gender_query, params)
+        cursor.execute(location_query, (user_data['id'],))
+        location = cursor.fetchone()
+        user_data['latitude'] = location['latitude']
+        user_data['longitude'] = location['longitude']
+
+        cursor.execute(correct_gender_query, correct_gender_query_params)
         matching_users = cursor.fetchall()
-        for user in matching_users:
-            user['matching_score'] = matching_score(user_data, user)
+        for matching_user in matching_users:
+            cursor.execute(location_query, (matching_user['id'],))
+            matching_user_location = cursor.fetchone()
+            print(matching_user_location, 'coucou')
+            matching_user['latitude'] = matching_user_location['latitude']
+            matching_user['longitude'] = matching_user_location['longitude']
+            matching_user['matching_score'] = matching_score(
+                user_data,
+                matching_user)
+        print('we are coucou')
         matching_users = sorted(
             matching_users, key=lambda x: x['matching_score'], reverse=True)
         print(matching_users)
@@ -93,7 +112,7 @@ WHERE id != %s
 
 
 @main.route('/browse', methods=['GET'])
-@jwt_required
+# @jwt_required
 def browse():
     """
     Actually it will compute the algorithm every time a user wants to browse
@@ -104,11 +123,13 @@ def browse():
     conn = get_db_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
     try:
-        token = request.headers.get('Authorization').split(' ')[1]
-        user = jwt.decode(
-            token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
+        # token = request.headers.get('Authorization').split(' ')[1]
+        # user = jwt.decode(
+        #     token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
+        user = {'id': 5}
         user_query = """
-SELECT firstname,\
+SELECT id,\
+firstname,\
 lastname,\
 age,\
 biography,\
@@ -118,9 +139,11 @@ fame
 FROM users
 WHERE id = %s
         """
-        result = cur.execute(user_query, (user['id'],))
+        cur.execute(user_query, (user['id'],))
         user_data = cur.fetchone()
+        print(user_data)
         matching_users = get_matching_users(user_data, cur, offset, limit)
+        print('coucou')
 
     except Exception as e:
         return jsonify({'error': str(e)}), 400
