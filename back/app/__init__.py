@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_cors import CORS
 from flask_mail import Mail
+from flask_redis import FlaskRedis
 from config import (
     DevelopmentConfig,
     TestingConfig,
@@ -31,5 +32,7 @@ def create_app(test_config=False, production=False):
         resources={r"/*": {"origins": "http://localhost:3000"}},
     )
     Mail(app)
+    redis_client = FlaskRedis(app)
+    redis_client.init_app(app)
 
     return app

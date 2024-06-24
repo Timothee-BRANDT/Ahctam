@@ -252,6 +252,56 @@ VALUES (%s, (SELECT id FROM interests WHERE name=%s))
             """, (user_id, interest))
 
 
+def insert_likes(cursor, num_likes=100):
+    print('Inserting likes...')
+    cursor.execute("SELECT id FROM users")
+    user_ids = [row[0] for row in cursor.fetchall()]
+
+    for _ in range(num_likes):
+        liker = random.choice(user_ids)
+        user_liked = random.choice(user_ids)
+        if liker != user_liked:
+            cursor.execute("""
+            INSERT INTO likes (liker, user_liked)
+            VALUES (%s, %s)
+            ON CONFLICT DO NOTHING
+            """, (liker, user_liked))
+
+
+def insert_views(cursor, num_views=100):
+    print('Inserting views...')
+    cursor.execute("SELECT id FROM users")
+    user_ids = [row[0] for row in cursor.fetchall()]
+
+    for _ in range(num_views):
+        viewer = random.choice(user_ids)
+        user_viewed = random.choice(user_ids)
+        if viewer != user_viewed:
+            cursor.execute("""
+            INSERT INTO views (viewer, user_viewed)
+            VALUES (%s, %s)
+            """, (viewer, user_viewed))
+
+
+def insert_locations(cursor, num_locations=100):
+    print('Inserting locations...')
+    fake = Faker()
+
+    cursor.execute("SELECT id FROM users")
+    user_ids = [row[0] for row in cursor.fetchall()]
+
+    for _ in range(num_locations):
+        user_id = random.choice(user_ids)
+        longitude = fake.longitude()
+        latitude = fake.latitude()
+        city = fake.city()
+        address = fake.address()
+        cursor.execute("""
+        INSERT INTO locations (longitude, latitude, city, address, located_user)
+        VALUES (%s, %s, %s, %s, %s)
+        """, (longitude, latitude, city, address, user_id))
+
+
 def create_all_tables():
     conn = psycopg2.connect(
         dbname=os.getenv('POSTGRES_DB'),

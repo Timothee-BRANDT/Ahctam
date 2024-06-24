@@ -24,12 +24,15 @@ class Config:
 
 class DevelopmentConfig(Config):
     DEBUG = True
+    REDIS_URL = 'redis://localhost:6379/0'
 
 
 class TestingConfig(Config):
     TESTING = True
     POSTGRES_DB = 'test_db'
+    REDIS_URL = 'redis://localhost:6379/1'
 
 
 class ProductionConfig(Config):
     POSTGRES_DB = os.getenv('POSTGRES_PROD_DB')
+    REDIS_URL = 'redis://localhost:6379/2'

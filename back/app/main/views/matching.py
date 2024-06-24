@@ -111,6 +111,14 @@ WHERE located_user = %s
     return matching_users[offset:offset + limit]
 
 
+@main.route('/test-redis', methods=['GET'])
+def test_redis():
+    redis_client = current_app.extensions['redis']
+    redis_client.set('test', 'coucou')
+    test = redis_client.get('test').decode('utf-8')
+    return jsonify({'message': test}), 200
+
+
 @main.route('/browse', methods=['GET'])
 # @jwt_required
 def browse():

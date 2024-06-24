@@ -23,5 +23,18 @@ services:
       db:
         condition: service_healthy
 
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      timeout: 2s
+      retries: 10
+
 volumes:
   matcha_pg_data:
+  redis_data:
