@@ -3,6 +3,7 @@ from flask import (
     request,
     current_app,
 )
+import json
 import jwt
 import math
 from numpy import dot
@@ -98,12 +99,12 @@ def get_matching_users(user_data, cursor, offset, limit):
             matching_user['matching_score'] = matching_score(
                 user_data, matching_user)
 
-        matching_users = sorted(
+        matching_users: list = sorted(
             matching_users, key=lambda x: x['matching_score'], reverse=True)
     except Exception as e:
         raise Exception(str(e))
 
-    return matching_users[offset:offset + limit]
+    return matching_users
 
 
 @main.route('/test-redis', methods=['GET'])
@@ -122,10 +123,12 @@ def browse():
     After talking with collegues, it's the backend job
     We'll use redis to avoid recomputing the algorithm (Bonus)
     """
-    offset = request.args.get('offset', 0)
-    limit = request.args.get('limit', 10)
+    offset: int = int(request.args.get('offset', 0))
+    limit: int = int(request.args.get('limit', 10))
     conn = get_db_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
+    redis_client = current_app.extensions['redis']
+    matching_users: dict = {}
     try:
         # token = request.headers.get('Authorization').split(' ')[1]
         # user = jwt.decode(
@@ -145,14 +148,25 @@ FROM users
 WHERE id = %s
         """
         cur.execute(user_query, (user['id'],))
-        user_data = cur.fetchone()
+        user_data: dict = cur.fetchone()
         print(user_data)
-        matching_users = get_matching_users(user_data, cur, offset, limit)
-        print('coucou')
+        redis_key: str = f"matching:{user['id']}"
+        if not redis_client.exists(redis_key):
+            print('nothing in redis yet')
+            matching_users: list = get_matching_users(
+                user_data, cur, offset, limit)
+            redis_client.set(redis_key, json.dumps(matching_users), ex=3600)
+        else:
+            print('something in redis')
+            matching_users: list = json.loads(
+                redis_client.get(redis_key).decode('utf-8'))
+        print('bonsoir')
 
     except Exception as e:
         return jsonify({'error': str(e)}), 400
     finally:
         cur.close()
         conn.close()
-    return jsonify({'users': matching_users}), 200
+    # return jsonify({'users': matching_users[offset:limit]}), 200
+    print(type(offset), offset, type(limit), limit)
+    return jsonify({'users': matching_users[offset:limit]}), 200
