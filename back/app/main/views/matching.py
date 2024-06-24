@@ -55,6 +55,10 @@ def matching_score(user1, user2):
 
 
 def get_matching_users(user_data, cursor, offset, limit):
+    """
+    TODO: Now work on the interests brooo
+    It will need another join with the user_interest relation table
+    """
     gender_sex_query = """
     SELECT u.id,
            u.firstname,
