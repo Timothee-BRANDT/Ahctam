@@ -71,6 +71,8 @@ def create_pictures_table(cursor):
 
 def create_views_table(cursor):
     print('Creating views table...')
+    # TODO: Maybe add a UNIQUE constraint on user_viewed and viewer,
+    # as well as the other relations table
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS views (
             id SERIAL PRIMARY KEY,
@@ -251,55 +253,38 @@ INSERT INTO user_interests (user_id, interest_id)
 VALUES (%s, (SELECT id FROM interests WHERE name=%s))
             """, (user_id, interest))
 
-
-def insert_likes(cursor, num_likes=100):
-    print('Inserting likes...')
-    cursor.execute("SELECT id FROM users")
-    user_ids = [row[0] for row in cursor.fetchall()]
-
-    for _ in range(num_likes):
-        liker = random.choice(user_ids)
-        user_liked = random.choice(user_ids)
-        if liker != user_liked:
-            cursor.execute("""
-            INSERT INTO likes (liker, user_liked)
-            VALUES (%s, %s)
-            ON CONFLICT DO NOTHING
-            """, (liker, user_liked))
-
-
-def insert_views(cursor, num_views=100):
-    print('Inserting views...')
-    cursor.execute("SELECT id FROM users")
-    user_ids = [row[0] for row in cursor.fetchall()]
-
-    for _ in range(num_views):
-        viewer = random.choice(user_ids)
-        user_viewed = random.choice(user_ids)
-        if viewer != user_viewed:
-            cursor.execute("""
-            INSERT INTO views (viewer, user_viewed)
-            VALUES (%s, %s)
-            """, (viewer, user_viewed))
-
-
-def insert_locations(cursor, num_locations=100):
-    print('Inserting locations...')
-    fake = Faker()
-
-    cursor.execute("SELECT id FROM users")
-    user_ids = [row[0] for row in cursor.fetchall()]
-
-    for _ in range(num_locations):
-        user_id = random.choice(user_ids)
+        # Location
         longitude = fake.longitude()
         latitude = fake.latitude()
         city = fake.city()
         address = fake.address()
         cursor.execute("""
-        INSERT INTO locations (longitude, latitude, city, address, located_user)
-        VALUES (%s, %s, %s, %s, %s)
+INSERT INTO locations (longitude, latitude, city, address, located_user)
+VALUES (%s, %s, %s, %s, %s)
         """, (longitude, latitude, city, address, user_id))
+
+        # Likes
+        cursor.execute("SELECT id FROM users")
+        user_ids = [row[0] for row in cursor.fetchall()]
+        for _ in range(random.randint(0, 10)):
+            liker = user_id
+            user_liked = random.choice(user_ids)
+            if liker != user_liked:
+                cursor.execute("""
+INSERT INTO likes (liker, user_liked)
+VALUES (%s, %s)
+ON CONFLICT DO NOTHING
+                """, (liker, user_liked))
+
+        # Views
+        for _ in range(random.randint(0, 10)):
+            viewer = user_id
+            user_viewed = random.choice(user_ids)
+            if viewer != user_viewed:
+                cursor.execute("""
+INSERT INTO views (viewer, user_viewed)
+VALUES (%s, %s)
+                """, (viewer, user_viewed))
 
 
 def create_all_tables():
