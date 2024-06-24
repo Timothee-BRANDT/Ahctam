@@ -54,57 +54,52 @@ def matching_score(user1, user2):
 
 
 def get_matching_users(user_data, cursor, offset, limit):
+    gender_sex_query = """
+    SELECT u.id,
+           u.firstname,
+           u.age,
+           u.biography,
+           u.gender,
+           u.sexual_preferences,
+           u.fame,
+           l.latitude,
+           l.longitude
+    FROM users u
+    JOIN locations l ON u.id = l.located_user
+    WHERE u.id != %s
+      AND (
+            (%s = 'both' AND (u.sexual_preferences = 'both' OR u.sexual_preferences = %s))
+            OR (u.gender = %s AND (u.sexual_preferences = 'both' OR u.sexual_preferences = %s))
+          )
     """
-    1. Get all the users with the matching gender and sexual preferences
-    """
-    correct_gender_query = """
-SELECT id,
-       firstname,
-       age,
-       biography,
-       gender,
-       sexual_preferences,
-       fame
-FROM users
-WHERE id != %s
-  AND (
-        (%s = 'both' AND ((sexual_preferences = 'both') OR (sexual_preferences = %s)))
-        OR (gender = %s AND ((sexual_preferences = 'both') OR (sexual_preferences = %s)))
-      )
-"""
 
-    correct_gender_query_params = (user_data['id'],
-                                   user_data['sexual_preferences'],
-                                   user_data['gender'],
-                                   user_data['gender'],
-                                   user_data['sexual_preferences'])
+    query_params = (user_data['id'],
+                    user_data['sexual_preferences'],
+                    user_data['gender'],
+                    user_data['gender'],
+                    user_data['sexual_preferences'])
+
     location_query = """
-SELECT latitude,
-         longitude
-FROM locations
-WHERE located_user = %s
-"""
+    SELECT latitude,
+           longitude
+    FROM locations
+    WHERE located_user = %s
+    """
     try:
         cursor.execute(location_query, (user_data['id'],))
         location = cursor.fetchone()
         user_data['latitude'] = location['latitude']
         user_data['longitude'] = location['longitude']
 
-        cursor.execute(correct_gender_query, correct_gender_query_params)
+        cursor.execute(gender_sex_query, query_params)
         matching_users = cursor.fetchall()
+
         for matching_user in matching_users:
-            cursor.execute(location_query, (matching_user['id'],))
-            matching_user_location = cursor.fetchone()
-            print(matching_user_location, 'coucou')
-            matching_user['latitude'] = matching_user_location['latitude']
-            matching_user['longitude'] = matching_user_location['longitude']
             matching_user['matching_score'] = matching_score(
-                user_data,
-                matching_user)
-        print('we are coucou')
+                user_data, matching_user)
+
         matching_users = sorted(
             matching_users, key=lambda x: x['matching_score'], reverse=True)
-        print(matching_users)
     except Exception as e:
         raise Exception(str(e))
 
@@ -124,7 +119,8 @@ def test_redis():
 def browse():
     """
     Actually it will compute the algorithm every time a user wants to browse
-    It would be better to return them all, then the front-end will handle the pagination
+    After talking with collegues, it's the backend job
+    We'll use redis to avoid recomputing the algorithm (Bonus)
     """
     offset = request.args.get('offset', 0)
     limit = request.args.get('limit', 10)
@@ -134,6 +130,7 @@ def browse():
         # token = request.headers.get('Authorization').split(' ')[1]
         # user = jwt.decode(
         #     token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
+        # WARNING: Remove this mock
         user = {'id': 5}
         user_query = """
 SELECT id,\
