@@ -6,8 +6,9 @@ from flask import (
 import json
 import jwt
 import math
-from numpy import dot
-from numpy.linalg import norm
+import numpy as np
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 from psycopg2.extras import RealDictCursor
 from .. import main
 from app.database import get_db_connection
@@ -31,7 +32,20 @@ def age_similarity(age1, age2):
 
 
 def interest_similarity(interests1, interests2):
-    return dot(interests1, interests2) / (norm(interests1) * norm(interests2))
+    interests1: list = interests1.split(', ')
+    interests2: list = interests2.split(', ')
+
+    vectorizer = CountVectorizer().fit(interests1 + interests2)
+    print(type(vectorizer))
+    print('vectorizer', vectorizer)
+    vector_1 = vectorizer.transform(interests1).toarray()
+    print(type(vector_1))
+    print('vector_1', vector_1)
+    vector_2 = vectorizer.transform(interests2).toarray()
+    print(type(vector_2))
+    print('vector_2', vector_2)
+
+    return cosine_similarity(vector_1, vector_2)[0][0]
 
 
 def fame_similarity(fame1, fame2):
@@ -46,10 +60,16 @@ def matching_score(user1, user2):
 
     geo_score = haversine(user1['latitude'], user1['longitude'],
                           user2['latitude'], user2['longitude']) * geo_weight
+    print('geo_score', geo_score)
     age_score = age_similarity(user1['age'], user2['age']) * age_weight
+    print('age_score', age_score)
+    print('1', user1['interests'])
+    print('2', user2['interests'])
     interest_score = interest_similarity(
         user1['interests'], user2['interests']) * interest_weight
+    print('interest_score', interest_score)
     fame_score = fame_similarity(user1['fame'], user2['fame']) * fame_weight
+    print('fame_score', fame_score)
 
     return geo_score + age_score + interest_score + fame_score
 
@@ -68,14 +88,19 @@ def get_matching_users(user_data, cursor, offset, limit):
            u.sexual_preferences,
            u.fame,
            l.latitude,
-           l.longitude
+           l.longitude,
+           l.city,
+           STRING_AGG(i.name, ', ') AS interests
     FROM users u
     JOIN locations l ON u.id = l.located_user
+    LEFT JOIN user_interests ui ON u.id = ui.user_id
+    LEFT JOIN interests i ON ui.interest_id = i.id
     WHERE u.id != %s
       AND (
             (%s = 'both' AND (u.sexual_preferences = 'both' OR u.sexual_preferences = %s))
             OR (u.gender = %s AND (u.sexual_preferences = 'both' OR u.sexual_preferences = %s))
           )
+    GROUP BY u.id, u.firstname, u.age, u.biography, u.gender, u.sexual_preferences, u.fame, l.latitude, l.longitude, l.city
     """
 
     query_params = (user_data['id'],
@@ -85,16 +110,24 @@ def get_matching_users(user_data, cursor, offset, limit):
                     user_data['sexual_preferences'])
 
     location_query = """
-    SELECT latitude,
-           longitude
-    FROM locations
+    SELECT l.latitude,
+           l.longitude,
+           l.city,
+           STRING_AGG(i.name, ', ') AS interests
+    FROM locations l
+    LEFT JOIN user_interests ui ON ui.user_id = l.located_user
+    LEFT JOIN interests i ON ui.interest_id = i.id
     WHERE located_user = %s
+    GROUP BY l.latitude, l.longitude, l.city
     """
     try:
         cursor.execute(location_query, (user_data['id'],))
-        location = cursor.fetchone()
-        user_data['latitude'] = location['latitude']
-        user_data['longitude'] = location['longitude']
+        location_and_interests = cursor.fetchone()
+        user_data['latitude'] = location_and_interests['latitude']
+        user_data['longitude'] = location_and_interests['longitude']
+        user_data['city'] = location_and_interests['city']
+        user_data['interests'] = location_and_interests['interests']
+        print('the user data is ', user_data)
 
         cursor.execute(gender_sex_query, query_params)
         matching_users = cursor.fetchall()
@@ -102,6 +135,8 @@ def get_matching_users(user_data, cursor, offset, limit):
         for matching_user in matching_users:
             matching_user['matching_score'] = matching_score(
                 user_data, matching_user)
+            print('user_name', matching_user['firstname'])
+            print('matching_score', matching_user['matching_score'])
 
         matching_users: list = sorted(
             matching_users, key=lambda x: x['matching_score'], reverse=True)
@@ -159,6 +194,7 @@ WHERE id = %s
             print('nothing in redis yet')
             matching_users: list = get_matching_users(
                 user_data, cur, offset, limit)
+            print('we received the matching users: ', matching_users)
             redis_client.set(redis_key, json.dumps(matching_users), ex=3600)
         else:
             print('something in redis')
