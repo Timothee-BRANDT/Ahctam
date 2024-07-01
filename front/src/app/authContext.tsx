@@ -38,6 +38,7 @@ interface AuthContextType {
     setCookie: (name: string, value: string, days?: number) => void;
     deleteCookie: (name: string) => void;
     isJwtInCookie: (name: string) => boolean;
+    getCookie: (name: string) => string | undefined;
     user: User;
     setUser: React.Dispatch<React.SetStateAction<User>>;
 }
@@ -49,6 +50,7 @@ const AuthContext = createContext<AuthContextType>({
     setUser: () => { },
     setCookie: (name: string, value: string, days?: number) => { },
     deleteCookie: (name: string) => { },
+    getCookie: (name: string) => '',
     isJwtInCookie: (name: string) => false,
 });
 
@@ -79,11 +81,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
             expires = "; expires=" + date.toUTCString();
         }
-        document.cookie = `${name}=${value}${expires}; path=/; Secure; SameSite=Strict`;
+        document.cookie = `${name}=${value}${expires}; path=/; SameSite=None`;
     }
 
     const deleteCookie = (name: string) => {
-        document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; Secure; SameSite=Strict`;
+        document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=None`;
     }
 
     const isJwtInCookie = (name: string) => {
@@ -99,6 +101,18 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return false;
     }
 
+    const getCookie = (name: string): string | undefined => {
+        const value = `; ${document.cookie}`;
+        const parts = value.split(`; ${name}=`);
+        if (parts.length === 2) {
+            const cookie = parts.pop();
+            if (cookie !== undefined) {
+                return cookie.split(';').shift();
+            }
+        }
+        return undefined;
+    };
+
     const login = (user: User) => {
         setCookie('jwt_token', user.jwt_token, 7);
         setUser(user);
@@ -111,7 +125,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
 
     return (
-        <AuthContext.Provider value={{ login, logout, setCookie, deleteCookie, isJwtInCookie, user, setUser }}>
+        <AuthContext.Provider value={{ login, logout, setCookie, deleteCookie, isJwtInCookie, user, setUser, getCookie }}>
             {children}
         </AuthContext.Provider>
     );

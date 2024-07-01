@@ -15,7 +15,7 @@ var townjpp: string = '';
 
 
 const ProfilePage: React.FC = () => {
-    const { user, setUser, isJwtInCookie } = useAuth();
+    const { user, setUser, isJwtInCookie, getCookie } = useAuth();
     const router = useRouter();
     const initInterests: Record<string, boolean> = {
         Tunnels: false,
@@ -41,7 +41,8 @@ const ProfilePage: React.FC = () => {
         Carrots: false,
     };
 
-    const initializeInterests = (initialState: Record<string, boolean>, interestsArray: string[]): Record<string, boolean> => {
+    const initializeInterests = (initialState: Record<string, boolean>,
+        interestsArray: string[]): Record<string, boolean> => {
         const updatedState = { ...initialState };
         interestsArray.forEach(interest => {
             if (updatedState.hasOwnProperty(interest)) {
@@ -57,23 +58,24 @@ const ProfilePage: React.FC = () => {
     );
 
     const getProfile = async () => {
-        // [MOCK]
-        // const response = await fetch(`http://${serverIP}:5000/getUserInfo`, {
-        //     method: "POST",
-        //     credentials: "include",
-        //     headers: {
-        //         "Content-Type": "application/json",
-        //     },
-        // });
-        // const data = await response.json();
-        // if (response.ok) {
-        //     setUser(data);
-        // }
+        const token = getCookie('jwt_token');
+        const response = await fetch(`http://${serverIP}:5000/api/getUserInfo`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`,
+            },
+        });
+        const data = await response.json();
+        console.log(data);
+        if (response.ok) {
+            setUser(data);
+        }
 
-        setUser(data.user);
-        data.user.interests.map((interest) => {
-            allInterests[interest] = true;
-        })
+        // setUser(data.user);
+        // data.user.interests.map((interest) => {
+        //     allInterests[interest] = true;
+        // })
     }
 
     useEffect(() => {

@@ -21,11 +21,15 @@
 
 .search-and-filters {
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     justify-content: center;
     align-items: center;
     gap: 16px;
     margin-bottom: 32px;
+
+    @media only screen and (max-width: 700px) {
+        flex-direction: column;
+    }
 }
 
 .search {
@@ -35,6 +39,19 @@
     grid-template-columns: repeat(2, 1fr);
     gap: 16px;
 }
+
+.search-hidden {
+    @media only screen and (max-width: 700px) {
+        display: none;
+    }
+
+    display: grid;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    padding: 16px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
 
 .search-button {
     display: grid;
@@ -49,12 +66,45 @@
 }
 
 .filters {
-    display: flex;
-    flex-direction: column;
+    display: grid;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    padding: 16px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+.filters-hidden {
+    @media only screen and (max-width: 700px) {
+        display: none;
+    }
+
+    display: grid;
+    box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+    padding: 16px;
+    grid-template-columns: repeat(2, 1fr);
     gap: 16px;
 }
 
 .filters-selectors {
     display: flex;
+    gap: 16px;
+}
+
+.responsiveSearchButton {
+    @media only screen and (min-width: 700px) {
+        display: none;
+    }
+}
+
+.responsiveFilterButton {
+    @media only screen and (min-width: 700px) {
+        display: none;
+    }
+}
+
+.responsiveSearchAndFilters {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     gap: 16px;
 }

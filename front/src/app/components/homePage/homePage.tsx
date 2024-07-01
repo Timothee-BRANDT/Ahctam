@@ -61,13 +61,14 @@ const mainPage: React.FC = () => {
     const [ageGap, setAgeGap] = useState(0);
     const [fameGap, setFameGap] = useState(0);
     const [location, setLocation] = useState('');
-    const [filterBy, setFilterBy] = useState('');
     const [sortBy, setSortBy] = useState('');
     const [filterByAgeValue, setFilterByAgeValue] = useState(0);
     const [filterByLocationValue, setFilterByLocationValue] = useState('');
     const [filterByFameValue, setFilterByFameValue] = useState(0);
     const [tags, setTags] = useState<Record<string, Checked>>(initialTags);
     const [filterTags, setFilterTags] = useState<Record<string, Checked>>(initialTags);
+    const [responsiveSearchButton, setResponsiveSearchButton] = useState(false);
+    const [responsiveFilterButton, setResponsiveFilterButton] = useState(false);
 
     useEffect(() => {
         if (!isJwtInCookie("jwt_token")) {
@@ -113,14 +114,6 @@ const mainPage: React.FC = () => {
     const handleLocationChange = (event: any) => {
         setLocation(event.target.value);
     };
-
-    // const getFilterValue = (): URLSearchParams => {
-    //     return new URLSearchParams({
-    //         sortBy: sortBy,
-    //         filterBy: filterBy,
-    //         filterAge: filterByAgeValue,
-    //     });
-    // }
 
     const handleSearch = async () => {
         //[MOCK]
@@ -198,12 +191,23 @@ const mainPage: React.FC = () => {
         router.push("/login");
     };
 
+    const openResponsiveSearch = () => {
+        setResponsiveSearchButton((prev) => !prev);
+    }
+    const openResponsiveFilter = () => {
+        setResponsiveFilterButton((prev) => !prev);
+    }
+
     return (
         <>
             {user.jwt_token && (
                 <>
+                    <div className="responsiveSearchAndFilters">
+                        <Button className="responsiveSearchButton" onClick={openResponsiveSearch}>{responsiveSearchButton ? 'Close Search' : 'Open Search'}</Button>
+                        <Button className="responsiveFilterButton" onClick={openResponsiveFilter}>{responsiveFilterButton ? 'Close Filters' : 'Open Filters'}</Button>
+                    </div>
                     <div className="search-and-filters">
-                        <div className="search">
+                        <div className={responsiveSearchButton ? 'search' : 'search-hidden'}>
                             <Input
                                 onChange={handleAgeGapChange}
                                 type="number"
@@ -238,76 +242,53 @@ const mainPage: React.FC = () => {
                             </DropdownMenu>
                             <Button onClick={handleSearch} className="search-button">Search</Button>
                         </div>
-                        <div className="filters">
-                            <div className="filters-selectors">
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                        <Button variant="outline">Sort By</Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent className="w-56">
-                                        <DropdownMenuRadioGroup value={sortBy} onValueChange={setSortBy}>
-                                            <DropdownMenuRadioItem value="age">Age</DropdownMenuRadioItem>
-                                            <DropdownMenuRadioItem value="location">Location</DropdownMenuRadioItem>
-                                            <DropdownMenuRadioItem value="fame_rating">Fame Rating</DropdownMenuRadioItem>
-                                            <DropdownMenuRadioItem value="common_tags">Common Tags</DropdownMenuRadioItem>
-                                        </DropdownMenuRadioGroup>
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                        <Button variant="outline">Filter By</Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent className="w-56">
-                                        <DropdownMenuRadioGroup value={filterBy} onValueChange={setFilterBy}>
-                                            <DropdownMenuRadioItem value="age">Age</DropdownMenuRadioItem>
-                                            <DropdownMenuRadioItem value="location">Location</DropdownMenuRadioItem>
-                                            <DropdownMenuRadioItem value="fame_rating">Fame Rating</DropdownMenuRadioItem>
-                                            <DropdownMenuRadioItem value="common_tags">Common Tags</DropdownMenuRadioItem>
-                                        </DropdownMenuRadioGroup>
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
-                                {filterBy === 'age' && (
-                                    <Input
-                                        onChange={handleFilterByAgeValueChange}
-                                        type="number"
-                                        placeholder="What age ?"
-                                    />
-                                )}
-                                {filterBy === 'location' && (
-                                    <Input
-                                        onChange={handleFilterByLocationValueChange}
-                                        type="string"
-                                        placeholder="Which town ?"
-                                    />
-                                )}
-                                {filterBy === 'fame_rating' && (
-                                    <Input
-                                        onChange={handleFilterByFameValueChange}
-                                        type="number"
-                                        placeholder="How much fame ?"
-                                    />
-                                )}
-                                {filterBy === 'common_tags' && (
-                                    <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                            <Button variant="outline">Filter By Tags</Button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent className="w-56 max-h-60 overflow-y-auto">
-                                            {Object.keys(filterTags).map((tag) => (
-                                                <DropdownMenuCheckboxItem
-                                                    key={tag}
-                                                    onSelect={(event) => event.preventDefault()}
-                                                    checked={filterTags[tag]}
-                                                    onCheckedChange={(checked) => handleFiltersTagsChange(tag, checked)}
-                                                >
-                                                    {tag}
-                                                </DropdownMenuCheckboxItem>
-                                            ))}
-                                        </DropdownMenuContent>
-                                    </DropdownMenu>
-                                )}
-                            </div>
-                            <Button onClick={handleFilters} className="search-button">Apply filters</Button>
+                        <div className={responsiveFilterButton ? 'filters' : 'filters-hidden'}>
+                            <Input
+                                onChange={handleAgeGapChange}
+                                type="number"
+                                placeholder="Specific Age"
+                            />
+                            <Input
+                                onChange={handleFameGapChange}
+                                type="number"
+                                placeholder="Specific Fame"
+                            />
+                            <Input
+                                onChange={handleLocationChange}
+                                type="text"
+                                placeholder="Specific Location"
+                            />
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant="outline">Specific tags</Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent className="w-56 max-h-60 overflow-y-auto">
+                                    {Object.keys(tags).map((tag) => (
+                                        <DropdownMenuCheckboxItem
+                                            key={tag}
+                                            onSelect={(event) => event.preventDefault()}
+                                            checked={tags[tag]}
+                                            onCheckedChange={(checked) => handleTagsChange(tag, checked)}
+                                        >
+                                            {tag}
+                                        </DropdownMenuCheckboxItem>
+                                    ))}
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                    <Button variant="outline">Sort By</Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent className="w-56">
+                                    <DropdownMenuRadioGroup value={sortBy} onValueChange={setSortBy}>
+                                        <DropdownMenuRadioItem value="age">Age</DropdownMenuRadioItem>
+                                        <DropdownMenuRadioItem value="location">Location</DropdownMenuRadioItem>
+                                        <DropdownMenuRadioItem value="fame_rating">Fame Rating</DropdownMenuRadioItem>
+                                        <DropdownMenuRadioItem value="common_tags">Common Tags</DropdownMenuRadioItem>
+                                    </DropdownMenuRadioGroup>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                            <Button onClick={handleSearch}>Apply filters</Button>
                         </div>
                     </div>
                     <div className={CLASSNAME}>
