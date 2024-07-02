@@ -4,11 +4,13 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
+import data from '../../api.json';
 
 interface Match {
     id: number;
     name: string;
     avatar: string;
+    messages: Message[];
 }
 
 interface Message {
@@ -18,11 +20,6 @@ interface Message {
     timestamp: string;
 }
 
-interface Room {
-    id: number;
-    messages: Message[];
-}
-
 export default function Component() {
     const [isMatchsListOpen, setIsMatchsListOpen] = useState(false);
     const [isChatWindowOpen, setIsChatWindowOpen] = useState(false);
@@ -30,6 +27,7 @@ export default function Component() {
     const chatWindowRef = useRef<HTMLDivElement>(null);
     const matchListWindowRef = useRef<HTMLDivElement>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
+
     // [MOCK]
     const [messages, setMessages] = useState<Message[]>([
         { id: 1, text: "Hello, how are you?", isMe: false, timestamp: "10:30 AM" },
@@ -40,13 +38,11 @@ export default function Component() {
     ]);
 
     // [MOCK]
-    const matchs: Match[] = [
-        { id: 1, name: "John Doe", avatar: "https://picsum.photos/201" },
-        { id: 2, name: "Jane Smith", avatar: "https://picsum.photos/202" },
-        { id: 3, name: "Bob Johnson", avatar: "https://picsum.photos/203" },
-        { id: 4, name: "Alice Williams", avatar: "https://picsum.photos/204" },
-        { id: 5, name: "Tom Davis", avatar: "https://picsum.photos/205" },
-    ];
+    const [matchs, setMatchs] = useState<Match[]>([
+        { id: 1, name: "John Doe", avatar: "https://picsum.photos/201", messages: data.messagesRoom1 },
+        { id: 2, name: "Jane Smith", avatar: "https://picsum.photos/202", messages: data.messagesRoom2 },
+        { id: 3, name: "Bob Johnson", avatar: "https://picsum.photos/203", messages: data.messagesRoom3 },
+    ]);
 
     const openChatWindow = (match: Match) => {
         setSelectedMatch(match);
@@ -56,21 +52,26 @@ export default function Component() {
 
     const sendMessage = (text: string) => {
         const newMessage: Message = {
-            id: messages.length + 1,
+            id: selectedMatch!.messages.length + 1,
             text,
             isMe: true,
             timestamp: new Date().toLocaleTimeString(),
         };
-        setMessages([...messages, newMessage]);
+        const updatedMatchs = matchs.map((m) =>
+            m.id === selectedMatch!.id ? { ...m, messages: [...m.messages, newMessage] } : m
+        );
+        setMatchs(updatedMatchs);
+
+        if (selectedMatch) {
+            setSelectedMatch({ ...selectedMatch, messages: [...selectedMatch.messages, newMessage] });
+        }
     };
 
     const handleClickOutside = (event: MouseEvent) => {
         if (chatWindowRef.current && !chatWindowRef.current.contains(event.target as Node)) {
-            console.log('window close')
             setIsChatWindowOpen(false);
         }
         if (matchListWindowRef.current && !matchListWindowRef.current.contains(event.target as Node)) {
-            console.log('matchlist close')
             setIsMatchsListOpen(false);
         }
     };
@@ -88,7 +89,7 @@ export default function Component() {
 
     useEffect(() => {
         scrollToBottom();
-    }, [messages]);
+    }, [selectedMatch?.messages]);
 
     return (
         <div className="relative">
@@ -104,20 +105,23 @@ export default function Component() {
                         </div>
                         <div className="max-h-[300px] overflow-y-auto bg-white">
                             {matchs.map((match) => (
-                                <Button
-                                    key={match.id}
-                                    variant="ghost"
-                                    className="flex items-center gap-3 p-3 hover:bg-gray-200"
-                                    onClick={() => openChatWindow(match)}
-                                >
-                                    <Avatar className="h-8 w-8">
-                                        <AvatarImage src={match.avatar} />
-                                        <AvatarFallback>{match.name[0]}</AvatarFallback>
-                                    </Avatar>
-                                    <div className="flex-1">
-                                        <div className="font-medium text-gray-900">{match.name}</div>
-                                    </div>
-                                </Button>
+                                <div 
+                                    className="flex items-center gap-3 p-3 hover:bg-gray-200 cursor-pointer"
+                                    onClick={() => openChatWindow(match)}>
+                                    <Button
+                                        key={match.id}
+                                        variant="ghost"
+                                        className="flex items-center gap-3 p-3 cursor-pointer"
+                                    >
+                                        <Avatar className="h-8 w-8">
+                                            <AvatarImage src={match.avatar} />
+                                            <AvatarFallback>{match.name[0]}</AvatarFallback>
+                                        </Avatar>
+                                        <div className="flex-1">
+                                            <div className="font-medium text-gray-900">{match.name}</div>
+                                        </div>
+                                    </Button>
+                                </div>
                             ))}
                         </div>
                     </div>
@@ -148,13 +152,13 @@ export default function Component() {
                             </Button>
                         </div>
                         <div className="mt-4 max-h-[400px] overflow-y-auto">
-                            {messages.map((message) => (
+                            {selectedMatch!.messages.map((message) => (
                                 <div
                                     key={message.id}
                                     className={`mb-2 flex items-end gap-2 ${message.isMe ? "justify-end" : "justify-start"}`}
                                 >
                                     <div
-                                        className={`max-w-[70%] rounded-lg px-4 py-2 ${message.isMe ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                                        className={`max-w-[70%] break-words rounded-lg px-4 py-2 ${message.isMe ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
                                             }`}
                                     >
                                         <div>{message.text}</div>

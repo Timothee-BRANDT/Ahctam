@@ -173,5 +173,101 @@
       "created_at": "1627845427000",
       "firstTimeLogged": true
     }
+  ],
+  "messagesRoom1": [
+    {
+      "id": 1,
+      "text": "Hello, how are you?",
+      "isMe": false,
+      "timestamp": "10:30 AM"
+    },
+    {
+      "id": 2,
+      "text": "I'm doing great, thanks for asking!",
+      "isMe": true,
+      "timestamp": "10:31 AM"
+    },
+    {
+      "id": 3,
+      "text": "That's good to hear. Do you have any plans for the weekend?",
+      "isMe": false,
+      "timestamp": "10:32 AM"
+    },
+    {
+      "id": 4,
+      "text": "I'm planning to go hiking with some matchs. How about you?",
+      "isMe": true,
+      "timestamp": "10:33 AM"
+    },
+    {
+      "id": 5,
+      "text": "That sounds like a lot of fun! I might just stay in and catch up on some reading.",
+      "isMe": false,
+      "timestamp": "10:34 AM"
+    }
+  ],
+    "messagesRoom2": [
+    {
+      "id": 1,
+      "text": "Hello",
+      "isMe": false,
+      "timestamp": "10:30 AM"
+    },
+    {
+      "id": 2,
+      "text": "I'm doing great",
+      "isMe": true,
+      "timestamp": "10:31 AM"
+    },
+    {
+      "id": 3,
+      "text": "Ok bro",
+      "isMe": false,
+      "timestamp": "10:32 AM"
+    },
+    {
+      "id": 4,
+      "text": "COCHON D'INDE !",
+      "isMe": true,
+      "timestamp": "10:33 AM"
+    },
+    {
+      "id": 5,
+      "text": "Ah bon bah d'accord, cochon d'inde alors.",
+      "isMe": false,
+      "timestamp": "10:34 AM"
+    }
+  ],
+      "messagesRoom3": [
+    {
+      "id": 1,
+      "text": "Ouais salut ouais",
+      "isMe": false,
+      "timestamp": "10:30 AM"
+    },
+    {
+      "id": 2,
+      "text": "Yo le s",
+      "isMe": true,
+      "timestamp": "10:31 AM"
+    },
+    {
+      "id": 3,
+      "text": "Bien ou bien ?",
+      "isMe": false,
+      "timestamp": "10:32 AM"
+    },
+    {
+      "id": 4,
+      "text": "Eh ouais ma gueule",
+      "isMe": true,
+      "timestamp": "10:33 AM"
+    },
+    {
+      "id": 5,
+      "text": "On fait comme ça. Bisous",
+      "isMe": false,
+      "timestamp": "10:34 AM"
+    }
   ]
 }
