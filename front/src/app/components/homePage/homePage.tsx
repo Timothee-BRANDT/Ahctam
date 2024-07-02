@@ -2,8 +2,8 @@
 
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/app/authContext";
-import { User } from "@/app/types";
-import { useEffect, useState } from "react";
+import { PaginationType, User } from "@/app/types";
+import { useEffect, useRef, useState } from "react";
 import { UserCard } from "@/components/ui/carousel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input"
@@ -18,11 +18,22 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+
+import {
+    Pagination,
+    PaginationContent,
+    PaginationEllipsis,
+    PaginationItem,
+    PaginationLink,
+    PaginationNext,
+    PaginationPrevious,
+} from "@/components/ui/pagination"
+
 import { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu"
 
 import data from "../../api.json";
 import "./homePage.scss";
-import { serverIP } from "@/app/constants";
+import { limitPerQuery, serverIP } from "@/app/constants";
 
 const CLASSNAME = 'browse'
 
@@ -56,6 +67,7 @@ const mainPage: React.FC = () => {
     const router = useRouter();
     const pathname = usePathname();
     const { user, setUser, isJwtInCookie } = useAuth();
+    const initialRun = useRef(true);
     const [offset, setOffset] = useState(0);
     const [profiles, setProfiles] = useState<User[]>([]);
     const [ageGap, setAgeGap] = useState(0);
@@ -74,7 +86,10 @@ const mainPage: React.FC = () => {
         if (!isJwtInCookie("jwt_token")) {
             redirectLogin();
         }
-        getProfiles()
+        if (initialRun.current) {
+            getProfiles(PaginationType.next)
+            initialRun.current = false;
+        }
     }, [profiles]);
 
     const handleTagsChange = (tag: string, checked: Checked) => {
@@ -116,7 +131,6 @@ const mainPage: React.FC = () => {
     };
 
     const handleSearch = async () => {
-        //[MOCK]
         let tagsArray: string[] = [];
         Object.keys(tags).map((tag) => {
             if (tags[tag]) {
@@ -142,7 +156,6 @@ const mainPage: React.FC = () => {
     };
 
     const handleFilters = async () => {
-        //[MOCK]
         let filterTagsArray: string[] = [];
         Object.keys(filterTags).map((tag) => {
             if (filterTags[tag]) {
@@ -168,9 +181,14 @@ const mainPage: React.FC = () => {
         }
     };
 
-    const getProfiles = () => {
-        //[MOCK]
-        // const response = await fetch(`http://${serverIP}:5000/browse`, {
+    const getProfiles = async (click: PaginationType) => {
+        if (click === PaginationType.previous) {
+            setOffset((prev) => prev - limitPerQuery);
+        }
+        // const response = await fetch(`http://${serverIP}:5000/browse?` + new URLSearchParams({
+        //     offset: String(offset),
+        //     limit: String(limitPerQuery),
+        // }), {
         //     method: "POST",
         //     credentials: "include",
         //     headers: {
@@ -181,8 +199,13 @@ const mainPage: React.FC = () => {
         // if (response.ok) {
         //     setProfiles(data);
         // }
+        // [MOCK]
         setProfiles(data.userArray);
+        if (click === PaginationType.next) {
+            setOffset((prev) => prev + limitPerQuery);
+        }
     }
+
     const redirect = (id: number) => {
         router.push(`/profile/${id}`);
     };
@@ -288,7 +311,7 @@ const mainPage: React.FC = () => {
                                     </DropdownMenuRadioGroup>
                                 </DropdownMenuContent>
                             </DropdownMenu>
-                            <Button onClick={handleSearch}>Apply filters</Button>
+                            <Button onClick={handleFilters}>Apply filters</Button>
                         </div>
                     </div>
                     <div className={CLASSNAME}>
@@ -302,6 +325,16 @@ const mainPage: React.FC = () => {
                             })}
                         </div>
                     </div>
+                    <Pagination>
+                        <PaginationContent>
+                            <PaginationItem>
+                                <PaginationPrevious onClick={() => getProfiles(PaginationType.previous)} />
+                            </PaginationItem>
+                            <PaginationItem>
+                                <PaginationNext onClick={() => getProfiles(PaginationType.next)} />
+                            </PaginationItem>
+                        </PaginationContent>
+                    </Pagination>
                 </>
             )}
         </>

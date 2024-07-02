@@ -32,6 +32,11 @@ export enum State {
     redirect = "redirect",
 }
 
+export enum PaginationType {
+    previous = "previous",
+    next = "next",
+}
+
 export interface ProfileInformations {
     age: number;
     firstname: string;
