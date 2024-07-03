@@ -80,8 +80,7 @@ WHERE owner = %s
         'user': user_info,
         'location': location_info,
         'interests': interests,
-        'profile_picture': profile_picture,
-        'all_pictures': all_pictures
+        'photos': all_pictures
     }), 200
 
 
