@@ -68,6 +68,14 @@ VALUES (%s, %s, %s)
                 'refresh_token': refresh_token,
                 'user_id': user_id
             }), 200
+
+        update_last_connexion_query = """
+UPDATE users
+SET last_connexion = %s
+WHERE id = %s
+        """
+        cur.execute(update_last_connexion_query, (datetime.utcnow(), user_id))
+        conn.commit()
     finally:
         cur.close()
         conn.close()
