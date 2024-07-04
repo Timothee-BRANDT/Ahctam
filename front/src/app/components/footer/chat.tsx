@@ -8,8 +8,8 @@ import data from '../../api.json';
 
 interface Match {
     id: number;
-    useruuid: number;
-    matchedUseruuid: number;
+    // useruuid: number;
+    // matchedUseruuid: number;
     name: string;
     avatar: string;
     messages: Message[];
@@ -29,15 +29,8 @@ export default function Component() {
     const chatWindowRef = useRef<HTMLDivElement>(null);
     const matchListWindowRef = useRef<HTMLDivElement>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
+    const messageInputRef = useRef<HTMLTextAreaElement>(null);
 
-    // [MOCK]
-    const [messages, setMessages] = useState<Message[]>([
-        { id: 1, text: "Hello, how are you?", isMe: false, timestamp: "10:30 AM" },
-        { id: 2, text: "I'm doing great, thanks for asking!", isMe: true, timestamp: "10:31 AM" },
-        { id: 3, text: "That's good to hear. Do you have any plans for the weekend?", isMe: false, timestamp: "10:32 AM" },
-        { id: 4, text: "I'm planning to go hiking with some matchs. How about you?", isMe: true, timestamp: "10:33 AM" },
-        { id: 5, text: "That sounds like a lot of fun! I might just stay in and catch up on some reading.", isMe: false, timestamp: "10:34 AM" },
-    ]);
 
     // [MOCK]
     const [matchs, setMatchs] = useState<Match[]>([
@@ -53,6 +46,9 @@ export default function Component() {
     };
 
     const sendMessage = (text: string) => {
+        if (!text) {
+            return;
+        }
         const newMessage: Message = {
             id: selectedMatch!.messages.length + 1,
             text,
@@ -91,6 +87,9 @@ export default function Component() {
 
     useEffect(() => {
         scrollToBottom();
+        if (messageInputRef.current) {
+            messageInputRef.current.focus();
+        }
     }, [selectedMatch?.messages]);
 
     return (
@@ -160,11 +159,11 @@ export default function Component() {
                                     className={`mb-2 flex items-end gap-2 ${message.isMe ? "justify-end" : "justify-start"}`}
                                 >
                                     <div
-                                        className={`max-w-[70%] break-words rounded-lg px-4 py-2 ${message.isMe ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                                        className={`max-w-[70%] break-words rounded-lg px-4 py-2 ${message.isMe ? "bg-black text-primary-foreground" : "bg-muted text-black"
                                             }`}
                                     >
                                         <div>{message.text}</div>
-                                        <div className="mt-1 text-xs text-muted-foreground">{message.timestamp}</div>
+                                        <div className={message.isMe ? "mt-1 text-xs text-primary-foreground" : "mt-1 text-xs text-black" }>{message.timestamp}</div>
                                     </div>
                                 </div>
                             ))}
@@ -172,6 +171,7 @@ export default function Component() {
                         </div >
                         <div className="mt-4">
                             <Textarea
+                                ref={messageInputRef}
                                 placeholder="Type your message..."
                                 className="min-h-[48px] rounded-lg resize-none border border-input bg-background p-3"
                                 onKeyDown={(e) => {

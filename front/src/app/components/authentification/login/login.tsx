@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/app/authContext";
 import { State } from "@/app/types";
-import Button from "@/app/components/core/button/button";
+import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import data from "../../../api.json";
 
@@ -120,7 +120,7 @@ const LoginPage: React.FC = () => {
                                 autoComplete="new-password"
                             />
                         </div>
-                        <Button title="Log in" type="submit" onClick={() => { }} />
+                        <Button type="submit" onClick={() => { }}>Log in</Button>
                         <div className={`${CLASSNAME}__helper`}>
                             <p className={`${CLASSNAME}__helper-question`}>
                                 Password forgot ?

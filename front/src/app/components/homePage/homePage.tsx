@@ -2,7 +2,7 @@
 
 import { useRouter, usePathname } from "next/navigation";
 import { useAuth } from "@/app/authContext";
-import { PaginationType, User } from "@/app/types";
+import { User } from "@/app/types";
 import { useEffect, useRef, useState } from "react";
 import { UserCard } from "@/components/ui/carousel";
 import { Button } from "@/components/ui/button";
@@ -19,23 +19,13 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-import {
-    Pagination,
-    PaginationContent,
-    PaginationEllipsis,
-    PaginationItem,
-    PaginationLink,
-    PaginationNext,
-    PaginationPrevious,
-} from "@/components/ui/pagination"
-
 import { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu"
 
 import data from "../../api.json";
 import "./homePage.scss";
 import { limitPerQuery, serverIP } from "@/app/constants";
 
-const CLASSNAME = 'browse'
+const CLASSNAME = 'browse2'
 
 type Checked = DropdownMenuCheckboxItemProps["checked"];
 
@@ -68,7 +58,6 @@ const mainPage: React.FC = () => {
     const pathname = usePathname();
     const { user, setUser, isJwtInCookie } = useAuth();
     const initialRun = useRef(true);
-    const [offset, setOffset] = useState(0);
     const [profiles, setProfiles] = useState<User[]>([]);
     const [ageGap, setAgeGap] = useState(0);
     const [fameGap, setFameGap] = useState(0);
@@ -86,10 +75,7 @@ const mainPage: React.FC = () => {
         if (!isJwtInCookie("jwt_token")) {
             redirectLogin();
         }
-        if (initialRun.current) {
-            getProfiles(PaginationType.next)
-            initialRun.current = false;
-        }
+        getProfiles()
     }, [profiles]);
 
     const handleTagsChange = (tag: string, checked: Checked) => {
@@ -119,61 +105,34 @@ const mainPage: React.FC = () => {
         setLocation(event.target.value);
     };
 
-    const handleSearch = async () => {
-        let tagsArray: string[] = [];
-        Object.keys(tags).map((tag) => {
-            if (tags[tag]) {
-                tagsArray.push(tag);
-            }
-        })
-        const response = await fetch(`http://${serverIP}:5000/browse?` + new URLSearchParams({
-            ageGap: String(ageGap),
-            fameGap: String(fameGap),
-            location: location,
-            tags: tagsArray.join(','),
-        }), {
-            method: "POST",
-            credentials: "include",
-            headers: {
-                "Content-Type": "application/json",
-            },
-        });
-        const data = await response.json();
-        if (response.ok) {
-            setProfiles(data);
-        }
-    };
-
     const handleFilters = async () => {
-        let filterTagsArray: string[] = [];
-        Object.keys(filterTags).map((tag) => {
-            if (filterTags[tag]) {
-                filterTagsArray.push(tag);
-            }
-        })
-        const response = await fetch(`http://${serverIP}:5000/browse?` + new URLSearchParams({
-            sortBy: String(sortBy),
-            filterAge: String(filterByAgeValue),
-            filterFame: String(filterByFameValue),
-            filterLocation: filterByLocationValue,
-            filterTags: filterTagsArray.join(','),
-        }), {
-            method: "POST",
-            credentials: "include",
-            headers: {
-                "Content-Type": "application/json",
-            },
-        });
-        const data = await response.json();
-        if (response.ok) {
-            setProfiles(data);
-        }
+        // let filterTagsArray: string[] = [];
+        // Object.keys(filterTags).map((tag) => {
+        //     if (filterTags[tag]) {
+        //         filterTagsArray.push(tag);
+        //     }
+        // })
+        // const response = await fetch(`http://${serverIP}:5000/browse?` + new URLSearchParams({
+        //     sortBy: String(sortBy),
+        //     filterAge: String(filterByAgeValue),
+        //     filterFame: String(filterByFameValue),
+        //     filterLocation: filterByLocationValue,
+        //     filterTags: filterTagsArray.join(','),
+        // }), {
+        //     method: "POST",
+        //     credentials: "include",
+        //     headers: {
+        //         "Content-Type": "application/json",
+        //     },
+        // });
+        // const data = await response.json();
+        // if (response.ok) {
+        //     setProfiles(data);
+        // }
+        setResponsiveFilterButton(false);
     };
 
-    const getProfiles = async (click: PaginationType) => {
-        if (click === PaginationType.previous) {
-            setOffset((prev) => prev - limitPerQuery);
-        }
+    const getProfiles = async () => {
         // const response = await fetch(`http://${serverIP}:5000/browse?` + new URLSearchParams({
         //     offset: String(offset),
         //     limit: String(limitPerQuery),
@@ -190,9 +149,6 @@ const mainPage: React.FC = () => {
         // }
         // [MOCK]
         setProfiles(data.userArray);
-        if (click === PaginationType.next) {
-            setOffset((prev) => prev + limitPerQuery);
-        }
     }
 
     const redirect = (id: number) => {
@@ -203,108 +159,69 @@ const mainPage: React.FC = () => {
         router.push("/login");
     };
 
-    const openResponsiveSearch = () => {
-        setResponsiveSearchButton((prev) => !prev);
-    }
-    const openResponsiveFilter = () => {
-        setResponsiveFilterButton((prev) => !prev);
-    }
+    const toggleResponsiveFilter = (event: React.MouseEvent) => {
+        event.stopPropagation(); // Arrête la propagation de l'événement de clic
+        setResponsiveFilterButton(prevState => !prevState); // Basculer l'état
+    };
+
 
     return (
         <>
             {user.jwt_token && (
                 <>
-                    <div className="responsiveSearchAndFilters">
-                        <Button className="responsiveSearchButton" onClick={openResponsiveSearch}>{responsiveSearchButton ? 'Close Search' : 'Open Search'}</Button>
-                        <Button className="responsiveFilterButton" onClick={openResponsiveFilter}>{responsiveFilterButton ? 'Close Filters' : 'Open Filters'}</Button>
+                    <div className="filter-image2" onClick={toggleResponsiveFilter} >
+                        <img src='/filters.svg' alt='' />
                     </div>
-                    <div className="search-and-filters">
-                        <div className={responsiveSearchButton ? 'search' : 'search-hidden'}>
-                            <Input
-                                onChange={handleAgeGapChange}
-                                type="number"
-                                placeholder="Age Gap"
-                            />
-                            <Input
-                                onChange={handleFameGapChange}
-                                type="number"
-                                placeholder="Fame Gap (from 1 to 5)"
-                            />
-                            <Input
-                                onChange={handleLocationChange}
-                                type="text"
-                                placeholder="Location"
-                            />
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button variant="outline">List of common tags</Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent className="w-56 max-h-60 overflow-y-auto">
-                                    {Object.keys(tags).map((tag) => (
-                                        <DropdownMenuCheckboxItem
-                                            key={tag}
-                                            onSelect={(event) => event.preventDefault()}
-                                            checked={tags[tag]}
-                                            onCheckedChange={(checked) => handleTagsChange(tag, checked)}
-                                        >
-                                            {tag}
-                                        </DropdownMenuCheckboxItem>
-                                    ))}
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                            <Button onClick={handleSearch} className="search-button">Search</Button>
-                        </div>
-                        <div className={responsiveFilterButton ? 'filters' : 'filters-hidden'}>
-                            <Input
-                                onChange={handleAgeGapChange}
-                                type="number"
-                                placeholder="Specific Age"
-                            />
-                            <Input
-                                onChange={handleFameGapChange}
-                                type="number"
-                                placeholder="Specific Fame"
-                            />
-                            <Input
-                                onChange={handleLocationChange}
-                                type="text"
-                                placeholder="Specific Location"
-                            />
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button variant="outline">Specific tags</Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent className="w-56 max-h-60 overflow-y-auto">
-                                    {Object.keys(tags).map((tag) => (
-                                        <DropdownMenuCheckboxItem
-                                            key={tag}
-                                            onSelect={(event) => event.preventDefault()}
-                                            checked={tags[tag]}
-                                            onCheckedChange={(checked) => handleTagsChange(tag, checked)}
-                                        >
-                                            {tag}
-                                        </DropdownMenuCheckboxItem>
-                                    ))}
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button variant="outline">Sort By</Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent className="w-56">
-                                    <DropdownMenuRadioGroup value={sortBy} onValueChange={setSortBy}>
-                                        <DropdownMenuRadioItem value="age">Age</DropdownMenuRadioItem>
-                                        <DropdownMenuRadioItem value="location">Location</DropdownMenuRadioItem>
-                                        <DropdownMenuRadioItem value="fame_rating">Fame Rating</DropdownMenuRadioItem>
-                                        <DropdownMenuRadioItem value="common_tags">Common Tags</DropdownMenuRadioItem>
-                                    </DropdownMenuRadioGroup>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
-                            <Button onClick={handleFilters}>Apply filters</Button>
-                        </div>
-                    </div>
+                    {responsiveFilterButton && <div className="filters2">
+                        <Input
+                            onChange={handleAgeGapChange}
+                            type="number"
+                            placeholder="Specific Age"
+                        />
+                        <Input
+                            onChange={handleFameGapChange}
+                            type="number"
+                            placeholder="Specific Fame"
+                        />
+                        <Input
+                            onChange={handleLocationChange}
+                            type="text"
+                            placeholder="Specific Location"
+                        />
+                        <DropdownMenu >
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="outline">Specific tags</Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="w-56 max-h-60 overflow-y-auto">
+                                {Object.keys(tags).map((tag) => (
+                                    <DropdownMenuCheckboxItem
+                                        key={tag}
+                                        onSelect={(event) => event.preventDefault()}
+                                        checked={tags[tag]}
+                                        onCheckedChange={(checked) => handleTagsChange(tag, checked)}
+                                    >
+                                        {tag}
+                                    </DropdownMenuCheckboxItem>
+                                ))}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="outline">Sort By</Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="w-56">
+                                <DropdownMenuRadioGroup value={sortBy} onValueChange={setSortBy}>
+                                    <DropdownMenuRadioItem value="age">Age</DropdownMenuRadioItem>
+                                    <DropdownMenuRadioItem value="location">Location</DropdownMenuRadioItem>
+                                    <DropdownMenuRadioItem value="fame_rating">Fame Rating</DropdownMenuRadioItem>
+                                    <DropdownMenuRadioItem value="common_tags">Common Tags</DropdownMenuRadioItem>
+                                </DropdownMenuRadioGroup>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                        <Button onClick={handleFilters}>Apply filters</Button>
+                    </div>}
                     <div className={CLASSNAME}>
-                        <div className={`${CLASSNAME}__list`}>
+                        <div className={`${CLASSNAME}__list2`}>
                             {profiles.map((profile, index) => {
                                 return <UserCard
                                     key={index}
@@ -314,16 +231,6 @@ const mainPage: React.FC = () => {
                             })}
                         </div>
                     </div>
-                    <Pagination>
-                        <PaginationContent>
-                            <PaginationItem>
-                                <PaginationPrevious onClick={() => getProfiles(PaginationType.previous)} />
-                            </PaginationItem>
-                            <PaginationItem>
-                                <PaginationNext onClick={() => getProfiles(PaginationType.next)} />
-                            </PaginationItem>
-                        </PaginationContent>
-                    </Pagination>
                 </>
             )}
         </>

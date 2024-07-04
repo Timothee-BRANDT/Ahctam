@@ -1,9 +1,9 @@
-.browse2 {
+.browse {
     display: flex;
     justify-content: center;
     margin-bottom: 20px;
 
-    &__list2 {
+    &__list {
         display: grid;
         grid-template-columns: repeat(6, 1fr);
         gap: 18px;
@@ -31,7 +31,28 @@
     }
 }
 
-.search2 {
+.search-box {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    border-radius: 8px;
+    margin-left: 20px;
+
+    /* Adjust margin to align with filter image */
+    @media only screen and (max-width: 700px) {
+        flex-direction: column;
+        margin-left: 0;
+        /* Remove margin for small screens */
+    }
+}
+
+.search {
+    position: relative;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    margin-top: -40px;
     display: grid;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
     padding: 16px;
@@ -39,7 +60,7 @@
     gap: 16px;
 }
 
-.search-hidden2 {
+.search-hidden {
     @media only screen and (max-width: 700px) {
         display: none;
     }
@@ -52,7 +73,7 @@
 }
 
 
-.search-button2 {
+.search-button {
     display: grid;
     justify-content: center;
     align-items: center;
@@ -65,24 +86,32 @@
 }
 
 
-.filters2 {
+.filters {
     display: flex;
     flex-direction: column;
-    position: fixed;
-    top: 120px;
-    left: 80px;
+    width: 200px;
     padding: 12px;
     border-radius: 8px;
     background-color: #E0E0E0;
     gap: 16px;
+    position: absolute;
+    top: 80;
+    margin-left: 80px;
 }
 
-.filters-selectors2 {
+.filters-selectors {
     display: flex;
     gap: 16px;
 }
 
-.filter-image2 {
+.filters-img-and-icon {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    /* Align items to the start to avoid shifting */
+}
+
+.filter-image {
     margin-left: 20px;
     width: 40px;
     height: 40px;

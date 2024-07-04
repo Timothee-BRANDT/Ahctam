@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import "./index.scss";
-import Button from "../core/button/button";
+import { Button } from "@/components/ui/button";
 import { serverIP } from "@/app/constants";
 import { useAuth } from "@/app/authContext";
 import { ProfileInformations } from "@/app/types";
@@ -165,9 +165,6 @@ const ProfilePage: React.FC = () => {
         if (!payload.sexual_preferences) {
             payload.sexual_preferences = "both";
         }
-        if (!payload.gender) {
-            payload.gender = "other";
-        }
         // TODO: C'EST ICI POUR L'ENDPOINT
         console.log(payload);
         const response = await fetch(`http://${serverIP}:5000/auth/first-login`, {
@@ -298,6 +295,7 @@ const ProfilePage: React.FC = () => {
                         </div>
                         <div>
                             <input
+                                className="other-hidden"
                                 type="radio"
                                 id="gender-other"
                                 name="gender"
@@ -305,7 +303,7 @@ const ProfilePage: React.FC = () => {
                                 checked={user.gender === "other"}
                                 onChange={handleUserChange}
                             />
-                            <label htmlFor="gender-other">Other</label>
+                            <label className="other-hidden" htmlFor="gender-other">Other</label>
                         </div>
                     </div>
 
@@ -348,6 +346,7 @@ const ProfilePage: React.FC = () => {
 
                     <p className={`${CLASSNAME}__title`}>About me</p>
                     <textarea
+                        rows={6}
                         name="biography"
                         spellCheck="false"
                         value={user.biography}
@@ -406,10 +405,9 @@ const ProfilePage: React.FC = () => {
                     </div>
                     <Button
                         className="button-info"
-                        title="Save"
                         type="submit"
                         onClick={() => { }}
-                    />
+                    >Save</Button>
                 </form>
             </div>
         </>

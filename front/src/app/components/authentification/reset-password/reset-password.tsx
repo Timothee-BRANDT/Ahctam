@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import { useAuth } from '@/app/authContext';
-import Button from '../../core/button/button';
+import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
 import './reset-password.scss'
@@ -82,7 +82,7 @@ const ResetPasswordPage: React.FC = () => {
                                 autoComplete="new-password"
                             />
                         </div>
-                        <Button title="continue" type="submit" onClick={() => { }} />
+                        <Button type="submit" onClick={() => { }}>Continue</Button>
                         <div className={`${CLASSNAME}__helper`}>
                             <p className={`${CLASSNAME}__helper-question`}>Not a member yet ?</p>
                             <Link className={`${CLASSNAME}__helper-link`} href="/register">
@@ -117,7 +117,7 @@ const ResetPasswordPage: React.FC = () => {
                                 autoComplete="new-password"
                             />
                         </div>
-                        <Button title="continue" type="submit" onClick={() => { }} />
+                        <Button type="submit" onClick={() => { }}>Continue</Button>
                         {updateMessage && (
                             <div className={`${CLASSNAME}__helper`}>
                                 <p className={`${CLASSNAME}__helper-password-updated`}>Your password has been updated !</p>

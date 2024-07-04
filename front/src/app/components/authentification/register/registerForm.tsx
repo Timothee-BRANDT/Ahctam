@@ -4,7 +4,7 @@ import React, { useEffect } from 'react';
 import { useState } from 'react';
 import './registerForm.scss'
 import Link from 'next/link';
-import Button from '../../core/button/button';
+import { Button } from '@/components/ui/button';
 import { serverIP } from '@/app/constants';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/app/authContext';
@@ -124,7 +124,7 @@ const RegisterForm: React.FC = () => {
                             autoComplete="new-password"
                         />
                     </div>
-                    <Button title="Register" type="submit" onClick={() => { }} />
+                    <Button type="submit" onClick={() => { }}>Register</Button>
                     <div className="new_member">
                         <p className="new_member-question">Already have an Account ?</p>
                         <Link className="new_member-creation" href="/login">

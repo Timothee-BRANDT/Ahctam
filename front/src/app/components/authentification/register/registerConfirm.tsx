@@ -2,7 +2,7 @@
 
 import React, { useEffect } from 'react';
 import './registerConfirm.scss'
-import Button from '../../core/button/button';
+import { Button } from '@/components/ui/button';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/app/authContext';
 
@@ -29,8 +29,8 @@ const RegisterForm: React.FC = () => {
         <div className={CLASSNAME}>
             <div className={`${CLASSNAME}__message`}>Thanks for signing up.</div>
             <div className={`${CLASSNAME}__message`}>A verification email has been sent to {user.email}.</div>
-            <Button title="Login to your new account" onClick={redirectToLogin} />
-            <Button title="Create another account" onClick={redirectToRegister} />
+            <Button onClick={redirectToLogin}>Login to your new account</Button>
+            <Button onClick={redirectToRegister}>Create another account</Button>
         </div>
     );
 }
