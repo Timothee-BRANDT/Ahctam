@@ -3,6 +3,7 @@ from flask import (
     request,
     current_app,
 )
+from typing import Dict
 import jwt
 from psycopg2.extras import RealDictCursor
 from . import api
@@ -21,8 +22,23 @@ def get_test():
 def get_user_info():
     conn = get_db_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
+    # TODO: Add is_connected when the sockets are implemented
     user_query = """
-SELECT firstname, lastname, age, email, biography, gender, sexual_preferences, fame
+SELECT
+    id, \
+    username, \
+    firstname, \
+    lastname,\
+    age,\
+    is_active,\
+    email,\
+    password,\
+    biography,\
+    gender,\
+    sexual_preferences,\
+    last_connexion,\
+    created_at,\
+    fame AS fame_rating
 FROM Users
 WHERE id = %s
     """
@@ -41,17 +57,16 @@ SELECT name
 FROM Interests
 WHERE id = %s
     """
-    picture_query = """
-SELECT url
-FROM Pictures
-WHERE owner = %s
-AND is_profile_picture = TRUE
-    """
     all_pictures_query = """
 SELECT url
 FROM Pictures
 WHERE owner = %s
     """
+    refresh_token_query = """
+SELECT token
+FROM refresh_tokens
+WHERE user_id = %s
+"""
     interests = []
     try:
         token = request.headers.get('Authorization').split(' ')[1]
@@ -60,11 +75,19 @@ WHERE owner = %s
 
         # User data
         cur.execute(user_query, (user['id'],))
-        user_info = cur.fetchone()
+        result = cur.fetchone()
+        user_info: Dict = dict(result)
+        user_info['firstTimeLogged'] = False
+        user_info['jwt_token'] = token
 
         # Location
         cur.execute(location_query, (user['id'],))
-        location_info = cur.fetchone()
+        result = cur.fetchone()
+        location_info: Dict = dict(result)
+        user_info['location'] = [float(location_info['latitude']),
+                                 float(location_info['longitude'])]
+        user_info['town'] = location_info['city']
+        user_info['address'] = location_info['address']
 
         # Interests
         cur.execute(user_interests_query, (user['id'],))
@@ -73,12 +96,17 @@ WHERE owner = %s
             cur.execute(interests_query, (user_interest['interest_id'],))
             interest = cur.fetchone()
             interests.append(interest)
+        user_info['interests'] = interests
 
         # Pictures
-        cur.execute(picture_query, (user['id'],))
-        profile_picture = cur.fetchone()
         cur.execute(all_pictures_query, (user['id'],))
         all_pictures = cur.fetchall()
+        user_info['photos'] = [picture['url'] for picture in all_pictures]
+
+        # Refresh token
+        cur.execute(refresh_token_query, (user['id'],))
+        refresh_token = cur.fetchone()
+        user_info['refresh_token'] = refresh_token['token']
 
     except Exception as e:
         return jsonify({'error': str(e)}), 400
@@ -86,11 +114,7 @@ WHERE owner = %s
         cur.close()
         conn.close()
     return jsonify({
-        'user': user_info,
-        'location': location_info,
-        'interests': interests,
-        'profile_picture': profile_picture,
-        'all_pictures': all_pictures
+        'user_info': user_info,
     }), 200
 
 
