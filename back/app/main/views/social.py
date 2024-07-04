@@ -67,7 +67,7 @@ WHERE id = %s
     return jsonify({'message': 'User liked'}), 200
 
 
-@main.route('/unlikeUser', methods=['POST'])
+@main.route('/dislikeUser', methods=['POST'])
 @jwt_required
 def unlike_a_user():
     """
