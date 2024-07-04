@@ -51,6 +51,8 @@ def create_users_table(cursor):
             sexual_preferences VARCHAR(50),
             biography TEXT,
             fame INTEGER DEFAULT 0,
+            last_connexion TIMESTAMP,
+            status VARCHAR(24) DEFAULT 'offline',
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         );
     """)
@@ -71,8 +73,6 @@ def create_pictures_table(cursor):
 
 def create_views_table(cursor):
     print('Creating views table...')
-    # TODO: Maybe add a UNIQUE constraint on user_viewed and viewer,
-    # as well as the other relations table
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS views (
             id SERIAL PRIMARY KEY,
@@ -80,7 +80,8 @@ def create_views_table(cursor):
             user_viewed INTEGER NOT NULL,
             viewer INTEGER NOT NULL,
             FOREIGN KEY (user_viewed) REFERENCES users(id) ON DELETE CASCADE,
-            FOREIGN KEY (viewer) REFERENCES users(id) ON DELETE CASCADE
+            FOREIGN KEY (viewer) REFERENCES users(id) ON DELETE CASCADE,
+            UNIQUE (user_viewed, viewer)
         );
     """)
 
@@ -94,7 +95,7 @@ def create_likes_table(cursor):
             liker INTEGER NOT NULL,
             user_liked INTEGER NOT NULL,
             FOREIGN KEY (liker) REFERENCES users(id) ON DELETE CASCADE,
-            FOREIGN KEY (user_liked) REFERENCES users(id) ON DELETE CASCADE
+            FOREIGN KEY (user_liked) REFERENCES users(id) ON DELETE CASCADE,
             UNIQUE (liker, user_liked)
         );
     """)
@@ -140,7 +141,7 @@ def create_blocks_table(cursor):
             user_blocked INTEGER NOT NULL,
             blocker INTEGER NOT NULL,
             FOREIGN KEY (user_blocked) REFERENCES users(id) ON DELETE CASCADE,
-            FOREIGN KEY (blocker) REFERENCES users(id) ON DELETE CASCADE
+            FOREIGN KEY (blocker) REFERENCES users(id) ON DELETE CASCADE,
             UNIQUE (user_blocked, blocker)
         );
     """)
@@ -163,7 +164,7 @@ def create_user_interests_table(cursor):
             user_id INTEGER NOT NULL,
             interest_id INTEGER NOT NULL,
             PRIMARY KEY (user_id, interest_id),
-            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
             FOREIGN KEY (interest_id) REFERENCES interests(id)
         );
     """)
