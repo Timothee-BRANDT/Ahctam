@@ -8,6 +8,8 @@ import data from '../../api.json';
 
 interface Match {
     id: number;
+    useruuid: number;
+    matchedUseruuid: number;
     name: string;
     avatar: string;
     messages: Message[];

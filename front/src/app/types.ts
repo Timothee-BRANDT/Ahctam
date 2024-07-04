@@ -4,17 +4,16 @@ export interface User {
     firstname: string;
     lastname: string;
     age: number;
-    email: string;
-    password: string;
+    email?: string;
+    password?: string;
     confirmPassword?: string;
     location: number[];
     address: string;
     town: string;
     fame_rating: number;
     is_active: boolean;
-    is_connected: boolean;
+    is_connected?: boolean;
     last_connexion: Date | string;
-    registration_token: string;
     jwt_token: string;
     refresh_token: string;
     gender: string;
@@ -22,9 +21,10 @@ export interface User {
     biography: string;
     interests: string[];
     photos: string[];
-    created_at: string;
+    created_at: Date | string;
     firstTimeLogged: boolean;
 }
+
 export enum State {
     initial = "initial",
     loading = "loading",

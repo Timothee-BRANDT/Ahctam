@@ -58,24 +58,21 @@ const ProfilePage: React.FC = () => {
     );
 
     const getProfile = async () => {
-        const token = getCookie('jwt_token');
-        const response = await fetch(`http://${serverIP}:5000/api/getUserInfo`, {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`,
-            },
-        });
-        const data = await response.json();
-        console.log(data);
-        if (response.ok) {
-            setUser(data);
-        }
-
-        // setUser(data.user);
-        // data.user.interests.map((interest) => {
-        //     allInterests[interest] = true;
-        // })
+        // const token = getCookie('jwt_token');
+        // const response = await fetch(`http://${serverIP}:5000/api/getUserInfo`, {
+        //     method: "GET",
+        //     headers: {
+        //         "Content-Type": "application/json",
+        //         "Authorization": `Bearer ${token}`,
+        //     },
+        // });
+        // const data = await response.json();
+        // console.log(data);
+        // if (response.ok) {
+        //     setUser(data);
+        // }
+        // [MOCK]
+        setUser(data.user);
     }
 
     useEffect(() => {

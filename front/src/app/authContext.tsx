@@ -20,7 +20,6 @@ const initialPig: User = {
     is_active: false,
     is_connected: false,
     last_connexion: new Date(),
-    registration_token: '',
     jwt_token: '',
     refresh_token: '',
     gender: '',
@@ -28,7 +27,7 @@ const initialPig: User = {
     biography: '',
     interests: [],
     photos: [],
-    created_at: '',
+    created_at: new Date(),
     firstTimeLogged: true,
 }
 

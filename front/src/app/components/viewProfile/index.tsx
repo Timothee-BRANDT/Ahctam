@@ -39,7 +39,6 @@ const initialProfileViewed: User = {
     is_active: false,
     is_connected: false,
     last_connexion: '',
-    registration_token: '',
     jwt_token: '',
     refresh_token: '',
     gender: '',

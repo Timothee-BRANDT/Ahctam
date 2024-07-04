@@ -110,17 +110,6 @@ const mainPage: React.FC = () => {
         setAgeGap(Number(event.target.value));
     };
 
-    const handleFilterByAgeValueChange = (event: any) => {
-        setFilterByAgeValue(Number(event.target.value));
-    };
-
-    const handleFilterByLocationValueChange = (event: any) => {
-        setFilterByLocationValue(event.target.value);
-    };
-
-    const handleFilterByFameValueChange = (event: any) => {
-        setFilterByFameValue(event.target.value);
-    };
 
     const handleFameGapChange = (event: any) => {
         setFameGap(Number(event.target.value));
