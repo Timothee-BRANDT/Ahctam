@@ -5,8 +5,6 @@ export interface User {
     lastname: string;
     age: number;
     email?: string;
-    password?: string;
-    confirmPassword?: string;
     location: number[];
     address: string;
     town: string;
@@ -14,8 +12,6 @@ export interface User {
     is_active: boolean;
     is_connected?: boolean;
     last_connexion: Date | string;
-    jwt_token: string;
-    refresh_token: string;
     gender: string;
     sexual_preferences: string;
     biography: string;

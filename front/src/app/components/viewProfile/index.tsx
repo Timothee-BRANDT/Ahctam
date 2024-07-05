@@ -18,9 +18,10 @@ import './index.scss';
 import { serverIP } from '@/app/constants';
 import StarRating from '../core/rate/rate';
 import { User } from '@/app/types';
+import { useRouter } from 'next/navigation';
 
 interface ProfileViewProps {
-    id: string | string[];
+    idProps: string | string[];
 }
 
 const initialProfileViewed: User = {
@@ -30,8 +31,6 @@ const initialProfileViewed: User = {
     lastname: '',
     age: 0,
     email: '',
-    password: '',
-    confirmPassword: '',
     location: [],
     address: '',
     town: '',
@@ -39,8 +38,6 @@ const initialProfileViewed: User = {
     is_active: false,
     is_connected: false,
     last_connexion: '',
-    jwt_token: '',
-    refresh_token: '',
     gender: '',
     sexual_preferences: '',
     biography: '',
@@ -50,17 +47,19 @@ const initialProfileViewed: User = {
     firstTimeLogged: false
 };
 
-const CLASSNAME = "profile-1";
+const CLASSNAME = "profile2";
 
-const ProfileView: React.FC<ProfileViewProps> = (id) => {
-    const { getCookie } = useAuth();
+const ProfileView: React.FC<ProfileViewProps> = (idProps) => {
+    const router = useRouter();
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const { getCookie, isJwtInCookie } = useAuth();
     const [liked, setLiked] = useState(false);
     const [profileViewed, setProfileViewed] = useState<User>(initialProfileViewed);
+    const currentURL = window.location.href;
+    const idMatch = currentURL.match(/\/profile\/(\d+)/);
 
     const getOtherUserInfo = async () => {
         // try {
-        //     const currentURL = window.location.href;
-        //     const idMatch = currentURL.match(/\/profile\/(\d+)/);
         //     if (idMatch) {
         //         const id = idMatch[1];
         //         const token = getCookie('jwt_token');
@@ -79,54 +78,72 @@ const ProfileView: React.FC<ProfileViewProps> = (id) => {
         //         }
         //         const data = await response.json();
         //         console.log('Server response:', data);
-        //         le back me renverra tout, si j'ai like ou pas le user, si je l'ai bloquer ou pas
-        //          il faudra que je remap le payload de reponses pour l'adapter au type User
-        //          et avoir des useState pour le isLiked ou pas
-        //         // setProfileViewed(data);
+        //         setProfileViewed(data);
         //     }
         // } catch (e) {
         //     console.log(e);
         // }
+        // [MOCK]
         setProfileViewed(data.user);
+    }
+    const redirectLogin = () => {
+        router.push('/login');
     }
 
     useEffect(() => {
+        if (!isJwtInCookie()) {
+            redirectLogin();
+        }
         getOtherUserInfo();
+        setIsLoggedIn(isJwtInCookie());
     })
 
     const handleLike = async () => {
         const token = getCookie('jwt_token');
         if (liked) {
             try {
-                const response = await fetch(`http://${serverIP}:5000/dislikeUser`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        "Authorization": `Bearer ${token}`,
-                    },
-                });
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                if (idMatch) {
+                    const id = idMatch[1];
+                    const response = await fetch(`http://${serverIP}:5000/dislikeUser`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            "Authorization": `Bearer ${token}`,
+                        },
+                        body: JSON.stringify({
+                            user_disliked_id: id,
+                        })
+                    });
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    const data = await response.json();
+                    console.log('Server response:', data);
                 }
-                const data = await response.json();
-                console.log('Server response:', data);
-            } catch (e) {
+            }
+            catch (e) {
                 console.log(e);
             }
         } else {
             try {
-                const response = await fetch(`http://${serverIP}:5000/likeUser`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        "Authorization": `Bearer ${token}`,
-                    },
-                });
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                if (idMatch) {
+                    const id = idMatch[1];
+                    const response = await fetch(`http://${serverIP}:5000/likeUser`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            "Authorization": `Bearer ${token}`,
+                        },
+                        body: JSON.stringify({
+                            user_liked_id: id,
+                        })
+                    });
+                    if (!response.ok) {
+                        throw new Error('Network response was not ok');
+                    }
+                    const data = await response.json();
+                    console.log('Server response:', data);
                 }
-                const data = await response.json();
-                console.log('Server response:', data);
             } catch (e) {
                 console.log(e);
             }
@@ -136,57 +153,61 @@ const ProfileView: React.FC<ProfileViewProps> = (id) => {
 
     return (
         <>
-            <div className={CLASSNAME}>
-                <Carousel className="w-full max-w-xs">
-                    <CarouselContent>
-                        {profileViewed.photos.map((photo, index) => {
-                            return (
-                                <CarouselItem key={index}>
-                                    <div className="p-1">
-                                        <Card>
-                                            <CardContent className="flex aspect-square items-center justify-center p-6 custo">
-                                                <img className={`${CLASSNAME}__image`} src={photo} alt='user-photo' />
-                                            </CardContent>
-                                        </Card>
-                                    </div>
-                                </CarouselItem>
-                            )
-                        })}
-                    </CarouselContent>
-                    <Pagination>
-                        <PaginationContent>
-                            <PaginationItem>
-                                <PaginationPrevious href="#" />
-                            </PaginationItem>
-                            <PaginationItem>
-                                <PaginationNext href="#" />
-                            </PaginationItem>
-                        </PaginationContent>
-                    </Pagination>
-                </Carousel>
-            </div>
-            <div className={`${CLASSNAME}__informations`}>
-                <div onClick={handleLike} className='under-image'>
-                    {liked === true ? (
-                        <img className={`${CLASSNAME}__swipe-heart`} src='/like-dark-border.png' alt='' />
+            {isLoggedIn && (
+                <div className={CLASSNAME}>
+                    <Carousel className={`${CLASSNAME}__carousel`}>
+                        <CarouselContent>
+                            {profileViewed.photos.map((photo, index) => {
+                                return (
+                                    <CarouselItem key={index}>
+                                        <div className="p-1">
+                                            <Card>
+                                                <CardContent className="flex aspect-square items-center justify-center p-6 custo">
+                                                    <img className={`${CLASSNAME}__image`} src={photo} alt='user-photo' />
+                                                </CardContent>
+                                            </Card>
+                                        </div>
+                                    </CarouselItem>
+                                )
+                            })}
+                        </CarouselContent>
+                        <Pagination>
+                            <PaginationContent>
+                                <PaginationItem>
+                                    <PaginationPrevious href="#" />
+                                </PaginationItem>
+                                <PaginationItem>
+                                    <PaginationNext href="#" />
+                                </PaginationItem>
+                            </PaginationContent>
+                        </Pagination>
+                    </Carousel>
+                    <div className={`${CLASSNAME}__informations`}>
+                        <div className={`${CLASSNAME}__text-love`}>
+                            <p className={`${CLASSNAME}__informations-username`}>{profileViewed.username}, {profileViewed.age} years</p>
+                            <div onClick={handleLike}>
+                                {liked === true ? (
+                                    <img className={`${CLASSNAME}__swipe-heart`} src='/like-dark-border.png' alt='' />
 
-                    ) : (
-                        <img className={`${CLASSNAME}__swipe-heart`} src='/like-white.png' alt='' />
-                    )}
+                                ) : (
+                                    <img className={`${CLASSNAME}__swipe-heart`} src='/like-white.png' alt='' />
+                                )}
+                            </div>
+                        </div>
+                        <div className={`${CLASSNAME}__informations-location`}>
+                            <img className={`${CLASSNAME}__informations-location-icon`} src='/alternate-map-marker.svg' alt='' />
+                            <p className={`${CLASSNAME}__informations-location-text`}>{profileViewed.town}</p>
+                        </div>
+                        <StarRating rate={profileViewed.fame_rating} />
+                        <p className={`${CLASSNAME}__informations-bio`}>{profileViewed.biography}</p>
+                        <div className={`${CLASSNAME}__interests`}>
+                            {profileViewed.interests.map((interest, index) => (
+                                <span key={index} className={`${CLASSNAME}__tag-profile`}>{interest}</span>
+                            ))}
+                        </div>
+                    </div>
                 </div>
-                <p className={`${CLASSNAME}__informations-username`}>{profileViewed.username}, {profileViewed.age}</p>
-                <div className={`${CLASSNAME}__informations-location`}>
-                    <img className={`${CLASSNAME}__informations-location-icon`} src='/alternate-map-marker.svg' alt='' />
-                    <p className={`${CLASSNAME}__informations-location-text`}>{profileViewed.town}</p>
-                </div>
-                <StarRating rate={profileViewed.fame_rating} />
-                <p className={`${CLASSNAME}__informations-bio`}>{profileViewed.biography}</p>
-                <div className={`${CLASSNAME}__interests`}>
-                    {profileViewed.interests.map((interest, index) => (
-                        <span key={index} className={`${CLASSNAME}__tag`}>{interest}</span>
-                    ))}
-                </div>
-            </div>
+            )}
         </>
     );
 }

@@ -11,17 +11,13 @@ const initialPig: User = {
     lastname: '',
     age: 0,
     email: '',
-    password: '',
     location: [],
     address: '',
     town: '',
     fame_rating: 0,
-    confirmPassword: '',
     is_active: false,
     is_connected: false,
     last_connexion: new Date(),
-    jwt_token: '',
-    refresh_token: '',
     gender: '',
     sexual_preferences: '',
     biography: '',
@@ -32,11 +28,11 @@ const initialPig: User = {
 }
 
 interface AuthContextType {
-    login: (user: User) => void;
+    login: (token: string) => void;
     logout: () => void;
     setCookie: (name: string, value: string, days?: number) => void;
     deleteCookie: (name: string) => void;
-    isJwtInCookie: (name: string) => boolean;
+    isJwtInCookie: () => boolean;
     getCookie: (name: string) => string | undefined;
     user: User;
     setUser: React.Dispatch<React.SetStateAction<User>>;
@@ -44,13 +40,13 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType>({
     user: initialPig,
-    login: (user: User) => { },
+    login: (token: string) => { },
     logout: () => { },
     setUser: () => { },
     setCookie: (name: string, value: string, days?: number) => { },
     deleteCookie: (name: string) => { },
     getCookie: (name: string) => '',
-    isJwtInCookie: (name: string) => false,
+    isJwtInCookie: () => false,
 });
 
 export function useAuth() {
@@ -66,7 +62,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const router = useRouter();
 
     useEffect(() => {
-        if (isJwtInCookie("jwt_token")) {
+        if (isJwtInCookie()) {
             // [MOCK]
             // should call the endpoint with the cookie to get all the userInfo
             setUser(data.user);
@@ -87,14 +83,15 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=None`;
     }
 
-    const isJwtInCookie = (name: string) => {
-        const cookies = document.cookie;
-        const cookieArray = cookies.split(';');
-
-        for (let i = 0; i < cookieArray.length; i++) {
-            const cookie = cookieArray[i].trim();
-            if (cookie.startsWith(`${name}=`)) {
-                return true;
+    const isJwtInCookie = () => {
+        if (typeof document !== 'undefined') {
+            const cookies = document.cookie;
+            const cookieArray = cookies.split(';');
+            for (let i = 0; i < cookieArray.length; i++) {
+                const cookie = cookieArray[i].trim();
+                if (cookie.startsWith(`jwt_token=`)) {
+                    return true;
+                }
             }
         }
         return false;
@@ -112,9 +109,8 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         return undefined;
     };
 
-    const login = (user: User) => {
-        setCookie('jwt_token', user.jwt_token, 7);
-        setUser(user);
+    const login = (token: string) => {
+        setCookie('jwt_token', token, 7);
     }
 
     const logout = () => {

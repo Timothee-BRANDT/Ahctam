@@ -16,6 +16,7 @@ var townjpp: string = '';
 
 const ProfilePage: React.FC = () => {
     const { user, setUser, isJwtInCookie, getCookie } = useAuth();
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
     const router = useRouter();
     const initInterests: Record<string, boolean> = {
         Tunnels: false,
@@ -69,14 +70,19 @@ const ProfilePage: React.FC = () => {
         // const data = await response.json();
         // console.log(data);
         // if (response.ok) {
+        //     console.log('response ok')
         //     setUser(data);
         // }
         // [MOCK]
         setUser(data.user);
     }
 
+    const redirectLogin = () => {
+        router.push('/login');
+    }
+
     useEffect(() => {
-        if (!isJwtInCookie("jwt_token")) {
+        if (!isJwtInCookie()) {
             redirectLogin();
         }
         getProfile();
@@ -88,6 +94,7 @@ const ProfilePage: React.FC = () => {
                 console.log('Geolocation error');
             })
         }
+        setIsLoggedIn(isJwtInCookie());
     }, []);
 
     function capitalizeFirstLetter(value: string) {
@@ -115,11 +122,6 @@ const ProfilePage: React.FC = () => {
             })
             .catch(error => console.log('error', error));
     }
-
-    const redirectLogin = () => {
-        router.push("/login");
-    };
-
 
     const handleUserChange = (e: any) => {
         const { name, value } = e.target;
@@ -207,209 +209,217 @@ const ProfilePage: React.FC = () => {
 
     return (
         <>
-            <div className={CLASSNAME}>
-                <form onSubmit={handleSubmit}>
-                    <div className={`${CLASSNAME}__info-container`}>
-                        <p className={`${CLASSNAME}__title`}>Firstname</p>
-                        <input
-                            className={`${CLASSNAME}__update-input`}
-                            type="firstname"
-                            name="firstname"
-                            value={user.firstname}
-                            onChange={handleUserChange}
-                            required
-                            autoComplete="new-password"
-                        />
-                    </div>
-                    <div className={`${CLASSNAME}__info-container`}>
-                        <p className={`${CLASSNAME}__title`}>Lastname</p>
-                        <input
-                            className={`${CLASSNAME}__update-input`}
-                            type="lastname"
-                            name="lastname"
-                            value={user.lastname}
-                            onChange={handleUserChange}
-                            required
-                            autoComplete="new-password"
-                        />
-                    </div>
-                    <div className={`${CLASSNAME}__info-container`}>
-                        <p className={`${CLASSNAME}__title`}>Age</p>
-                        <input
-                            className={`${CLASSNAME}__update-input`}
-                            type="age"
-                            name="age"
-                            value={user.age}
-                            onChange={handleUserChange}
-                            required
-                            autoComplete="new-password"
-                        />
-                    </div>
-                    <div className={`${CLASSNAME}__info-container`}>
-                        <p className={`${CLASSNAME}__title`}>Location</p>
-                        <input
-                            className={`${CLASSNAME}__update-input`}
-                            type="address"
-                            name="address"
-                            value={user.address}
-                            onChange={handleUserChange}
-                            required
-                            autoComplete="new-password"
-                        />
-                    </div>
-                    <div className={`${CLASSNAME}__info-container`}>
-                        <p className={`${CLASSNAME}__title`}>Email</p>
-                        <input
-                            className={`${CLASSNAME}__update-input`}
-                            type="email"
-                            name="email"
-                            value={user.email}
-                            onChange={handleUserChange}
-                            required
-                            autoComplete="new-password"
-                        />
-                    </div>
-                    <p className={`${CLASSNAME}__title`}>I am</p>
-                    <div className={`${CLASSNAME}__radio-button`}>
-                        <div>
-                            <input
-                                type="radio"
-                                id="gender-female"
-                                name="gender"
-                                value="female"
-                                checked={user.gender === "female"}
-                                onChange={handleUserChange}
-                            />
-                            <label htmlFor="gender-female">Female</label>
-                        </div>
-                        <div>
-                            <input
-                                type="radio"
-                                id="gender-male"
-                                name="gender"
-                                value="male"
-                                checked={user.gender === "male"}
-                                onChange={handleUserChange}
-                            />
-                            <label htmlFor="gender-male">Male</label>
-                        </div>
-                        <div>
-                            <input
-                                className="other-hidden"
-                                type="radio"
-                                id="gender-other"
-                                name="gender"
-                                value="other"
-                                checked={user.gender === "other"}
-                                onChange={handleUserChange}
-                            />
-                            <label className="other-hidden" htmlFor="gender-other">Other</label>
-                        </div>
-                    </div>
-
-                    <p className={`${CLASSNAME}__title`}>I'm looking for</p>
-                    <div className={`${CLASSNAME}__radio-button`}>
-                        <div>
-                            <input
-                                type="radio"
-                                id="sexual-female"
-                                name="sexual_preferences"
-                                value="female"
-                                checked={user.sexual_preferences === "female"}
-                                onChange={handleUserChange}
-                            />
-                            <label htmlFor="sexual-female">Female</label>
-                        </div>
-                        <div>
-                            <input
-                                type="radio"
-                                id="sexual-male"
-                                name="sexual_preferences"
-                                value="male"
-                                checked={user.sexual_preferences === "male"}
-                                onChange={handleUserChange}
-                            />
-                            <label htmlFor="sexual-male">Male</label>
-                        </div>
-                        <div>
-                            <input
-                                type="radio"
-                                id="sexual-both"
-                                name="sexual_preferences"
-                                value="both"
-                                checked={user.sexual_preferences === "both"}
-                                onChange={handleUserChange}
-                            />
-                            <label htmlFor="sexual-both">Both</label>
-                        </div>
-                    </div>
-
-                    <p className={`${CLASSNAME}__title`}>About me</p>
-                    <textarea
-                        rows={6}
-                        name="biography"
-                        spellCheck="false"
-                        value={user.biography}
-                        onChange={handleUserChange}
-                    />
-                    <p className={`${CLASSNAME}__title`}>My interests</p>
-                    <div className={`${CLASSNAME}__interests-container`}>
-                        {Object.entries(allInterests).map(([interest, isSelected]) => (
-                            <div
-                                className={
-                                    !isSelected
-                                        ? `${CLASSNAME}__interests`
-                                        : `${CLASSNAME}__interests__selected`
-                                }
-                                onClick={() => {
-                                    selectInterest(interest);
-                                }}
-                                key={interest}
-                            >
-                                {interest}
-                            </div>
-                        ))}
-                    </div>
-                    <p className={`${CLASSNAME}__title`}>My Pictures</p>
-                    <div className="photo-upload-container">
-                        {user.photos.map((photo: string, index: number) => (
-                            <div
-                                onClick={() =>
-                                    document.getElementsByName(`photoUpload${index}`)[0].click()
-                                }
-                                key={index}
-                                className="photo-placeholder"
-                                style={{ backgroundImage: photo ? `url(${photo})` : "none" }}
-                            >
-                                <input
-                                    type="file"
-                                    name={`photoUpload${index}`}
-                                    accept="image/*"
-                                    onChange={(e) => handleImageChange(index, e)}
-                                    style={{ display: "none" }}
-                                />
-                                {!photo && (
-                                    <div
-                                        className={`upload-text ${index === 0
-                                            ? `${CLASSNAME}__profile-picture-uploader`
-                                            : ""
-                                            }`}
-                                    >
-                                        {index === 0
-                                            ? "Upload a profile picture"
-                                            : "Upload a picture"}
+            {isLoggedIn && (
+                <div className={CLASSNAME}>
+                    <form onSubmit={handleSubmit}>
+                        <div className={`${CLASSNAME}__web-layout`}>
+                            <div>
+                                <div className={`${CLASSNAME}__info-container`}>
+                                    <p className={`${CLASSNAME}__title`}>Firstname</p>
+                                    <input
+                                        className={`${CLASSNAME}__update-input`}
+                                        type="firstname"
+                                        name="firstname"
+                                        value={user.firstname}
+                                        onChange={handleUserChange}
+                                        required
+                                        autoComplete="new-password"
+                                    />
+                                </div>
+                                <div className={`${CLASSNAME}__info-container`}>
+                                    <p className={`${CLASSNAME}__title`}>Lastname</p>
+                                    <input
+                                        className={`${CLASSNAME}__update-input`}
+                                        type="lastname"
+                                        name="lastname"
+                                        value={user.lastname}
+                                        onChange={handleUserChange}
+                                        required
+                                        autoComplete="new-password"
+                                    />
+                                </div>
+                                <div className={`${CLASSNAME}__info-container`}>
+                                    <p className={`${CLASSNAME}__title`}>Age</p>
+                                    <input
+                                        className={`${CLASSNAME}__update-input`}
+                                        type="age"
+                                        name="age"
+                                        value={user.age}
+                                        onChange={handleUserChange}
+                                        required
+                                        autoComplete="new-password"
+                                    />
+                                </div>
+                                <div className={`${CLASSNAME}__info-container`}>
+                                    <p className={`${CLASSNAME}__title`}>Location</p>
+                                    <input
+                                        className={`${CLASSNAME}__update-input`}
+                                        type="address"
+                                        name="address"
+                                        value={user.address}
+                                        onChange={handleUserChange}
+                                        required
+                                        autoComplete="new-password"
+                                    />
+                                </div>
+                                <div className={`${CLASSNAME}__info-container`}>
+                                    <p className={`${CLASSNAME}__title`}>Email</p>
+                                    <input
+                                        className={`${CLASSNAME}__update-input`}
+                                        type="email"
+                                        name="email"
+                                        value={user.email}
+                                        onChange={handleUserChange}
+                                        required
+                                        autoComplete="new-password"
+                                    />
+                                </div>
+                                <p className={`${CLASSNAME}__title`}>I am</p>
+                                <div className={`${CLASSNAME}__radio-button`}>
+                                    <div>
+                                        <input
+                                            type="radio"
+                                            id="gender-female"
+                                            name="gender"
+                                            value="female"
+                                            checked={user.gender === "female"}
+                                            onChange={handleUserChange}
+                                        />
+                                        <label htmlFor="gender-female">Female</label>
                                     </div>
-                                )}
+                                    <div>
+                                        <input
+                                            type="radio"
+                                            id="gender-male"
+                                            name="gender"
+                                            value="male"
+                                            checked={user.gender === "male"}
+                                            onChange={handleUserChange}
+                                        />
+                                        <label htmlFor="gender-male">Male</label>
+                                    </div>
+                                    <div>
+                                        <input
+                                            className="other-hidden"
+                                            type="radio"
+                                            id="gender-other"
+                                            name="gender"
+                                            value="other"
+                                            checked={user.gender === "other"}
+                                            onChange={handleUserChange}
+                                        />
+                                        <label className="other-hidden" htmlFor="gender-other">Other</label>
+                                    </div>
+                                </div>
+
+                                <p className={`${CLASSNAME}__title`}>I'm looking for</p>
+                                <div className={`${CLASSNAME}__radio-button`}>
+                                    <div>
+                                        <input
+                                            type="radio"
+                                            id="sexual-female"
+                                            name="sexual_preferences"
+                                            value="female"
+                                            checked={user.sexual_preferences === "female"}
+                                            onChange={handleUserChange}
+                                        />
+                                        <label htmlFor="sexual-female">Female</label>
+                                    </div>
+                                    <div>
+                                        <input
+                                            type="radio"
+                                            id="sexual-male"
+                                            name="sexual_preferences"
+                                            value="male"
+                                            checked={user.sexual_preferences === "male"}
+                                            onChange={handleUserChange}
+                                        />
+                                        <label htmlFor="sexual-male">Male</label>
+                                    </div>
+                                    <div>
+                                        <input
+                                            type="radio"
+                                            id="sexual-both"
+                                            name="sexual_preferences"
+                                            value="both"
+                                            checked={user.sexual_preferences === "both"}
+                                            onChange={handleUserChange}
+                                        />
+                                        <label htmlFor="sexual-both">Both</label>
+                                    </div>
+                                </div>
+
+                                <p className={`${CLASSNAME}__title`}>About me</p>
+                                <textarea
+                                    rows={7}
+                                    name="biography"
+                                    spellCheck="false"
+                                    value={user.biography}
+                                    onChange={handleUserChange}
+                                />
                             </div>
-                        ))}
-                    </div>
-                    <Button
-                        className="button-info"
-                        type="submit"
-                        onClick={() => { }}
-                    >Save</Button>
-                </form>
-            </div>
+                            <div className="lol">
+                                <p className={`${CLASSNAME}__title`}>My interests</p>
+                                <div className={`${CLASSNAME}__interests-container`}>
+                                    {Object.entries(allInterests).map(([interest, isSelected]) => (
+                                        <div
+                                            className={
+                                                !isSelected
+                                                    ? `${CLASSNAME}__interests`
+                                                    : `${CLASSNAME}__interests__selected`
+                                            }
+                                            onClick={() => {
+                                                selectInterest(interest);
+                                            }}
+                                            key={interest}
+                                        >
+                                            {interest}
+                                        </div>
+                                    ))}
+                                </div>
+                                <p className={`${CLASSNAME}__title`}>My Pictures</p>
+                                <div className="photo-upload-container">
+                                    {user.photos.map((photo: string, index: number) => (
+                                        <div
+                                            onClick={() =>
+                                                document.getElementsByName(`photoUpload${index}`)[0].click()
+                                            }
+                                            key={index}
+                                            className="photo-placeholder"
+                                            style={{ backgroundImage: photo ? `url(${photo})` : "none" }}
+                                        >
+                                            <input
+                                                type="file"
+                                                name={`photoUpload${index}`}
+                                                accept="image/*"
+                                                onChange={(e) => handleImageChange(index, e)}
+                                                style={{ display: "none" }}
+                                            />
+                                            {!photo && (
+                                                <div
+                                                    className={`upload-text ${index === 0
+                                                        ? `${CLASSNAME}__profile-picture-uploader`
+                                                        : ""
+                                                        }`}
+                                                >
+                                                    {index === 0
+                                                        ? "Upload a profile picture"
+                                                        : "Upload a picture"}
+                                                </div>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                        <Button
+                            className="button-info"
+                            type="submit"
+                            onClick={() => { }}
+                        >Save</Button>
+                    </form>
+                </div>
+            )}
         </>
     );
 };

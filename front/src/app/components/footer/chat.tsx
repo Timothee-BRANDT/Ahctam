@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
 import data from '../../api.json';
+import { useAuth } from '@/app/authContext';
+import { useRouter } from 'next/navigation';
 
 interface Match {
     id: number;
@@ -23,9 +25,12 @@ interface Message {
 }
 
 export default function Component() {
+    const router = useRouter();
+    const { user, isJwtInCookie } = useAuth();
     const [isMatchsListOpen, setIsMatchsListOpen] = useState(false);
     const [isChatWindowOpen, setIsChatWindowOpen] = useState(false);
     const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
     const chatWindowRef = useRef<HTMLDivElement>(null);
     const matchListWindowRef = useRef<HTMLDivElement>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -53,7 +58,11 @@ export default function Component() {
             id: selectedMatch!.messages.length + 1,
             text,
             isMe: true,
-            timestamp: new Date().toLocaleTimeString(),
+            timestamp: new Date().toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                hour12: true
+            }),
         };
         const updatedMatchs = matchs.map((m) =>
             m.id === selectedMatch!.id ? { ...m, messages: [...m.messages, newMessage] } : m
@@ -82,6 +91,7 @@ export default function Component() {
         document.addEventListener('mousedown', handleClickOutside);
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
+            setIsLoggedIn(isJwtInCookie());
         };
     }, []);
 
@@ -93,101 +103,106 @@ export default function Component() {
     }, [selectedMatch?.messages]);
 
     return (
-        <div className="relative">
-            <Button variant="ghost" size="icon" className="mr-2" onClick={() => setIsMatchsListOpen(!isMatchsListOpen)}>
-                <UsersIcon className="w-8 h-8" />
-                <span className="sr-only">Open matchs list</span>
-            </Button>
-            {isMatchsListOpen && (
-                <div ref={matchListWindowRef} className="right-0 z-10 mt-2 w-80 rounded-md bg-white shadow-lg border border-gray-300">
-                    <div className="flex flex-col divide-y divide-gray-300">
-                        <div className="p-4 bg-gray-100">
-                            <h2 className="text-lg font-medium">Matchs</h2>
-                        </div>
-                        <div className="max-h-[300px] overflow-y-auto bg-white">
-                            {matchs.map((match) => (
-                                <div 
-                                    className="flex items-center gap-3 p-3 hover:bg-gray-200 cursor-pointer"
-                                    onClick={() => openChatWindow(match)}>
-                                    <Button
-                                        key={match.id}
-                                        variant="ghost"
-                                        className="flex items-center gap-3 p-3 cursor-pointer"
-                                    >
-                                        <Avatar className="h-8 w-8">
-                                            <AvatarImage src={match.avatar} />
-                                            <AvatarFallback>{match.name[0]}</AvatarFallback>
-                                        </Avatar>
-                                        <div className="flex-1">
-                                            <div className="font-medium text-gray-900">{match.name}</div>
+        <>
+            {isLoggedIn && (
+                <div className="relative">
+                    <Button variant="ghost" size="icon" className="mr-2" onClick={() => setIsMatchsListOpen(!isMatchsListOpen)}>
+                        <UsersIcon className="w-8 h-8" />
+                        <span className="sr-only">Open matchs list</span>
+                    </Button>
+                    {isMatchsListOpen && (
+                        <div ref={matchListWindowRef} className="right-0 z-10 mt-2 w-80 rounded-md bg-white shadow-lg border border-gray-300">
+                            <div className="flex flex-col divide-y divide-gray-300">
+                                <div className="p-4 bg-gray-100">
+                                    <h2 className="text-lg font-medium">Matchs</h2>
+                                </div>
+                                <div className="max-h-[300px] overflow-y-auto bg-white">
+                                    {matchs.map((match) => (
+                                        <div
+                                            className="flex items-center gap-3 p-3 hover:bg-gray-200 cursor-pointer"
+                                            onClick={() => openChatWindow(match)}>
+                                            <Button
+                                                key={match.id}
+                                                variant="ghost"
+                                                color="orange"
+                                                className="flex items-center gap-3 p-3 cursor-pointer"
+                                            >
+                                                <Avatar className="h-8 w-8">
+                                                    <AvatarImage src={match.avatar} />
+                                                    <AvatarFallback>{match.name[0]}</AvatarFallback>
+                                                </Avatar>
+                                                <div className="flex-1">
+                                                    <div className="font-medium text-gray-900">{match.name}</div>
+                                                </div>
+                                            </Button>
                                         </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    {isChatWindowOpen && (
+                        <div
+                            className={`fixed inset-0 z-20 flex items-end justify-end bg-black/50 transition-opacity duration-300 ${isChatWindowOpen ? "opacity-100" : "pointer-events-none opacity-0"
+                                }`}
+                        >
+                            <div ref={chatWindowRef} className="relative w-full max-w-md rounded-t-lg bg-background p-4 sm:p-6">
+                                <div className="flex items-center justify-between border-b pb-4">
+                                    <div className="flex items-center gap-3">
+                                        <Avatar className="h-8 w-8">
+                                            <AvatarImage src={selectedMatch?.avatar || 'https://picsum.photos/200'} />
+                                            <AvatarFallback>{selectedMatch?.name[0]}</AvatarFallback>
+                                        </Avatar>
+                                        <div className="font-medium">{selectedMatch?.name}</div>
+                                    </div>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="rounded-full hover:bg-muted"
+                                        onClick={() => setIsChatWindowOpen(false)}
+                                    >
+                                        <XIcon className="w-5 h-5" />
+                                        <span className="sr-only">Close chat</span>
                                     </Button>
                                 </div>
-                            ))}
-                        </div>
-                    </div>
-                </div>
-            )}
-            {isChatWindowOpen && (
-                <div
-                    className={`fixed inset-0 z-20 flex items-end justify-center bg-black/50 transition-opacity duration-300 ${isChatWindowOpen ? "opacity-100" : "pointer-events-none opacity-0"
-                        }`}
-                >
-                    <div ref={chatWindowRef} className="relative w-full max-w-md rounded-t-lg bg-background p-4 sm:p-6">
-                        <div className="flex items-center justify-between border-b pb-4">
-                            <div className="flex items-center gap-3">
-                                <Avatar className="h-8 w-8">
-                                    <AvatarImage src={selectedMatch?.avatar || 'https://picsum.photos/200'} />
-                                    <AvatarFallback>{selectedMatch?.name[0]}</AvatarFallback>
-                                </Avatar>
-                                <div className="font-medium">{selectedMatch?.name}</div>
-                            </div>
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                className="rounded-full hover:bg-muted"
-                                onClick={() => setIsChatWindowOpen(false)}
-                            >
-                                <XIcon className="w-5 h-5" />
-                                <span className="sr-only">Close chat</span>
-                            </Button>
-                        </div>
-                        <div className="mt-4 max-h-[400px] overflow-y-auto">
-                            {selectedMatch!.messages.map((message) => (
-                                <div
-                                    key={message.id}
-                                    className={`mb-2 flex items-end gap-2 ${message.isMe ? "justify-end" : "justify-start"}`}
-                                >
-                                    <div
-                                        className={`max-w-[70%] break-words rounded-lg px-4 py-2 ${message.isMe ? "bg-black text-primary-foreground" : "bg-muted text-black"
-                                            }`}
-                                    >
-                                        <div>{message.text}</div>
-                                        <div className={message.isMe ? "mt-1 text-xs text-primary-foreground" : "mt-1 text-xs text-black" }>{message.timestamp}</div>
-                                    </div>
+                                <div className="mt-4 max-h-[400px] overflow-y-auto">
+                                    {selectedMatch!.messages.map((message) => (
+                                        <div
+                                            key={message.id}
+                                            className={`mb-2 flex items-end gap-2 ${message.isMe ? "justify-end" : "justify-start"}`}
+                                        >
+                                            <div
+                                                className={`max-w-[70%] break-words rounded-lg px-4 py-2 ${message.isMe ? "bg-black text-primary-foreground" : "bg-muted text-black"
+                                                    }`}
+                                            >
+                                                <div>{message.text}</div>
+                                                <div className={message.isMe ? "mt-1 text-xs text-primary-foreground" : "mt-1 text-xs text-black"}>{message.timestamp}</div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                    <div ref={messagesEndRef} />
+                                </div >
+                                <div className="mt-4">
+                                    <Textarea
+                                        ref={messageInputRef}
+                                        placeholder="Type your message..."
+                                        className="min-h-[48px] rounded-lg resize-none border border-input bg-background p-3"
+                                        onKeyDown={(e) => {
+                                            if (e.key === 'Enter' && !e.shiftKey) {
+                                                e.preventDefault();
+                                                sendMessage(e.currentTarget.value);
+                                                e.currentTarget.value = '';
+                                            }
+                                        }}
+                                    />
+                                    <Button className="mt-2 w-full" onClick={() => sendMessage((document.querySelector('textarea') as HTMLTextAreaElement).value)}>Send</Button>
                                 </div>
-                            ))}
-                            <div ref={messagesEndRef} />
-                        </div >
-                        <div className="mt-4">
-                            <Textarea
-                                ref={messageInputRef}
-                                placeholder="Type your message..."
-                                className="min-h-[48px] rounded-lg resize-none border border-input bg-background p-3"
-                                onKeyDown={(e) => {
-                                    if (e.key === 'Enter' && !e.shiftKey) {
-                                        e.preventDefault();
-                                        sendMessage(e.currentTarget.value);
-                                        e.currentTarget.value = '';
-                                    }
-                                }}
-                            />
-                            <Button className="mt-2 w-full" onClick={() => sendMessage((document.querySelector('textarea') as HTMLTextAreaElement).value)}>Send</Button>
+                            </div>
                         </div>
-                    </div>
+                    )}
                 </div>
             )}
-        </div>
+        </>
     );
 }
 

@@ -17,19 +17,17 @@ const CLASSNAME = "login";
 const LoginPage: React.FC = () => {
     const router = useRouter();
     const { login, isJwtInCookie, user, setUser } = useAuth();
-    const [loginSucces, setLoginSucces] = useState(false);
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const inputRef = useRef<HTMLInputElement>(null);
     const [isBadCredentials, setIsBadCredentials] = useState<boolean>(false);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
 
     useEffect(() => {
-        if (loginSucces) {
-            login(user);
-        }
         if (inputRef.current) {
             inputRef.current.focus();
         }
+        setIsLoggedIn(isJwtInCookie());
     }, [user]);
 
     const submit = async (event: any) => {
@@ -59,29 +57,21 @@ const LoginPage: React.FC = () => {
                 throw new Error("Network response was not ok");
             }
             if (data.message === "First login") {
-                console.log("first login");
-                console.log("id", data.user_id);
                 setUser({
                     ...user,
-                    jwt_token: data.jwt_token,
-                    refresh_token: data.refresh_token,
                     id: data.user_id,
                 });
-                setLoginSucces(true);
+                login(data.jwt_token);
                 router.push("/profile/update");
             } else {
-                console.log("success login");
-                console.log("id", data.user_id);
                 setUser({
                     ...user,
                     // username: data.username,
                     // firstname: data.firstname,
                     // lastname: data.lastname,
-                    jwt_token: data.jwt_token,
-                    refresh_token: data.refresh_token,
                     id: data.user_id,
                 });
-                setLoginSucces(true);
+                login(data.jwt_token);
                 router.push("/");
             }
         } catch (e) {
@@ -94,7 +84,7 @@ const LoginPage: React.FC = () => {
             {isBadCredentials && (
                 <p className={`${CLASSNAME}__bad-credentials`}>Bad credentials</p>
             )}
-            {!isJwtInCookie("jwt_token") && (
+            {!isLoggedIn && (
                 <div className={`${CLASSNAME}__form-container`}>
                     <form onSubmit={submit} className="form">
                         <div>

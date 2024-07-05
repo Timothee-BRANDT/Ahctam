@@ -11,10 +11,10 @@ const CLASSNAME = 'confirm-registration'
 const RegisterForm: React.FC = () => {
     const router = useRouter();
     const pathname = usePathname();
-    const { user } = useAuth();
+    const { user, isJwtInCookie } = useAuth();
 
     useEffect(() => {
-        if (pathname !== '/login' && !user.jwt_token)
+        if (pathname !== '/login' && !isJwtInCookie())
             redirectToLogin();
     })
 
