@@ -32,7 +32,6 @@ SELECT
     age,\
     is_active,\
     email,\
-    password,\
     biography,\
     gender,\
     sexual_preferences,\
@@ -62,11 +61,6 @@ SELECT url
 FROM Pictures
 WHERE owner = %s
     """
-    refresh_token_query = """
-SELECT token
-FROM refresh_tokens
-WHERE user_id = %s
-"""
     interests = []
     try:
         token = request.headers.get('Authorization').split(' ')[1]
@@ -78,7 +72,6 @@ WHERE user_id = %s
         result = cur.fetchone()
         user_info: Dict = dict(result)
         user_info['firstTimeLogged'] = False
-        user_info['jwt_token'] = token
 
         # Location
         cur.execute(location_query, (user['id'],))
@@ -102,11 +95,6 @@ WHERE user_id = %s
         cur.execute(all_pictures_query, (user['id'],))
         all_pictures = cur.fetchall()
         user_info['photos'] = [picture['url'] for picture in all_pictures]
-
-        # Refresh token
-        cur.execute(refresh_token_query, (user['id'],))
-        refresh_token = cur.fetchone()
-        user_info['refresh_token'] = refresh_token['token']
 
         flattened_response = {**user_info}
         flattened_response['latitude'] = user_info['location_list'][0]
