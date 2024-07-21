@@ -8,6 +8,7 @@ from psycopg2.extras import RealDictCursor
 from app.api.services.user_services import (
     get_user_info,
     get_users_who_like_user,
+    get_users_who_viewed_user,
 )
 from . import api
 from ..database import get_db_connection
@@ -96,9 +97,9 @@ def get_users_who_like_user_controller():
     return jsonify(response), status_code
 
 
-@api.route('/getMyViews', methods=['GET'])
+@api.route('/getMyNumberOfViews', methods=['GET'])
 @jwt_required
-def get_user_views():
+def get_nb_of_views():
     conn = get_db_connection()
     cur = conn.cursor()
     query = """
@@ -118,6 +119,23 @@ WHERE user_viewed = %s
         cur.close()
         conn.close()
     return jsonify({'views': views}), 200
+
+
+@api.route('/getMyViews', methods=['GET'])
+@jwt_required
+def get_users_who_viewed_user_controller():
+    try:
+        token = request.headers.get('Authorization').split(' ')[1]
+        user = jwt.decode(
+            token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
+        user_id = user['id']
+
+        response, status_code = get_users_who_viewed_user(user_id)
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+    return jsonify(response), status_code
 
 
 @api.route('/isThisUserBlocked', methods=['GET'])

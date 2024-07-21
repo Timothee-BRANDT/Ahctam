@@ -1,12 +1,12 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
 # ************* BACK ***************
-# Python cache
 matcha_venv/
 back/**/__pycache__/
 venv/
 back/venv
 back/.env
+back/token
 
 # ************* FRONT ***************
 # Dependencies

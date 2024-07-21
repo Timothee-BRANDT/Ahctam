@@ -114,3 +114,30 @@ WHERE user_liked = %s
         conn.close()
 
     return users, 200
+
+
+def get_users_who_viewed_user(user_id: int):
+    viewers_id_query = """
+SELECT viewer
+FROM Views
+WHERE user_viewed = %s
+    """
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    users: List[Dict] = []
+    try:
+        cur.execute(viewers_id_query, (user_id,))
+        viewers = cur.fetchall()
+        print(viewers)
+        for viewer in viewers:
+            user: Tuple[Dict, int] = get_user_info(viewer['viewer'])
+            if user[1] == 200:
+                users.append(user[0])
+
+    except Exception as e:
+        return {'error': str(e)}, 400
+    finally:
+        cur.close()
+        conn.close()
+
+    return users, 200
