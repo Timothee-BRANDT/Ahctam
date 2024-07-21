@@ -61,6 +61,17 @@ def get_user_info_controller():
     return jsonify(response), status_code
 
 
+@api.route('/getOtherUserInfo', methods=['GET'])
+@jwt_required
+def get_other_user_info_controller():
+    # TODO: Add status when the sockets are implemented
+    user_id = request.args.get('user_id')
+
+    response, status_code = get_user_info(user_id)
+
+    return jsonify(response), status_code
+
+
 @api.route('/interests')
 @jwt_required
 def get_interests():

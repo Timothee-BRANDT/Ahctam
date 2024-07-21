@@ -113,7 +113,7 @@ def block_a_user():
     user = jwt.decode(
         token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
     data = request.get_json()
-    user_blocked = data.get('user_blocked')
+    user_blocked = data.get('user_id')
     block_query = """
 INSERT INTO blocks (blocker, user_blocked)
 VALUES (%s, %s)
