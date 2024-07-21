@@ -1,15 +1,14 @@
 .card {
     border-radius: 10px;
     padding: 6px;
-    max-width: 250px;
+    max-width: 200px;
     height: 100%;
-    margin-bottom: 20px;
     background-color: #fff;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
 
     &__photo {
         border-radius: 8px;
-        height: 250px;
+        height: 150px;
         object-fit: cover;
         cursor: pointer;
     }
@@ -20,8 +19,9 @@
     }
 
     &__informations-username {
-        font-size: 18px;
+        font-size: 12px;
         font-weight: bold;
+        margin-bottom: 4px;
     }
 
     &__informations-location {
@@ -45,7 +45,7 @@
         -webkit-box-orient: vertical;
         overflow: hidden;
         text-overflow: ellipsis;
-        font-size: 14px;
+        font-size: 12px;
     }
 
 
@@ -87,25 +87,4 @@
         text-align: center;
         align-items: center;
     }
-
-    // &__swipe {
-    //     display: flex;
-    //     justify-content: space-between;
-    //     margin-top: 16px;
-    //     margin-left: 30px;
-    //     margin-right: 30px;
-    //     margin-bottom: -10px;
-    // }
-
-    // &__swipe-heart {
-    //     cursor: pointer;
-    //     width: 32px;
-    //     height: 32px;
-    // }
-
-    // &__swipe-cross {
-    //     cursor: pointer;
-    //     width: 30px;
-    //     height: 30px;
-    // }
 }

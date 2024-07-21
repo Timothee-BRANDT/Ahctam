@@ -6,7 +6,6 @@
     "lastname": "Juju",
     "age": 24,
     "email": "Juliette@gmail.com",
-    "password": "12345",
     "location": [7.202467, 43.684164],
     "address": "12 Avenue Simone Veil 06200 Nice",
     "town": "Paris",
@@ -14,9 +13,6 @@
     "is_active": true,
     "is_connected": true,
     "last_connexion": "2023-08-14T15:30:00Z",
-    "registration_token": "qwertyuiop",
-    "refresh_token": "adcsda",
-    "jwt_token": "123456789asdsfgbvncxvbn",
     "gender": "female",
     "sexual_preferences": "male",
     "biography": "Im a very cool Ginea Pig, i like leaf and grooming. Im a very cool Ginea Pig, i like leaf and grooming. Im a very cool Ginea Pig, i like leaf and grooming.Im a very cool Ginea Pig, i like leaf and grooming. Im a very cool Ginea Pig, i like leaf and grooming. Im a very cool Ginea Pig, i like leaf and grooming.  Im a very cool Ginea Pig, i like leaf and grooming. Im a very cool Ginea Pig, i like leaf and grooming.Im a very cool Ginea Pig, i like leaf and grooming. Im a very cool Ginea Pig, i like leaf and grooming. Im a very cool Ginea Pig, i like leaf and grooming.",
@@ -29,7 +25,7 @@
       "/pp5.png",
       "/pp6.png"
     ],
-    "created_at": "1234567876543",
+    "created_at": "2023-08-14T15:30:00Z",
     "firstTimeLogged": false
   },
   "userArray": [
@@ -50,7 +46,6 @@
       "last_connexion": "2024-06-07T15:30:00Z",
       "registration_token": "token123",
       "refresh_token": "adcsd",
-      "jwt_token": "jwtAlice123",
       "gender": "female",
       "sexual_preferences": "male",
       "biography": "Adventurer and explorer. Loves discovering new places and meeting new people. Construction worker by day, musician by night.",
@@ -68,7 +63,6 @@
       "lastname": "Builder",
       "age": 32,
       "email": "bob.builder@gmail.com",
-      "password": "bob123",
       "location": [7.202467, 43.684164],
       "address": "12 Avenue Simone Veil 06200 Nice",
       "town": "Paris",
@@ -76,9 +70,7 @@
       "is_active": true,
       "is_connected": false,
       "last_connexion": "2024-06-06T18:00:00Z",
-      "registration_token": "token456",
       "refresh_token": "adcs",
-      "jwt_token": "jwtBob456",
       "gender": "male",
       "sexual_preferences": "female",
       "biography": "Rockstar and family man. Loves playing guitar and spending time with family. Construction worker by day, musician by night. Passionate about building and creating.",
@@ -96,7 +88,6 @@
       "lastname": "Danvers",
       "age": 29,
       "email": "carol.danvers@gmail.com",
-      "password": "carol123",
       "location": [7.202467, 43.684164],
       "address": "12 Avenue Simone Veil 06200 Nice",
       "town": "Paris",
@@ -104,9 +95,6 @@
       "is_active": false,
       "is_connected": true,
       "last_connexion": "2024-06-05T12:45:00Z",
-      "registration_token": "token789",
-      "refresh_token": "adcd",
-      "jwt_token": "jwtCarol789",
       "gender": "female",
       "sexual_preferences": "female",
       "biography": "Loves discovering new places and meeting new people. Pilot and superhero. Always ready to save the day and enjoy some downtime.",
@@ -124,7 +112,6 @@
       "lastname": "Grohl",
       "age": 34,
       "email": "dave.grohl@gmail.com",
-      "password": "dave123",
       "location": [7.202467, 43.684164],
       "address": "12 Avenue Simone Veil 06200 Nice",
       "town": "Paris",
@@ -132,9 +119,6 @@
       "is_active": true,
       "is_connected": false,
       "last_connexion": "2024-06-04T14:20:00Z",
-      "registration_token": "token101112",
-      "refresh_token": "adsd",
-      "jwt_token": "jwtDave101112",
       "gender": "male",
       "sexual_preferences": "female",
       "biography": " Pilot and superhero. Always ready to save the day and enjoy some downtime. Rockstar and family man. Loves playing guitar and spending time with family.",
@@ -152,7 +136,6 @@
       "lastname": "Adams",
       "age": 26,
       "email": "eve.adams@gmail.com",
-      "password": "eve123",
       "location": [7.202467, 43.684164],
       "address": "12 Avenue Simone Veil 06200 Nice",
       "town": "Paris",
@@ -160,9 +143,6 @@
       "is_active": false,
       "is_connected": true,
       "last_connexion": "2024-06-03T11:15:00Z",
-      "registration_token": "token131415",
-      "jwt_token": "jwtEve131415",
-      "refresh_token": "adcsdad",
       "gender": "female",
       "sexual_preferences": "male",
       "biography": "Rockstar and family man. Loves playing guitar and spending time with family. Tech enthusiast and entrepreneur. Always looking for the next big idea.",
@@ -172,6 +152,102 @@
       ],
       "created_at": "1627845427000",
       "firstTimeLogged": true
+    }
+  ],
+  "messagesRoom1": [
+    {
+      "id": 1,
+      "text": "Hello, how are you?",
+      "isMe": false,
+      "timestamp": "10:30 AM"
+    },
+    {
+      "id": 2,
+      "text": "I'm doing great, thanks for asking!",
+      "isMe": true,
+      "timestamp": "10:31 AM"
+    },
+    {
+      "id": 3,
+      "text": "That's good to hear. Do you have any plans for the weekend?",
+      "isMe": false,
+      "timestamp": "10:32 AM"
+    },
+    {
+      "id": 4,
+      "text": "I'm planning to go hiking with some matchs. How about you?",
+      "isMe": true,
+      "timestamp": "10:33 AM"
+    },
+    {
+      "id": 5,
+      "text": "That sounds like a lot of fun! I might just stay in and catch up on some reading.",
+      "isMe": false,
+      "timestamp": "10:34 AM"
+    }
+  ],
+    "messagesRoom2": [
+    {
+      "id": 1,
+      "text": "Hello",
+      "isMe": false,
+      "timestamp": "10:30 AM"
+    },
+    {
+      "id": 2,
+      "text": "I'm doing great",
+      "isMe": true,
+      "timestamp": "10:31 AM"
+    },
+    {
+      "id": 3,
+      "text": "Ok bro",
+      "isMe": false,
+      "timestamp": "10:32 AM"
+    },
+    {
+      "id": 4,
+      "text": "COCHON D'INDE !",
+      "isMe": true,
+      "timestamp": "10:33 AM"
+    },
+    {
+      "id": 5,
+      "text": "Ah bon bah d'accord, cochon d'inde alors.",
+      "isMe": false,
+      "timestamp": "10:34 AM"
+    }
+  ],
+      "messagesRoom3": [
+    {
+      "id": 1,
+      "text": "Ouais salut ouais",
+      "isMe": false,
+      "timestamp": "10:30 AM"
+    },
+    {
+      "id": 2,
+      "text": "Yo le s",
+      "isMe": true,
+      "timestamp": "10:31 AM"
+    },
+    {
+      "id": 3,
+      "text": "Bien ou bien ?",
+      "isMe": false,
+      "timestamp": "10:32 AM"
+    },
+    {
+      "id": 4,
+      "text": "Eh ouais ma gueule",
+      "isMe": true,
+      "timestamp": "10:33 AM"
+    },
+    {
+      "id": 5,
+      "text": "On fait comme ça. Bisous",
+      "isMe": false,
+      "timestamp": "10:34 AM"
     }
   ]
 }

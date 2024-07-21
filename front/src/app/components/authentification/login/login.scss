@@ -30,7 +30,7 @@
     &__bad-credentials {
         text-align: center;
         font-weight: bold;
-        color: var(--important-message);
+        color: var(--primary-color);
     }
 }
 
@@ -46,7 +46,6 @@
     padding: 6px;
     border: 1px solid var(--secondary-color);
     border-radius: 4px;
-    color: var(--primary-color);
     outline: none;
 }
 

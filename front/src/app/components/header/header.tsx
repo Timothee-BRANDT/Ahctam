@@ -1,10 +1,10 @@
 'use client'
 
-import React, { useContext, useEffect } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useAuth } from '../../authContext';
 import Link from 'next/link';
 import "./header.scss"
-import Button from '@/app/components/core/button/button';
+import { Button } from '@/components/ui/button';
 import { useRouter } from 'next/navigation';
 import {
     DropdownMenu,
@@ -18,21 +18,22 @@ import {
 
 const Header: React.FC = () => {
     const router = useRouter();
-    const { logout, user } = useAuth();
+    const { logout, user, isJwtInCookie } = useAuth();
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
     const redirectHome = () => {
         router.push('/');
     }
     const redirectProfile = () => {
         router.push('/profile/update');
     }
-    const redirectLikes = () => {
-        router.push('/theyLikesMe');
+    const redirectSearch = () => {
+        router.push('/browse');
     }
-    const redirectSaw = () => {
-        router.push('/theySawMe');
+    const redirectFavorites = () => {
+        router.push('/fans');
     }
-    const redirectLogin = () => {
-        router.push('/login');
+    const redirectHistory = () => {
+        router.push('/history');
     }
     function toggleMenu() {
         const navLinks = document.querySelector('.navLinks');
@@ -41,33 +42,55 @@ const Header: React.FC = () => {
         }
     }
 
+    useEffect(() => {
+        setIsLoggedIn(isJwtInCookie());
+    }, []);
+
     return (
-        <header className="header">
-            <p>PiggyDate</p>
-            <nav>
-                <ul className="navLinks">
-                    <Button title="Home" onClick={redirectHome} className="home" />
-                    {user.jwt_token && <Button title="Profile" onClick={redirectProfile} />}
-                    {user.jwt_token && <Button title="Logout" onClick={logout} />}
-                </ul>
-                <DropdownMenu>
-                    <DropdownMenuTrigger asChild>
-                        <button className="menuButton" onClick={toggleMenu}>Menu</button>
-                    </DropdownMenuTrigger>
-                    <DropdownMenuContent className="w-56">
-                        <DropdownMenuItem>
-                            <Button title="Home" onClick={redirectHome} className="home" />
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                            {user.jwt_token && <Button title="Profile" onClick={redirectProfile} />}
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                            {user.jwt_token && <Button title="Logout" onClick={logout} />}
-                        </DropdownMenuItem>
-                    </DropdownMenuContent>
-                </DropdownMenu>
-            </nav>
-        </header>
+        <>
+            <header className="header">
+                <img className="logo" src="/logo.svg" alt="logo" />
+                {isLoggedIn && (
+                    <nav>
+                        <ul className="navLinks">
+                            <Button onClick={redirectHome}>Home</Button>
+                            <Button onClick={redirectSearch}>Browse</Button>
+                            <Button onClick={redirectHistory}>History</Button>
+                            <Button onClick={redirectFavorites}>Fans</Button>
+                            <Button onClick={redirectProfile}>Profile</Button>
+                            <Button onClick={logout}>Logout</Button>
+                        </ul>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <div className="menuButton" onClick={toggleMenu}>
+                                    <img src="/menu.svg" alt="menu-icon"></img>
+                                </div>    
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="w-56">
+                                <DropdownMenuItem>
+                                    <Button className="w-full" onClick={redirectHome}>Home</Button>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem>
+                                    <Button className="w-full" onClick={redirectSearch}>Browse</Button>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem>
+                                    <Button className="w-full" onClick={redirectProfile}>Profile</Button>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem>
+                                    <Button className="w-full" onClick={logout}>Logout</Button>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem>
+                                    <Button className="w-full" onClick={redirectHistory}>History</Button>
+                                </DropdownMenuItem>
+                                <DropdownMenuItem>
+                                    <Button className="w-full" onClick={redirectFavorites}>Favorites</Button>
+                                </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </nav>
+                )}
+            </header>
+        </>
     );
 }
 
