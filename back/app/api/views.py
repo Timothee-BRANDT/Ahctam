@@ -3,9 +3,9 @@ from flask import (
     request,
     current_app,
 )
-from typing import Dict
 import jwt
 from psycopg2.extras import RealDictCursor
+from app.api.services.user_services import get_user_info
 from . import api
 from ..database import get_db_connection
 from ..authentication.views.decorators import jwt_required
@@ -19,94 +19,16 @@ def get_test():
 
 @api.route('/getUserInfo', methods=['GET'])
 @jwt_required
-def get_user_info():
-    conn = get_db_connection()
-    cur = conn.cursor(cursor_factory=RealDictCursor)
+def get_user_info_controller():
     # TODO: Add is_connected when the sockets are implemented
-    user_query = """
-SELECT
-    id, \
-    username, \
-    firstname, \
-    lastname,\
-    age,\
-    is_active,\
-    email,\
-    biography,\
-    gender,\
-    sexual_preferences,\
-    last_connexion,\
-    created_at,\
-    fame AS fame_rating
-FROM Users
-WHERE id = %s
-    """
-    location_query = """
-SELECT city, latitude, longitude, address
-FROM Locations
-WHERE located_user = %s
-    """
-    user_interests_query = """
-SELECT interest_id
-FROM User_interests
-WHERE user_id = %s
-    """
-    interests_query = """
-SELECT name
-FROM Interests
-WHERE id = %s
-    """
-    all_pictures_query = """
-SELECT url
-FROM Pictures
-WHERE owner = %s
-    """
-    interests = []
-    try:
-        token = request.headers.get('Authorization').split(' ')[1]
-        user = jwt.decode(
-            token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
+    token = request.headers.get('Authorization').split(' ')[1]
+    user = jwt.decode(
+        token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
+    user_id = user['id']
 
-        # User data
-        cur.execute(user_query, (user['id'],))
-        result = cur.fetchone()
-        user_info: Dict = dict(result)
-        user_info['firstTimeLogged'] = False
+    response, status_code = get_user_info(user_id)
 
-        # Location
-        cur.execute(location_query, (user['id'],))
-        result = cur.fetchone()
-        location_info: Dict = dict(result)
-        user_info['location_list'] = [float(location_info['latitude']),
-                                      float(location_info['longitude'])]
-        user_info['town'] = location_info['city']
-        user_info['address'] = location_info['address']
-
-        # Interests
-        cur.execute(user_interests_query, (user['id'],))
-        user_interests = cur.fetchall()
-        for user_interest in user_interests:
-            cur.execute(interests_query, (user_interest['interest_id'],))
-            interest = cur.fetchone()
-            interests.append(interest['name'])
-        user_info['interests'] = interests
-
-        # Pictures
-        cur.execute(all_pictures_query, (user['id'],))
-        all_pictures = cur.fetchall()
-        user_info['photos'] = [picture['url'] for picture in all_pictures]
-
-        flattened_response = {**user_info}
-        flattened_response['latitude'] = user_info['location_list'][0]
-        flattened_response['longitude'] = user_info['location_list'][1]
-        del flattened_response['location_list']
-
-    except Exception as e:
-        return jsonify({'error': str(e)}), 400
-    finally:
-        cur.close()
-        conn.close()
-    return jsonify(flattened_response), 200
+    return jsonify(response), status_code
 
 
 @api.route('/interests')
@@ -130,15 +52,37 @@ FROM interests
         conn.close()
 
 
-@api.route('/getMyLikes', methods=['GET'])
+@api.route('/getMyNumberOfLikes', methods=['GET'])
 @jwt_required
-def get_user_likes():
+def get_nb_of_likes():
     conn = get_db_connection()
     cur = conn.cursor()
     query = """
 SELECT COUNT(*)
 FROM likes
 WHERE user_liked = %s
+    """
+    try:
+        token = request.headers.get('Authorization').split(' ')[1]
+        user = jwt.decode(
+            token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
+        cur.execute(query, (user['id'],))
+        likes = cur.fetchone()
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+    finally:
+        cur.close()
+        conn.close()
+    return jsonify({'likes': likes}), 200
+
+
+@api.route('/getMyLikes', methods=['GET'])
+@jwt_required
+def get_users_who_like_user():
+    conn = get_db_connection()
+    cur = conn.cursor()
+    query = """
+SELECT
     """
     try:
         token = request.headers.get('Authorization').split(' ')[1]
