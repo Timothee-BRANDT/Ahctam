@@ -38,10 +38,11 @@ def login():
     except Exception as e:
         return jsonify({'error': str(e)}), 400
     else:
+        # WARNING: 30 days of token for tests, change to 1 hour in production
         jwt_token = jwt.encode({
             'id': user_id,
             'username': data['username'],
-            'exp': datetime.utcnow() + timedelta(hours=1)
+            'exp': datetime.utcnow() + timedelta(days=30)
         }, current_app.config['SECRET_KEY'], algorithm='HS256')
         refresh_token = jwt.encode({
             'id': user_id,

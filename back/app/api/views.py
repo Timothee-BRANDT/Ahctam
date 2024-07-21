@@ -84,8 +84,8 @@ WHERE user_id = %s
         cur.execute(location_query, (user['id'],))
         result = cur.fetchone()
         location_info: Dict = dict(result)
-        user_info['location'] = [float(location_info['latitude']),
-                                 float(location_info['longitude'])]
+        user_info['location_list'] = [float(location_info['latitude']),
+                                      float(location_info['longitude'])]
         user_info['town'] = location_info['city']
         user_info['address'] = location_info['address']
 
@@ -95,7 +95,7 @@ WHERE user_id = %s
         for user_interest in user_interests:
             cur.execute(interests_query, (user_interest['interest_id'],))
             interest = cur.fetchone()
-            interests.append(interest)
+            interests.append(interest['name'])
         user_info['interests'] = interests
 
         # Pictures
@@ -108,14 +108,17 @@ WHERE user_id = %s
         refresh_token = cur.fetchone()
         user_info['refresh_token'] = refresh_token['token']
 
+        flattened_response = {**user_info}
+        flattened_response['latitude'] = user_info['location_list'][0]
+        flattened_response['longitude'] = user_info['location_list'][1]
+        del flattened_response['location_list']
+
     except Exception as e:
         return jsonify({'error': str(e)}), 400
     finally:
         cur.close()
         conn.close()
-    return jsonify({
-        'user_info': user_info,
-    }), 200
+    return jsonify(flattened_response), 200
 
 
 @api.route('/interests')
