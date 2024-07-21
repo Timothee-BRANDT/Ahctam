@@ -1,7 +1,6 @@
 from app.database import get_db_connection
-from typing import Dict
+from typing import Dict, List, Tuple
 from psycopg2.extras import RealDictCursor
-from flask import jsonify
 
 
 def get_user_info(user_id: int):
@@ -89,3 +88,29 @@ WHERE owner = %s
         conn.close()
 
     return flattened_response, 200
+
+
+def get_users_who_like_user(user_id: int):
+    likers_id_query = """
+SELECT liker
+FROM Likes
+WHERE user_liked = %s
+    """
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    users: List[Dict] = []
+    try:
+        cur.execute(likers_id_query, (user_id,))
+        likers = cur.fetchall()
+        for liker in likers:
+            user: Tuple[Dict, int] = get_user_info(liker['liker'])
+            if user[1] == 200:
+                users.append(user[0])
+
+    except Exception as e:
+        return {'error': str(e)}, 400
+    finally:
+        cur.close()
+        conn.close()
+
+    return users, 200

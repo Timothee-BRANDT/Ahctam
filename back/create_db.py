@@ -1,6 +1,7 @@
 import psycopg2
 from psycopg2 import sql
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
+from werkzeug.security import generate_password_hash
 import os
 import random
 import string
@@ -23,6 +24,16 @@ def create_database():
         )
         conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
         cur = conn.cursor()
+        # Check if database exists
+        cur.execute("""
+SELECT 1
+FROM pg_database
+WHERE datname = %s
+        """, (os.getenv('POSTGRES_DB'),))
+        if cur.fetchone():
+            print('Database already exists')
+            return
+
         cur.execute(sql.SQL('CREATE DATABASE {}').format(
             sql.Identifier(os.getenv('POSTGRES_DB'))))
         # cur.execute(sql.SQL('CREATE DATABASE {}').format(
@@ -54,6 +65,20 @@ def create_users_table(cursor):
             last_connexion TIMESTAMP,
             status VARCHAR(24) DEFAULT 'offline',
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+    """)
+
+
+def create_matches_table(cursor):
+    print('Creating matches table...')
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS matches (
+            id SERIAL PRIMARY KEY,
+            user1 INTEGER NOT NULL,
+            user2 INTEGER NOT NULL,
+            FOREIGN KEY (user1) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY (user2) REFERENCES users(id) ON DELETE CASCADE,
+            UNIQUE (user1, user2)
         );
     """)
 
@@ -183,7 +208,7 @@ def create_refresh_tokens_table(cursor):
     """)
 
 
-def insert_interests(conn, cursor):
+def insert_interests(cursor):
     print('Inserting interests...')
     interests = [
         'Tunnels', 'Obstacle', 'Naps', 'Vegetable', 'Chewing', 'Rolling',
@@ -224,7 +249,7 @@ def insert_random_users(cursor, num_users=100):
         lastname = fake.last_name()
         age = random.randint(18, 70)
         email = fake.email()
-        password = 'Bobby123!'
+        password = generate_password_hash('Bobby123!')
         gender = random.choice(genders)
         sexual_preference = random.choice(sexual_preferences)
         biography = fake.text()
@@ -285,6 +310,7 @@ ON CONFLICT DO NOTHING
                 cursor.execute("""
 INSERT INTO views (viewer, user_viewed)
 VALUES (%s, %s)
+ON CONFLICT DO NOTHING
                 """, (viewer, user_viewed))
 
 
@@ -298,18 +324,19 @@ def create_all_tables():
     )
     cursor = conn.cursor()
     try:
-        # create_users_table(cursor)
-        # create_pictures_table(cursor)
-        # create_views_table(cursor)
-        # create_likes_table(cursor)
-        # create_locations_table(cursor)
-        # create_notifications_table(cursor)
-        # create_blocks_table(cursor)
-        # create_interests_table(cursor)
-        # create_user_interests_table(cursor)
-        # create_refresh_tokens_table(cursor)
+        create_users_table(cursor)
+        create_matches_table(cursor)
+        create_pictures_table(cursor)
+        create_views_table(cursor)
+        create_likes_table(cursor)
+        create_locations_table(cursor)
+        create_notifications_table(cursor)
+        create_blocks_table(cursor)
+        create_interests_table(cursor)
+        create_user_interests_table(cursor)
+        create_refresh_tokens_table(cursor)
+        insert_interests(cursor)
 
-        # insert_interests(conn, cursor)
         insert_random_users(cursor, 100)
 
         conn.commit()
@@ -322,4 +349,5 @@ def create_all_tables():
 
 
 if __name__ == "__main__":
+    create_database()
     create_all_tables()

@@ -34,7 +34,7 @@ def login():
         cur.execute('SELECT id FROM users WHERE username = %s',
                     (data['username'],))
         user_id = cur.fetchone()[0]
-        print('our user id is:', user_id)
+
     except Exception as e:
         return jsonify({'error': str(e)}), 400
     else:

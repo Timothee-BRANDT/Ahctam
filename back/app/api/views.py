@@ -5,7 +5,10 @@ from flask import (
 )
 import jwt
 from psycopg2.extras import RealDictCursor
-from app.api.services.user_services import get_user_info
+from app.api.services.user_services import (
+    get_user_info,
+    get_users_who_like_user,
+)
 from . import api
 from ..database import get_db_connection
 from ..authentication.views.decorators import jwt_required
@@ -78,24 +81,19 @@ WHERE user_liked = %s
 
 @api.route('/getMyLikes', methods=['GET'])
 @jwt_required
-def get_users_who_like_user():
-    conn = get_db_connection()
-    cur = conn.cursor()
-    query = """
-SELECT
-    """
+def get_users_who_like_user_controller():
     try:
         token = request.headers.get('Authorization').split(' ')[1]
         user = jwt.decode(
             token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
-        cur.execute(query, (user['id'],))
-        likes = cur.fetchone()
+        user_id = user['id']
+
+        response, status_code = get_users_who_like_user(user_id)
+
     except Exception as e:
         return jsonify({'error': str(e)}), 400
-    finally:
-        cur.close()
-        conn.close()
-    return jsonify({'likes': likes}), 200
+
+    return jsonify(response), status_code
 
 
 @api.route('/getMyViews', methods=['GET'])
