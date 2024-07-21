@@ -45,7 +45,7 @@ def like_a_user():
     user = jwt.decode(
         token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
     data = request.get_json()
-    user_liked = data.get('user_liked')
+    user_liked = data.get('user_id')
     like_query = """
 INSERT INTO likes (liker, user_liked)
 VALUES (%s, %s)
@@ -79,7 +79,7 @@ def unlike_a_user():
     user = jwt.decode(
         token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
     data = request.get_json()
-    user_unliked = data.get('user_unliked')
+    user_unliked = data.get('user_id')
     unlike_query = """
 DELETE FROM likes
 WHERE liker = %s AND user_liked = %s

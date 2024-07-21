@@ -21,6 +21,32 @@ def get_test():
     return jsonify(data)
 
 
+@api.route('/checkUsername', methods=['POST'])
+@jwt_required
+def check_username():
+    query = """
+SELECT id
+FROM users
+WHERE username = %s
+    """
+    username = request.get_json().get('username')
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
+    try:
+        cur.execute(query, (username,))
+        user = cur.fetchone()
+        if user:
+            return jsonify({'message': 'Found'}), 200
+        else:
+            return jsonify({'message': 'Not found'}), 404
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+    finally:
+        cur.close()
+        conn.close()
+
+
 @api.route('/getUserInfo', methods=['GET'])
 @jwt_required
 def get_user_info_controller():
