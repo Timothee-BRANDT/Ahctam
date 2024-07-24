@@ -109,12 +109,14 @@ WHERE user_liked = %s
             token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
         cur.execute(query, (user['id'],))
         likes = cur.fetchone()
+
+        return jsonify({'likes': likes}), 200
+
     except Exception as e:
         return jsonify({'error': str(e)}), 400
     finally:
         cur.close()
         conn.close()
-    return jsonify({'likes': likes}), 200
 
 
 @api.route('/getMyLikes', methods=['GET'])
@@ -128,10 +130,10 @@ def get_users_who_like_user_controller():
 
         response, status_code = get_users_who_like_user(user_id)
 
+        return jsonify(response), status_code
+
     except Exception as e:
         return jsonify({'error': str(e)}), 400
-
-    return jsonify(response), status_code
 
 
 @api.route('/getMyNumberOfViews', methods=['GET'])
@@ -150,12 +152,14 @@ WHERE user_viewed = %s
             token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
         cur.execute(query, (user['id'],))
         views = cur.fetchone()
+
+        return jsonify({'views': views}), 200
+
     except Exception as e:
         return jsonify({'error': str(e)}), 400
     finally:
         cur.close()
         conn.close()
-    return jsonify({'views': views}), 200
 
 
 @api.route('/getMyViews', methods=['GET'])
@@ -169,10 +173,10 @@ def get_users_who_viewed_user_controller():
 
         response, status_code = get_users_who_viewed_user(user_id)
 
+        return jsonify(response), status_code
+
     except Exception as e:
         return jsonify({'error': str(e)}), 400
-
-    return jsonify(response), status_code
 
 
 @api.route('/isThisUserBlocked', methods=['GET'])
@@ -195,55 +199,11 @@ AND user_blocked = %s
 
         cur.execute(query, (user['id'], user_blocked))
         is_blocked = cur.fetchone()
+
+        return jsonify({'is_blocked': is_blocked}), 200
+
     except Exception as e:
         return jsonify({'error': str(e)}), 400
-    finally:
-        cur.close()
-        conn.close()
-    return jsonify({'is_blocked': is_blocked}), 200
-
-
-@api.route('/filterUsers', methods=['GET'])
-@jwt_required
-def get_profiles():
-    conn = get_db_connection()
-    cur = conn.cursor(cursor_factory=RealDictCursor)
-
-    # TODO: What if there is no Filter By ? Do we use our matching algorithm ?
-    sort_by = request.args.get('sortBy')
-    filter_by = request.args.get('filterBy')
-    filter_age = request.args.get('filterAge')
-    filter_fame = request.args.get('filterFame')
-    filter_location = request.args.get('filterLocation')
-    filter_tags = request.args.get('filterTags')
-    query = """
-    SELECT * FROM users
-    WHERE 1 = 1
-    """
-    params: tuple = ()
-    if filter_age:
-        query += " AND age = %s"
-        params += (filter_age,)
-    if filter_fame:
-        query += " AND fame = %s"
-        params += (filter_fame,)
-    if filter_location:
-        query += " AND location = %s"
-        params += (filter_location,)
-    if filter_tags:
-        query += " AND tags = %s"
-        params += (filter_tags,)
-    if sort_by:
-        query += " ORDER BY %s"
-        params += (sort_by,)
-
-    try:
-        cur.execute(query, params)
-        profiles = cur.fetchall()
-    except Exception as e:
-        return jsonify({'error': str(e)}), 400
-    else:
-        return jsonify({'profiles': profiles}), 200
     finally:
         cur.close()
         conn.close()

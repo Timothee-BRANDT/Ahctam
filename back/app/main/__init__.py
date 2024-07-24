@@ -6,4 +6,5 @@ from .views import (
     social,
     views,
     matching,
+    browse,
 )

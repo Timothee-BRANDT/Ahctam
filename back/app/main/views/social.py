@@ -16,16 +16,37 @@ def view_a_user():
     """
     Viewing a user also increases his fame by 1
     """
+    view_user_query = """
+INSERT INTO views (viewer, user_viewed)
+VALUES (%s, %s)
+ON CONFLICT (viewer, user_viewed)
+DO NOTHING
+RETURNING *
+    """
+    fame_query = """
+UPDATE users
+WHERE id = %s
+SET fame = fame + 1
+    """
     conn = get_db_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
     try:
         token = request.headers.get('Authorization').split(' ')[1]
         user = jwt.decode(
-            token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
+            token,
+            current_app.config['SECRET_KEY'],
+            algorithms=['HS256'])
         data = request.get_json()
-        user_viewed = data.get('user_viewed')
-        # TODO: We are here
-        pass
+        user_viewed = data.get('user_id')
+        cur.execute(view_user_query, (user['id'], user_viewed))
+        result = cur.fetchone()
+        if result:
+            cur.execute(fame_query, (user_viewed,))
+            conn.commit()
+            return jsonify({'message': 'User viewed'}), 200
+        else:
+            return jsonify({'message': 'User already viewed'}), 200
+
     except Exception as e:
         return jsonify({'error': str(e)}), 400
     finally:

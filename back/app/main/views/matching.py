@@ -4,15 +4,15 @@ from flask import (
     current_app,
 )
 import json
-import jwt
+# import jwt
 import math
-import numpy as np
+# import numpy as np
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from psycopg2.extras import RealDictCursor
 from .. import main
 from app.database import get_db_connection
-from app.authentication.views.decorators import jwt_required
+# from app.authentication.views.decorators import jwt_required
 
 
 def haversine(lat1, lon1, lat2, lon2):
