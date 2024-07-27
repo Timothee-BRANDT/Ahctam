@@ -1,13 +1,11 @@
 from flask import (
-    jsonify,
     request,
     current_app,
 )
 import jwt
-from psycopg2.extras import RealDictCursor
-from .. import main
-from app.database import get_db_connection
+from app.main import main
 from app.authentication.views.decorators import jwt_required
+from app.main.services.browse_search_service import perform_browsing
 
 
 @main.route('/browse', methods=['GET'])
@@ -21,27 +19,22 @@ def browse():
 
     Returns: an array of user objects
     """
-    conn = get_db_connection()
-    cur = conn.cursor(cursor_factory=RealDictCursor)
     age: int = request.args.get('age')
     fame: int = request.args.get('fame')
     distance: int = request.args.get('distance')
     common_interests: int = request.args.get('tags')
+    offset: int = int(request.args.get('offset', 0))
+    limit: int = int(request.args.get('limit', 10))
     # NOTE: location, address, town // interests // photos // is_connected
-    base_query = """
-SELECT
-    id,
-    username,
-    firstname,
-    lastname,
-    age,
-    email,
-    fame AS fame_rating,
-    is_active,
-    is_connected,
-    last_connection,
-    gender,
-    sexual_preferences,
-    biography,
-    created_at
-    """
+    token = request.headers.get('Authorization').split(' ')[1]
+    user = jwt.decode(
+        token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
+    user_id = user['id']
+    response, status_code = perform_browsing(
+        user_id,
+        age,
+        fame,
+        distance,
+        common_interests,
+        offset,
+        limit)

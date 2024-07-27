@@ -1,77 +1,17 @@
+from typing import (
+    Dict,
+    List,
+)
 from flask import (
     jsonify,
-    request,
     current_app,
 )
 import json
-# import jwt
-import math
-# import numpy as np
-from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
 from psycopg2.extras import RealDictCursor
-from .. import main
+from app.main import main
 from app.database import get_db_connection
+from app.main.services.algo_service import matching_score
 # from app.authentication.views.decorators import jwt_required
-
-
-def haversine(lat1, lon1, lat2, lon2):
-    earth_radius = 6371
-    dlat = math.radians(lat2 - lat1)
-    dlon = math.radians(lon2 - lon1)
-    a = math.sin(dlat / 2) ** 2 + math.cos(math.radians(lat1)) * \
-        math.cos(math.radians(lat2)) * math.sin(dlon / 2) ** 2
-    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-    distance = earth_radius * c
-
-    return distance
-
-
-def age_similarity(age1, age2):
-    return 1 / (1 + abs(age1 - age2))
-
-
-def interest_similarity(interests1, interests2):
-    interests1: list = interests1.split(', ')
-    interests2: list = interests2.split(', ')
-
-    vectorizer = CountVectorizer().fit(interests1 + interests2)
-    print(type(vectorizer))
-    print('vectorizer', vectorizer)
-    vector_1 = vectorizer.transform(interests1).toarray()
-    print(type(vector_1))
-    print('vector_1', vector_1)
-    vector_2 = vectorizer.transform(interests2).toarray()
-    print(type(vector_2))
-    print('vector_2', vector_2)
-
-    return cosine_similarity(vector_1, vector_2)[0][0]
-
-
-def fame_similarity(fame1, fame2):
-    return 1 / (1 + abs(fame1 - fame2))
-
-
-def matching_score(user1, user2):
-    geo_weight = 0.5
-    age_weight = 0.3
-    interest_weight = 0.3
-    fame_weight = 0.1
-
-    geo_score = haversine(user1['latitude'], user1['longitude'],
-                          user2['latitude'], user2['longitude']) * geo_weight
-    print('geo_score', geo_score)
-    age_score = age_similarity(user1['age'], user2['age']) * age_weight
-    print('age_score', age_score)
-    print('1', user1['interests'])
-    print('2', user2['interests'])
-    interest_score = interest_similarity(
-        user1['interests'], user2['interests']) * interest_weight
-    print('interest_score', interest_score)
-    fame_score = fame_similarity(user1['fame'], user2['fame']) * fame_weight
-    print('fame_score', fame_score)
-
-    return geo_score + age_score + interest_score + fame_score
 
 
 def get_matching_users(user_data, cursor, offset, limit):
@@ -154,25 +94,51 @@ def test_redis():
     return jsonify({'message': test}), 200
 
 
-@main.route('/browse', methods=['GET'])
-# @jwt_required
-def browse():
+def apply_filters(
+        matching_users: List[Dict],
+        age: int,
+        fame: int,
+        distance: int,
+        common_interests: int):
+    """
+    This function will filter the matching users based on the query parameters
+    """
+    if age:
+        matching_users = [
+            user for user in matching_users if user['age'] == age]
+    if fame:
+        matching_users = [
+            user for user in matching_users if user['fame'] == fame]
+    if distance:
+        matching_users = [
+            user for user in matching_users if user['distance'] == distance]
+    if common_interests:
+        matching_users = [
+            user for user in matching_users if user['common_interests'] == common_interests]
+
+
+def perform_browsing(
+        user_id: int,
+        age: int = None,
+        fame: int = None,
+        distance: int = None,
+        common_interests: int = None,
+        offset: int = 0,
+        limit: int = 10):
     """
     Actually it will compute the algorithm every time a user wants to browse
     After talking with collegues, it's the backend job
     We'll use redis to avoid recomputing the algorithm (Bonus)
     """
-    offset: int = int(request.args.get('offset', 0))
-    limit: int = int(request.args.get('limit', 10))
     conn = get_db_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
     redis_client = current_app.extensions['redis']
-    matching_users: dict = {}
+    matching_users: Dict = {}
     try:
         # token = request.headers.get('Authorization').split(' ')[1]
         # user = jwt.decode(
         #     token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
-        # WARNING: Remove this mock
+        # WARNING: Remove this mock, replace by the id in the param
         user = {'id': 5}
         user_query = """
 SELECT id,\
@@ -186,12 +152,12 @@ fame
 FROM users
 WHERE id = %s
         """
-        cur.execute(user_query, (user['id'],))
-        user_data: dict = cur.fetchone()
-        print(user_data)
         redis_key: str = f"matching:{user['id']}"
         if not redis_client.exists(redis_key):
             print('nothing in redis yet')
+            cur.execute(user_query, (user['id'],))
+            user_data: dict = cur.fetchone()
+            print(user_data)
             matching_users: list = get_matching_users(
                 user_data, cur, offset, limit)
             print('we received the matching users: ', matching_users)
@@ -200,13 +166,19 @@ WHERE id = %s
             print('something in redis')
             matching_users: list = json.loads(
                 redis_client.get(redis_key).decode('utf-8'))
-        print('bonsoir')
+            print('in redis the matching users: ', matching_users)
+        print('end of browsing')
+        matching_users: list = apply_filters(
+            matching_users,
+            age,
+            fame,
+            distance,
+            common_interests)
+
+        return jsonify({'users': matching_users[offset:limit]}), 200
 
     except Exception as e:
         return jsonify({'error': str(e)}), 400
     finally:
         cur.close()
         conn.close()
-    # return jsonify({'users': matching_users[offset:limit]}), 200
-    print(type(offset), offset, type(limit), limit)
-    return jsonify({'users': matching_users[offset:limit]}), 200
