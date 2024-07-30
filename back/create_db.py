@@ -20,7 +20,7 @@ def create_database():
             user=os.getenv('POSTGRES_USER'),
             password=os.getenv('POSTGRES_PASSWORD'),
             host='localhost',
-            port='5432'
+            port='5433'
         )
         conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
         cur = conn.cursor()
@@ -320,7 +320,7 @@ def create_all_tables():
         user=os.getenv('POSTGRES_USER'),
         password=os.getenv('POSTGRES_PASSWORD'),
         host='localhost',
-        port='5432'
+        port='5433'
     )
     cursor = conn.cursor()
     try:

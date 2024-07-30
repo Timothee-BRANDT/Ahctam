@@ -11,7 +11,7 @@ class Config:
     POSTGRES_USER = os.getenv('POSTGRES_USER')
     POSTGRES_PASSWORD = os.getenv('POSTGRES_PASSWORD')
     DB_HOST = 'localhost'
-    DB_PORT = 5432
+    DB_PORT = 5433
     MAIL_SERVER = os.getenv('SMTP_HOST')
     MAIL_USE_TLS = True
     MAIL_USE_SSL = False
