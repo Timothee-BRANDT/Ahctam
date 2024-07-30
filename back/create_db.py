@@ -69,6 +69,37 @@ def create_users_table(cursor):
     """)
 
 
+def create_conversations_table(cursor):
+    print('Creating conversations table...')
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS conversations (
+            id SERIAL PRIMARY KEY,
+            user1 INTEGER NOT NULL,
+            user2 INTEGER NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user1) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY (user2) REFERENCES users(id) ON DELETE CASCADE,
+            CHECK (user1 < user2),
+            UNIQUE (user1, user2)
+        );
+    """)
+
+
+def create_messages_table(cursor):
+    print('Creating messages table...')
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS messages (
+            id SERIAL PRIMARY KEY,
+            conversation_id INTEGER NOT NULL,
+            sender_id INTEGER NOT NULL,
+            message TEXT NOT NULL,
+            sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (conversation_id) REFERENCES conversations(id) ON DELETE CASCADE,
+            FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE
+        );
+    """)
+
+
 def create_matches_table(cursor):
     print('Creating matches table...')
     cursor.execute("""
@@ -335,6 +366,8 @@ def create_all_tables():
         create_interests_table(cursor)
         create_user_interests_table(cursor)
         create_refresh_tokens_table(cursor)
+        create_conversations_table(cursor)
+        create_messages_table(cursor)
         insert_interests(cursor)
 
         insert_random_users(cursor, 100)

@@ -2,7 +2,7 @@ services:
   db:
     image: postgres:13
     ports:
-      - "5433:5433"
+      - "5433:5432"
     volumes:
       - matcha_pg_data:/var/lib/postgresql/data
     env_file:
