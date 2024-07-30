@@ -1,9 +1,26 @@
 const io = require("socket.io-client");
-
 const socket = io("http://localhost:5000");
 
 socket.on("connect", () => {
   console.log("Connected to server");
-  // Vous pouvez ajouter ici d'autres actions ou assertions
+  console.log("Socket ID:", socket.id);
+
+  // Envoyer un message "hello"
+  socket.emit("hello", { message: "Hello from client" });
+});
+
+socket.on("server_message", (data) => {
+  console.log("Received message from server:", data);
+
+  // Se déconnecter après avoir reçu la réponse du serveur
+  console.log("Disconnecting...");
   socket.disconnect();
+});
+
+socket.on("disconnect", (reason) => {
+  console.log("Disconnected from server. Reason:", reason);
+});
+
+socket.on("connect_error", (error) => {
+  console.log("Connection error:", error);
 });
