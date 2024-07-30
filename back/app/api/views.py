@@ -50,7 +50,6 @@ WHERE username = %s
 @api.route('/getUserInfo', methods=['GET'])
 @jwt_required
 def get_user_info_controller():
-    # TODO: Add is_connected when the sockets are implemented
     token = request.headers.get('Authorization').split(' ')[1]
     user = jwt.decode(
         token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
@@ -64,7 +63,6 @@ def get_user_info_controller():
 @api.route('/getOtherUserInfo', methods=['GET'])
 @jwt_required
 def get_other_user_info_controller():
-    # TODO: Add status when the sockets are implemented
     user_id = request.args.get('user_id')
 
     response, status_code = get_user_info(user_id)

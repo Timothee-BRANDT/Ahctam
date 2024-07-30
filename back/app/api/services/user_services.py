@@ -17,6 +17,7 @@ SELECT
     biography,\
     gender,\
     sexual_preferences,\
+    status,\
     last_connexion,\
     created_at,\
     fame AS fame_rating
