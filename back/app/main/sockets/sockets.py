@@ -8,7 +8,7 @@ from flask_socketio import (
 from flask import (
     request,
     current_app,
-    jsonify
+    # jsonify
 )
 from app import socketio
 from app.database import get_db_connection
@@ -67,6 +67,28 @@ def handle_disconnect():
     print(f'Client disconnected: {request.sid}')
 
 
+@socketio.on('notif')
+def handle_notif(data):
+    """
+    Message possibles:
+    - 'new_message'
+    - 'new_like'
+    - 'new_match'
+    - 'new_unlike'
+    - 'new_view'
+    """
+    message = data['message']
+    sender = data['sender']
+    receiver = data['receiver']
+    redis_client = current_app.extensions['redis']
+    receiver_sid = redis_client.get(f"socket:{receiver}")
+    if receiver_sid:
+        emit('notif', {'message': message,
+             'sender': sender}, room=receiver_sid)
+    else:
+        print(f'User {receiver} not connected')
+
+
 @socketio.on('hello')
 def handle_hello(data):
     print(f'Received hello from {request.sid}: {data}')
@@ -79,15 +101,6 @@ def default_error_handler(e):
     print(f"Error type: {type(e).__name__}")
     print(f"Error args: {e.args}")
 
-# @socketio.on_error()
-# def handle_error(e):
-#     print('An error has occurred: ' + str(e))
-#
-#
-# @socketio.on('connect')
-# def handle_connect():
-#     print('Client connected serverside')
-#
 # TODO: - get the token from the client
 #       - decode the token (make a function)
 #       - get the arguments given with the socket call
