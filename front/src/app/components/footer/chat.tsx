@@ -7,11 +7,13 @@ import { Textarea } from "@/components/ui/textarea";
 import data from '../../api.json';
 import { useAuth } from '@/app/authContext';
 import { useRouter } from 'next/navigation';
+import { Truck } from 'lucide-react';
+import { AppBuildManifestPlugin } from 'next/dist/build/webpack/plugins/app-build-manifest-plugin';
 
 interface Match {
     id: number;
-    // useruuid: number;
-    // matchedUseruuid: number;
+    useruuid: number;
+    matchedUseruuid: number;
     name: string;
     avatar: string;
     messages: Message[];
@@ -23,6 +25,13 @@ interface Message {
     isMe: boolean;
     timestamp: string;
 }
+
+// interface Notification {
+//     senderId: number;
+//     message: string;
+//     avatar: string;
+//     createdAt: new Date() | string;
+// };
 
 export default function Component() {
     const router = useRouter();
@@ -36,8 +45,10 @@ export default function Component() {
     const messagesEndRef = useRef<HTMLDivElement>(null);
     const messageInputRef = useRef<HTMLTextAreaElement>(null);
 
-
     // [MOCK]
+    // faire une fonction qui est trigger lorsqu'on clique sur l'icon des 2 bonhommes pour ouvrir la liste de tchat
+    // un event est listen en permanence pour ecouter si j'ai des nouveaux messages ou pas (newMessage)
+    // un autre est listen lorsqu'on ouvre le tchat avec qqn (message)
     const [matchs, setMatchs] = useState<Match[]>([
         { id: 1, name: "John Doe", avatar: "https://picsum.photos/201", messages: data.messagesRoom1 },
         { id: 2, name: "Jane Smith", avatar: "https://picsum.photos/202", messages: data.messagesRoom2 },
@@ -45,6 +56,7 @@ export default function Component() {
     ]);
 
     const openChatWindow = (match: Match) => {
+        // call the endpoint that give me all the messages
         setSelectedMatch(match);
         setIsMatchsListOpen(false);
         setIsChatWindowOpen(true);

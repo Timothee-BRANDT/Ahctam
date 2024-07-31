@@ -54,7 +54,15 @@ def get_user_info_controller():
     user = jwt.decode(
         token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
     user_id = user['id']
-
+    query = 'SELECT gender FROM users WHERE id = %s'
+    connector = get_db_connection()
+    cursor = connector.cursor()
+    cursor.execute(query, (user_id,))
+    print(cursor.fetchone()[0])
+    if cursor.fetchone() is None:
+        return jsonify({'message': 'No informations yet'}), 200
+    else:
+        print('NO RESULT')
     response, status_code = get_user_info(user_id)
 
     return jsonify(response), status_code

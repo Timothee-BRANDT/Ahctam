@@ -36,7 +36,7 @@ const ResetPasswordPage: React.FC = () => {
             setIsValidUsername(true);
         }
         try {
-            const response = await fetch(`http://${serverIP}:5000/auth/checkUsername`, {
+            const response = await fetch(`http://${serverIP}:5000/auth/forgot_password`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -62,7 +62,7 @@ const ResetPasswordPage: React.FC = () => {
             setUpdateMessage(true);
         }
         try {
-            const response = await fetch(`http://${serverIP}:5000/auth/resetPassword`, {
+            const response = await fetch(`http://${serverIP}:5000/auth/reset_password`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
