@@ -67,7 +67,7 @@ def handle_disconnect():
     print(f'Client disconnected: {request.sid}')
 
 
-@socketio.on('notif')
+@socketio.on('create_notif')
 def handle_notif(data):
     """
     Message possibles:
@@ -87,6 +87,17 @@ def handle_notif(data):
              'sender': sender}, room=receiver_sid)
     else:
         print(f'User {receiver} not connected')
+
+
+@socketio.on('message')
+def handle_message(data):
+    """
+    emit to received_message with the sender, receiver and message, timestamp
+    see with tim the display logic front side
+    server side, we need to store the message in the database
+    would be easier with a conversation id
+    """
+    pass
 
 
 @socketio.on('hello')
