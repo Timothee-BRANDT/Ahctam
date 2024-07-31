@@ -15,7 +15,6 @@ import {
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-
 const Header: React.FC = () => {
     const router = useRouter();
     const { logout, user, isJwtInCookie } = useAuth();
@@ -45,6 +44,9 @@ const Header: React.FC = () => {
     useEffect(() => {
         setIsLoggedIn(isJwtInCookie());
     }, []);
+
+    // CLOCHE DANS LE HEADER POUR LES NOTIFS
+    // CALL ENDPOINT QUI RENVOIE LA LISTE DES NOTIFS
 
     return (
         <>

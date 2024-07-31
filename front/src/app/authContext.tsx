@@ -117,6 +117,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         setUser(initialPig);
         deleteCookie('jwt_token');
         router.push('/login');
+        // socket.emit('disconnect');
     };
 
     return (

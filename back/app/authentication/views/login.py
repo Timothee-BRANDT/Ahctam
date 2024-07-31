@@ -87,15 +87,6 @@ WHERE id = %s
         'user_id': user_id
     }), 200
 
-
-@auth.route('/login', methods=['GET'])
-def login_page():
-    context = {
-        'form': LoginForm()
-    }
-    return render_template('login.html', **context), 200
-
-
 @auth.route('/profile-complete-same-endpoint-as-update-zizitoudur', methods=['POST'])
 def first_login():
     conn = get_db_connection()
