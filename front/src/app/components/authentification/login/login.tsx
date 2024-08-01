@@ -23,6 +23,8 @@ const LoginPage: React.FC = () => {
     const [isBadCredentials, setIsBadCredentials] = useState<boolean>(false);
     const [isLoggedIn, setIsLoggedIn] = useState(false);
 
+
+
     useEffect(() => {
         if (inputRef.current) {
             inputRef.current.focus();
@@ -35,7 +37,6 @@ const LoginPage: React.FC = () => {
         const payload = {
             username,
             password,
-            // id: user.id,
         };
         try {
             const response = await fetch(`http://${serverIP}:5000/auth/login`, {
@@ -56,22 +57,18 @@ const LoginPage: React.FC = () => {
                 }
                 throw new Error("Network response was not ok");
             }
+            setUser({
+                ...user,
+                username: data.username,
+                firstname: data.firstname,
+                lastname: data.lastname,
+                id: data.user_id,
+            });
+            login(data.jwt_token);
+
             if (data.message === "First login") {
-                setUser({
-                    ...user,
-                    id: data.user_id,
-                });
-                login(data.jwt_token);
                 router.push("/profile/update");
             } else {
-                setUser({
-                    ...user,
-                    // username: data.username,
-                    // firstname: data.firstname,
-                    // lastname: data.lastname,
-                    id: data.user_id,
-                });
-                login(data.jwt_token);
                 router.push("/");
             }
         } catch (e) {

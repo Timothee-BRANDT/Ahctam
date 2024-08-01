@@ -1,8 +1,7 @@
 const io = require("socket.io-client");
-const socket = io("http://localhost:5000"); // il faut ajouter le JWT dans la declaration de la socket => lier la socket au userID
+const socket = io("http://localhost:5000");
 
 socket.on("connect", () => {
-    // CE CODE EST RUN QUAND L'ENCULER QUI FAIS LE BACKEND ENVOIE UN EVENT SUR LA SOCKET
   console.log("Connected to server");
   console.log("Socket ID:", socket.id);
 
@@ -25,10 +24,3 @@ socket.on("disconnect", (reason) => {
 socket.on("connect_error", (error) => {
   console.log("Connection error:", error);
 });
-
-
-// EUX DEUX VONT ENSEMBLE, CONNECT SERT A DIRE SALUT AU BACKEND
-
-// NOTIF SERT A LISTEN NOTIFS
-// socket.on("connect", () => {
-// socket.on("notif", () => {

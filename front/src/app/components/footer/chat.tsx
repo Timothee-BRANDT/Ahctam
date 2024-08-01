@@ -35,7 +35,7 @@ interface Message {
 
 export default function Component() {
     const router = useRouter();
-    const { user, isJwtInCookie } = useAuth();
+    const { user, isJwtInCookie, getCookie } = useAuth();
     const [isMatchsListOpen, setIsMatchsListOpen] = useState(false);
     const [isChatWindowOpen, setIsChatWindowOpen] = useState(false);
     const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
@@ -46,7 +46,7 @@ export default function Component() {
     const messageInputRef = useRef<HTMLTextAreaElement>(null);
 
     // [MOCK]
-    // faire une fonction qui est trigger lorsqu'on clique sur l'icon des 2 bonhommes pour ouvrir la liste de tchat
+    // faire une fonction qui est trigger lorsqu'on clique sur l'icon des 2 bonhommes pour ouvrir la liste de matchs
     // un event est listen en permanence pour ecouter si j'ai des nouveaux messages ou pas (newMessage)
     // un autre est listen lorsqu'on ouvre le tchat avec qqn (message)
     const [matchs, setMatchs] = useState<Match[]>([
@@ -100,10 +100,26 @@ export default function Component() {
     };
 
     useEffect(() => {
+        const io = require("socket.io-client");
+        const socket = io("http://localhost:5000", {
+            auth: {
+                token: getCookie('jwt_token'),
+            },
+            withCredentials: true,
+        });
+        socket.on("connect", () => {
+            socket.on("notification", (data: any) => {
+                console.log("Nouvelle notification reçue:", data);
+            });
+        });
+        socket.on("connect_error", (error: any) => {
+            console.error("Erreur de connexion socket:", error);
+        });
         document.addEventListener('mousedown', handleClickOutside);
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
             setIsLoggedIn(isJwtInCookie());
+            socket.disconnect();
         };
     }, []);
 
