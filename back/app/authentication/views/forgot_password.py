@@ -18,19 +18,21 @@ from .utils import send_reset_password_email
 
 @auth.route('/forgot_password', methods=['POST'])
 def forgot_password():
+    email_query = 'SELECT email FROM users WHERE username = %s'
     try:
         data = request.get_json()
         conn = get_db_connection()
         cur = conn.cursor()
-        cur.execute('SELECT username FROM users WHERE email = %s',
-                    (data['email'],))
+        cur.execute('SELECT id FROM users WHERE username = %s',
+                    (data['username'],))
         user = cur.fetchone()
         if not user:
-            raise ValueError('Email does not exist')
+            raise ValueError('This user does not exist')
     except Exception as e:
         return jsonify({'error': str(e)}), 400
     else:
-        send_reset_password_email(data['email'])
+        email = cur.execute(email_query, (data['username'],)).fetchone()[0]
+        send_reset_password_email(email)
     finally:
         cur.close()
         conn.close()

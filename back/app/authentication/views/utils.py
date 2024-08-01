@@ -34,6 +34,7 @@ def send_reset_password_email(email):
             subject='Matcha . Reset your password',
             sender=current_app.config['MAIL_USERNAME'],
             recipients=[email])
+        # TODO: Page of reset password
         link = url_for('auth.reset_password_page', token=token, _external=True)
         msg.body = f"""
         To reset your password, visit the following link:
