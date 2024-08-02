@@ -100,28 +100,28 @@ export default function Component() {
     };
 
     useEffect(() => {
-        const io = require("socket.io-client");
-        const socket = io("http://localhost:5000", {
-            auth: {
-                token: getCookie('jwt_token'),
-            },
-            withCredentials: true,
-        });
-        socket.on("connect", () => {
-            socket.on("notification", (data: any) => {
-                console.log("Nouvelle notification reçue:", data);
+        if (isLoggedIn) {
+            const io = require("socket.io-client");
+            const socket = io("http://localhost:5000", {
+                auth: {
+                    token: getCookie('jwt_token'),
+                },
             });
-        });
-        socket.on("connect_error", (error: any) => {
-            console.error("Erreur de connexion socket:", error);
-        });
+            socket.on("connect", () => {
+                socket.on("notification", (data: any) => {
+                    console.log("Nouvelle notification reçue:", data);
+                });
+            });
+            socket.on("connect_error", (error: any) => {
+                console.error("Erreur de connexion socket:", error);
+            });
+        }
         document.addEventListener('mousedown', handleClickOutside);
         return () => {
             document.removeEventListener('mousedown', handleClickOutside);
             setIsLoggedIn(isJwtInCookie());
-            socket.disconnect();
         };
-    }, []);
+    }, [isLoggedIn]);
 
     useEffect(() => {
         scrollToBottom();

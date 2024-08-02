@@ -36,6 +36,7 @@ WHERE id = %s
 
 @socketio.on('connect')
 def handle_connect():
+    print('***********************************************')
     try:
         token: str = request.args.get('token')
         if token:
