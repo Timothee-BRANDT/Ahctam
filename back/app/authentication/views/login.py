@@ -88,7 +88,7 @@ WHERE id = %s
     }), 200
 
 
-@auth.route('/profile-complete-same-endpoint-as-update-zizitoudur', methods=['POST'])
+@auth.route('/update-profile', methods=['POST'])
 def first_login():
     conn = get_db_connection()
     cur = conn.cursor()

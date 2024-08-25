@@ -19,6 +19,7 @@ SELECT
     sexual_preferences,\
     status,\
     last_connexion,\
+    status,\
     created_at,\
     fame AS fame_rating
 FROM Users
