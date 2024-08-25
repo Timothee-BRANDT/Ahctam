@@ -79,6 +79,7 @@ const ProfilePage: React.FC = () => {
         initInterests,
         data_response.interests,
       );
+      console.log("we set interests");
       setAllInterests(updatedInterests);
     }
     // [MOCK]
@@ -93,7 +94,6 @@ const ProfilePage: React.FC = () => {
     if (!isJwtInCookie()) {
       redirectLogin();
     } else {
-      console.log("we are in the useEffect");
       getProfile();
     }
     if (navigator.geolocation) {
@@ -144,6 +144,7 @@ const ProfilePage: React.FC = () => {
   };
 
   const handleUserChange = (e: any) => {
+    console.log("handleUserChange is called");
     const { name, value } = e.target;
     setUser({
       ...user,
@@ -207,6 +208,7 @@ const ProfilePage: React.FC = () => {
   };
 
   const getInterestsIndices = (record: Record<string, boolean>) => {
+    console.log("getInterestsIndices is called");
     return Object.entries(record).reduce(
       (acc: string[], [key, value], index) => {
         if (value) {
@@ -219,6 +221,7 @@ const ProfilePage: React.FC = () => {
   };
 
   const selectInterest = (interest: string) => {
+    console.log("selectInterest is called");
     const newInterests = { ...allInterests };
     newInterests[interest] = !newInterests[interest];
     setAllInterests(newInterests);

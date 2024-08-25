@@ -45,8 +45,8 @@ def send_reset_password_email(email):
 
 
 def store_profile_informations(conn, cur, form, user_id):
+    print('the user id is', user_id)
     try:
-        user_id = 5
         # User
         user_query = """
 UPDATE users
@@ -80,15 +80,14 @@ SET is_profile_picture = TRUE
 WHERE url = %s AND owner = %s
         """
         raw_photos: list = form.photos.data
-        print(len(raw_photos))
         photos: list = [photo for photo in raw_photos if photo]
-        print(len(photos))
         for photo in photos:
             cur.execute(picture_query, (photo, user_id))
         cur.execute(profile_picture_query, (photos[0], user_id))
 
         # Interests
         interests: list = form.interests.data
+        print('interests from form are', interests)
         interests_query = """
 SELECT id FROM interests WHERE name = %s
         """
@@ -98,6 +97,7 @@ SELECT id FROM interests WHERE name = %s
             user_interest_query = """
 INSERT INTO user_interests (user_id, interest_id)
 VALUES (%s, %s)
+ON CONFLICT DO NOTHING
             """
             cur.execute(user_interest_query, (user_id, interest_id))
 
@@ -106,8 +106,7 @@ VALUES (%s, %s)
         print('town from form is', town)
         if not town:
             longitude, latitude, town = get_location_from_ip()
-            print('town is', town)
-        return
+            print('no town: from ip is', town)
         conn.commit()
     except Exception as e:
         raise ValueError(e)
