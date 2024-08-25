@@ -6,7 +6,7 @@ import Link from "next/link";
 import { useAuth } from "@/app/authContext";
 import { State } from "@/app/types";
 import { Button } from "@/components/ui/button";
-import { io } from "socket.io-client";
+import { initializeSocket } from "@/app/sockets";
 import { useRouter } from "next/navigation";
 import data from "../../../api.json";
 
@@ -30,24 +30,6 @@ const LoginPage: React.FC = () => {
     }
     setIsLoggedIn(isJwtInCookie());
   }, [user]);
-
-  const connectSocket = (token: string) => {
-    const socket = io(`http://${serverIP}:5000`, {
-      query: { token },
-    });
-
-    socket.on("connect", () => {
-      console.log("Connected to socket server:", socket.id);
-    });
-
-    socket.on("disconnect", () => {
-      console.log("Disconnected from socket server");
-    });
-
-    socket.on("connect_error", (err) => {
-      console.log("Socket connection error:", err);
-    });
-  };
 
   const submit = async (event: any) => {
     event.preventDefault();
@@ -86,7 +68,7 @@ const LoginPage: React.FC = () => {
       if (data.message === "First login") {
         router.push("/profile/update");
       } else {
-        connectSocket(data.jwt_token);
+        const socket = initializeSocket(data.jwt_token);
         router.push("/");
       }
     } catch (e) {

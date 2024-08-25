@@ -121,7 +121,7 @@ def first_login_page():
     return render_template('first-login.html', **context), 200
 
 
-@auth.route('/logout', methods=['GET'])
+@auth.route('/logout', methods=['POST'])
 @jwt_required
 def logout():
     conn = get_db_connection()
