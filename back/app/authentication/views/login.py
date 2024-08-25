@@ -87,6 +87,7 @@ WHERE id = %s
         'user_id': user_id
     }), 200
 
+
 @auth.route('/profile-complete-same-endpoint-as-update-zizitoudur', methods=['POST'])
 def first_login():
     conn = get_db_connection()
@@ -99,8 +100,6 @@ def first_login():
             print(type(profile[element]))
             print(element, profile[element])
         user_id = data.get('id')
-        print('The Id is:', user_id)
-        return jsonify({'message': 'We test'}), 200
         form = InformationsForm(data=profile)
         form.validate()
         print('Profile form Validated!!!')

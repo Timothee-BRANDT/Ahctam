@@ -18,7 +18,7 @@ from psycopg2.extras import RealDictCursor
 def update_status_and_connection_time(user_id):
     query = """
 UPDATE Users
-SET status = 'online' last_connexion = NOW()
+SET status = 'online', last_connexion = NOW()
 WHERE id = %s
     """
     conn = get_db_connection()
