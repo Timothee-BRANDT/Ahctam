@@ -56,10 +56,11 @@ const ProfilePage: React.FC = () => {
 
   // [MOCK]
   const [allInterests, setAllInterests] = useState<Record<string, boolean>>(
-    initializeInterests(initInterests, data.user.interests),
+    initializeInterests(initInterests, []),
   );
 
   const getProfile = async () => {
+    console.log("getProfile is called");
     const token = getCookie("jwt_token");
     const response = await fetch(`http://${serverIP}:5000/api/getUserInfo`, {
       method: "GET",
@@ -74,6 +75,11 @@ const ProfilePage: React.FC = () => {
     if (response.ok) {
       console.log("we set the user");
       setUser(data_response);
+      const updatedInterests = initializeInterests(
+        initInterests,
+        data_response.interests,
+      );
+      setAllInterests(updatedInterests);
     }
     // [MOCK]
     // setUser(data.user);
@@ -86,8 +92,10 @@ const ProfilePage: React.FC = () => {
   useEffect(() => {
     if (!isJwtInCookie()) {
       redirectLogin();
+    } else {
+      console.log("we are in the useEffect");
+      getProfile();
     }
-    getProfile();
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
