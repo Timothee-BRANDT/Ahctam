@@ -109,14 +109,6 @@ def first_login():
     return jsonify({'message': 'First login successful'}), 200
 
 
-@auth.route('/first-login', methods=['GET'])
-def first_login_page():
-    context = {
-        'form': InformationsForm()
-    }
-    return render_template('first-login.html', **context), 200
-
-
 @auth.route('/logout', methods=['POST'])
 @jwt_required
 def logout():

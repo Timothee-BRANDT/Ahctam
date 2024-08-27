@@ -58,7 +58,8 @@ def get_user_info_controller():
     connector = get_db_connection()
     cursor = connector.cursor()
     cursor.execute(query, (user_id,))
-    if cursor.fetchone() is None:
+    gender = cursor.fetchone()[0]
+    if not gender:
         return jsonify({'message': 'No informations yet'}), 200
     response, status_code = get_user_info(user_id)
 
