@@ -4,7 +4,8 @@ from psycopg2.extras import RealDictCursor
 
 
 def get_user_info(user_id: int):
-    # TODO: Add is_connected when the sockets are implemented
+    """
+    """
     user_query = """
 SELECT
     id, \

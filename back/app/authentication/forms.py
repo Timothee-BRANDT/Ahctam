@@ -177,6 +177,14 @@ class InformationsForm(Form):
     town = StringField('Town')
     submit = StringField('Submit')
 
+    def validate_age(self, field):
+        if not field.data:
+            raise ValueError('Please provide your age')
+        if not field.data.isdigit():
+            raise ValueError('Age must be a number')
+        if int(field.data) < 18:
+            raise ValueError('You must be at least 18 years old')
+
     def validate_gender(self, field):
         if not field.data:
             raise ValueError("""
@@ -190,8 +198,8 @@ Please select at least one sexual preference
             """)
 
     def validate_pictures(self, field):
-        if len(field.data) > 6:
-            raise ValueError('You can upload up to 6 pictures')
+        if len(field.data) > 6 or len(field.data) < 1:
+            raise ValueError('You can upload 1 to 6 pictures')
 
     def validate_email(self, field):
         if field.data == self.email.data:

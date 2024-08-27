@@ -95,6 +95,7 @@ def first_login():
     try:
         data = request.get_json()
         profile = data.get('payload', {})
+        print(f'Profile: {profile}')
         user_id = profile.get('id')
         form = InformationsForm(data=profile)
         form.validate()

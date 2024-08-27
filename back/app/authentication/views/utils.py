@@ -45,7 +45,6 @@ def send_reset_password_email(email):
 
 
 def store_profile_informations(conn, cur, form, user_id):
-    print('the user id is', user_id)
     try:
         # User
         user_query = """
@@ -59,7 +58,7 @@ email = %s
 WHERE id = %s
         """
         cur.execute(user_query, (
-            form.age.data,
+            int(form.age.data),
             form.gender.data,
             form.sexualPreference.data,
             form.biography.data,

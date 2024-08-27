@@ -83,8 +83,6 @@ const ProfilePage: React.FC = () => {
       console.log("we set interests");
       setAllInterests(updatedInterests);
     }
-    // [MOCK]
-    // setUser(data.user);
   };
 
   const redirectLogin = () => {
@@ -183,6 +181,7 @@ const ProfilePage: React.FC = () => {
       id: user.id,
       firstname: user.firstname,
       lastname: user.lastname,
+      age: user.age,
       email: user.email,
       gender: user.gender,
       sexual_preferences: user.sexual_preferences,
