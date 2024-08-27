@@ -74,14 +74,18 @@ const ProfilePage: React.FC = () => {
     const data_response = await response.json();
     console.log(data_response);
     if (response.ok) {
-      console.log("we set the user");
-      setUser(data_response);
-      const updatedInterests = initializeInterests(
-        initInterests,
-        data_response.interests,
-      );
-      console.log("we set interests");
-      setAllInterests(updatedInterests);
+      if (data_response.message !== "No informations yet") {
+        console.log("we set the user");
+        setUser(data_response);
+        const updatedInterests = initializeInterests(
+          initInterests,
+          data_response.interests,
+        );
+        console.log("we set interests");
+        setAllInterests(updatedInterests);
+      } else {
+        console.log("No informations yet");
+      }
     }
   };
 
