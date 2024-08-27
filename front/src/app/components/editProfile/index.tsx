@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import "./index.scss";
 import { Button } from "@/components/ui/button";
 import { serverIP } from "@/app/constants";
@@ -15,6 +15,7 @@ var townjpp: string = "";
 
 const ProfilePage: React.FC = () => {
   const { user, setUser, isJwtInCookie, getCookie } = useAuth();
+  const hasFetchedProfile = useRef(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const router = useRouter();
   const initInterests: Record<string, boolean> = {
@@ -94,8 +95,12 @@ const ProfilePage: React.FC = () => {
     if (!isJwtInCookie()) {
       redirectLogin();
     } else {
-      getProfile();
+      if (!hasFetchedProfile.current) {
+        getProfile();
+        hasFetchedProfile.current = true;
+      }
     }
+
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
@@ -146,10 +151,12 @@ const ProfilePage: React.FC = () => {
   const handleUserChange = (e: any) => {
     console.log("handleUserChange is called");
     const { name, value } = e.target;
-    setUser({
-      ...user,
-      [name]: value,
-    });
+    if (name && value !== undefined) {
+      setUser({
+        ...user,
+        [name]: value,
+      });
+    }
   };
 
   const handleImageChange = (index: any, e: any) => {
@@ -430,11 +437,10 @@ const ProfilePage: React.FC = () => {
                       />
                       {!photo && (
                         <div
-                          className={`upload-text ${
-                            index === 0
+                          className={`upload-text ${index === 0
                               ? `${CLASSNAME}__profile-picture-uploader`
                               : ""
-                          }`}
+                            }`}
                         >
                           {index === 0
                             ? "Upload a profile picture"
@@ -446,7 +452,7 @@ const ProfilePage: React.FC = () => {
                 </div>
               </div>
             </div>
-            <Button className="button-info" type="submit" onClick={() => {}}>
+            <Button className="button-info" type="submit" onClick={() => { }}>
               Save
             </Button>
           </form>

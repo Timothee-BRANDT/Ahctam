@@ -48,11 +48,11 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType>({
   user: initialPig,
-  login: (token: string) => {},
-  logout: () => {},
-  setUser: () => {},
-  setCookie: (name: string, value: string, days?: number) => {},
-  deleteCookie: (name: string) => {},
+  login: (token: string) => { },
+  logout: () => { },
+  setUser: () => { },
+  setCookie: (name: string, value: string, days?: number) => { },
+  deleteCookie: (name: string) => { },
   getCookie: (name: string) => "",
   isJwtInCookie: () => false,
 });
