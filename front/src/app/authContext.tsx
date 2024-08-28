@@ -48,11 +48,11 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType>({
   user: initialPig,
-  login: (token: string) => { },
-  logout: () => { },
-  setUser: () => { },
-  setCookie: (name: string, value: string, days?: number) => { },
-  deleteCookie: (name: string) => { },
+  login: (token: string) => {},
+  logout: () => {},
+  setUser: () => {},
+  setCookie: (name: string, value: string, days?: number) => {},
+  deleteCookie: (name: string) => {},
   getCookie: (name: string) => "",
   isJwtInCookie: () => false,
 });
@@ -70,11 +70,35 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const router = useRouter();
 
   useEffect(() => {
-    if (isJwtInCookie()) {
-      // [MOCK]
-      // should call the endpoint with the cookie to get all the userInfo
-      setUser(data.user);
-    }
+    const fetchUserProfile = async () => {
+      if (isJwtInCookie()) {
+        try {
+          const token = getCookie("jwt_token");
+          const response = await fetch(
+            `http://${serverIP}:5000/api/getUserInfo`,
+            {
+              method: "GET",
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+            },
+          );
+          const data_response = await response.json();
+
+          if (response.ok) {
+            console.log("setuser in authContext");
+            setUser(data_response);
+          } else {
+            console.log(data_response.error);
+          }
+        } catch (error) {
+          console.error("Error fetching user profile:", error);
+        }
+      }
+    };
+
+    fetchUserProfile();
   }, []);
 
   const setCookie = (name: string, value: string, days?: number) => {

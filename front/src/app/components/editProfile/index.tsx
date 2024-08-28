@@ -9,6 +9,7 @@ import { usePathname, useRouter } from "next/navigation";
 import data from "../../api.json";
 
 const CLASSNAME = "profile";
+const MAX_PHOTOS = 6;
 
 var localisationjpp: number[] = [];
 var townjpp: string = "";
@@ -18,6 +19,7 @@ const ProfilePage: React.FC = () => {
   const hasFetchedProfile = useRef(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const router = useRouter();
+
   const initInterests: Record<string, boolean> = {
     Tunnels: false,
     Obstacle: false,
@@ -55,6 +57,11 @@ const ProfilePage: React.FC = () => {
     return updatedState;
   };
 
+  const filledPhotos = user.photos ? [...user.photos] : [];
+  while (filledPhotos.length < MAX_PHOTOS) {
+    filledPhotos.push("");
+  }
+
   // [MOCK]
   const [allInterests, setAllInterests] = useState<Record<string, boolean>>(
     initializeInterests(initInterests, []),
@@ -70,13 +77,12 @@ const ProfilePage: React.FC = () => {
         Authorization: `Bearer ${token}`,
       },
     });
-    // TEST
     const data_response = await response.json();
     console.log(data_response);
     if (response.ok) {
-      if (data_response.message !== "No informations yet") {
-        console.log("we set the user");
-        setUser(data_response);
+      console.log("we set the user");
+      setUser(data_response);
+      if (data_response.message !== "First login") {
         const updatedInterests = initializeInterests(
           initInterests,
           data_response.interests,
@@ -162,6 +168,7 @@ const ProfilePage: React.FC = () => {
   };
 
   const handleImageChange = (index: any, e: any) => {
+    console.log("handleImageChange is called");
     const file = e.target.files[0];
     const reader = new FileReader();
     reader.onloadend = () => {
@@ -418,7 +425,7 @@ const ProfilePage: React.FC = () => {
                 </div>
                 <p className={`${CLASSNAME}__title`}>My Pictures</p>
                 <div className="photo-upload-container">
-                  {user.photos?.map((photo: string, index: number) => (
+                  {filledPhotos.map((photo: string, index: number) => (
                     <div
                       onClick={() =>
                         document
@@ -440,10 +447,11 @@ const ProfilePage: React.FC = () => {
                       />
                       {!photo && (
                         <div
-                          className={`upload-text ${index === 0
+                          className={`upload-text ${
+                            index === 0
                               ? `${CLASSNAME}__profile-picture-uploader`
                               : ""
-                            }`}
+                          }`}
                         >
                           {index === 0
                             ? "Upload a profile picture"
@@ -455,7 +463,7 @@ const ProfilePage: React.FC = () => {
                 </div>
               </div>
             </div>
-            <Button className="button-info" type="submit" onClick={() => { }}>
+            <Button className="button-info" type="submit" onClick={() => {}}>
               Save
             </Button>
           </form>

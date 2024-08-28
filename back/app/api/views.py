@@ -50,20 +50,33 @@ WHERE username = %s
 @api.route('/getUserInfo', methods=['GET'])
 @jwt_required
 def get_user_info_controller():
-    token = request.headers.get('Authorization').split(' ')[1]
-    user = jwt.decode(
-        token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
-    user_id = user['id']
-    query = 'SELECT gender FROM users WHERE id = %s'
     connector = get_db_connection()
-    cursor = connector.cursor()
-    cursor.execute(query, (user_id,))
-    gender = cursor.fetchone()[0]
-    if not gender:
-        return jsonify({'message': 'No informations yet'}), 200
-    response, status_code = get_user_info(user_id)
+    cursor = connector.cursor(cursor_factory=RealDictCursor)
+    try:
+        token = request.headers.get('Authorization').split(' ')[1]
+        user = jwt.decode(
+            token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
+        user_id = user['id']
+        query = """
+    SELECT gender, username, email, firstname, lastname
+    FROM users
+    WHERE id = %s
+        """
+        cursor.execute(query, (user_id,))
+        result = cursor.fetchone()
+        gender = result['gender']
+        result['message'] = 'First login'
+        if not gender:
+            print(f'{jsonify(result)=}')
+            return jsonify(result), 200
+        response, status_code = get_user_info(user_id)
+        return jsonify(response), status_code
 
-    return jsonify(response), status_code
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+    finally:
+        cursor.close()
+        connector.close()
 
 
 @api.route('/getOtherUserInfo', methods=['GET'])
