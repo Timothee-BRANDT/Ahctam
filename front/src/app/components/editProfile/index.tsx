@@ -172,7 +172,7 @@ const ProfilePage: React.FC = () => {
     const file = e.target.files[0];
     const reader = new FileReader();
     reader.onloadend = () => {
-      const newPhotos = [...user.photos];
+      const newPhotos = user.photos ? [...user.photos] : [];
       newPhotos[index] = reader.result as string;
       setUser({
         ...user,
@@ -203,6 +203,7 @@ const ProfilePage: React.FC = () => {
       address: user.address,
       town: townjpp,
     };
+    console.log("payload we send:", payload);
     if (!payload.sexual_preferences) {
       payload.sexual_preferences = "both";
     }

@@ -58,7 +58,7 @@ def get_user_info_controller():
             token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
         user_id = user['id']
         query = """
-    SELECT gender, username, email, firstname, lastname
+    SELECT id, gender, username, email, firstname, lastname
     FROM users
     WHERE id = %s
         """
@@ -69,6 +69,7 @@ def get_user_info_controller():
         if not gender:
             print(f'{jsonify(result)=}')
             return jsonify(result), 200
+        print(f'{user_id=}')
         response, status_code = get_user_info(user_id)
         return jsonify(response), status_code
 

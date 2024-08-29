@@ -88,7 +88,13 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
           if (response.ok) {
             console.log("setuser in authContext");
-            setUser(data_response);
+            setUser({
+              ...initialPig,
+              ...data_response,
+            });
+            if (!data_response.gender) {
+              router.push("/profile/update");
+            }
           } else {
             console.log(data_response.error);
           }

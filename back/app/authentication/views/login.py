@@ -95,14 +95,12 @@ def first_login():
     try:
         data = request.get_json()
         profile = data.get('payload', {})
-        print(f'Profile: {profile}')
         user_id = profile.get('id')
         form = InformationsForm(data=profile)
         form.validate()
+        store_profile_informations(conn, cur, form, user_id)
     except Exception as e:
         return jsonify({'error': str(e)}), 400
-    else:
-        store_profile_informations(conn, cur, form, user_id)
     finally:
         cur.close()
         conn.close()

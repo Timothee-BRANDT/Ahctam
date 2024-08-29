@@ -55,6 +55,7 @@ WHERE owner = %s
         result = cur.fetchone()
         user_info: Dict = dict(result)
         user_info['firstTimeLogged'] = False
+        print('user ok')
 
         # Location
         cur.execute(location_query, (user_id,))
@@ -64,6 +65,7 @@ WHERE owner = %s
                                       float(location_info['longitude'])]
         user_info['town'] = location_info['city']
         user_info['address'] = location_info['address']
+        print('location ok')
 
         # Interests
         cur.execute(user_interests_query, (user_id,))
@@ -73,6 +75,7 @@ WHERE owner = %s
             interest = cur.fetchone()
             interests.append(interest['name'])
         user_info['interests'] = interests
+        print('interests ok')
 
         # Pictures
         cur.execute(all_pictures_query, (user_id,))
