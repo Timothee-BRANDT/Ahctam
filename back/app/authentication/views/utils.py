@@ -4,6 +4,7 @@ from flask import (
     render_template,
     request,
 )
+from typing import List, Dict
 from flask_mail import Message
 from itsdangerous import URLSafeTimedSerializer
 import requests
@@ -78,8 +79,8 @@ UPDATE pictures
 SET is_profile_picture = TRUE
 WHERE url = %s AND owner = %s
         """
-        raw_photos: list = form.photos.data
-        photos: list = [photo for photo in raw_photos if photo]
+        raw_photos: List = form.photos.data
+        photos: List = [photo for photo in raw_photos if photo]
         for photo in photos:
             cur.execute(picture_query, (photo, user_id))
         cur.execute(profile_picture_query, (photos[0], user_id))
@@ -104,8 +105,24 @@ ON CONFLICT DO NOTHING
         town = form.town.data
         print('town from form is', town)
         if not town:
-            longitude, latitude, town = get_location_from_ip()
+            longitude, latitude, town = _get_location_from_ip()
             print('no town: from ip is', town)
+        else:
+            location = form.location.data
+            latitude = location[0]
+            longitude = location[1]
+        location_query = """
+INSERT INTO locations \
+(city, latitude, longitude, address, located_user)
+VALUES (%s, %s, %s, %s, %s)
+        """
+        cur.execute(location_query, (
+            town,
+            float(latitude),
+            float(longitude),
+            form.address.data,
+            user_id)
+        )
         conn.commit()
     except Exception as e:
         raise ValueError(e)
@@ -114,7 +131,7 @@ ON CONFLICT DO NOTHING
         conn.close()
 
 
-def get_location_from_ip():
+def _get_location_from_ip():
     response = requests.get('https://api.ipify.org?format=json')
     print(response.json())
     user_ip = response.json()['ip']

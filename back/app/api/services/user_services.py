@@ -55,11 +55,12 @@ WHERE owner = %s
         result = cur.fetchone()
         user_info: Dict = dict(result)
         user_info['firstTimeLogged'] = False
-        print('user ok')
+        print('user ok with id ', user_id)
 
         # Location
         cur.execute(location_query, (user_id,))
         result = cur.fetchone()
+        print(result)
         location_info: Dict = dict(result)
         user_info['location_list'] = [float(location_info['latitude']),
                                       float(location_info['longitude'])]
