@@ -47,6 +47,8 @@ def send_reset_password_email(email):
 
 
 def store_first_login_informations(conn, cur, form, user_id):
+    """
+    """
     try:
         # User
         user_query = """

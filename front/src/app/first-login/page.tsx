@@ -8,7 +8,18 @@ import FirstLoginPage from "../components/firstLoginForm";
 export default function FirstLoginFormular() {
   return (
     <>
-      <Header />
+      <header>
+        <h1
+          style={{
+            textAlign: "center",
+            fontSize: "1.2rem",
+            fontWeight: "bolder",
+          }}
+        >
+          Welcome to Matcha, please fill in the following form to complete your
+          registration
+        </h1>
+      </header>
       <FirstLoginPage />
       <Footer />
     </>

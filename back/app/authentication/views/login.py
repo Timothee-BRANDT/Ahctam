@@ -1,3 +1,4 @@
+from typing import Dict
 from .. import auth
 from ..forms import (
     LoginForm,
@@ -99,7 +100,7 @@ def first_login():
     cursor = connector.cursor(cursor_factory=DictCursor)
     try:
         data = request.get_json()
-        payload = data.get('payload', {})
+        payload: Dict = data.get('payload', {})
         token = payload.get('token')
         user = jwt.decode(
             token,
@@ -110,8 +111,6 @@ def first_login():
         form = FirstLoginForm(data=payload)
         form.validate()
 
-        logger.info(f'{type(payload)=}')
-        logger.info(f'User id: {user_id}')
         store_first_login_informations(connector, cursor, form, user_id)
         return jsonify({'message': 'First login successful'}), 200
 
