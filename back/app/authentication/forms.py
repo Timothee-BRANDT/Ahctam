@@ -145,6 +145,46 @@ class LoginForm(FlaskForm):
             conn.close()
 
 
+class FirstLoginForm(Form):
+    age = StringField('Age')
+    gender = StringField('Gender')
+    sexualPreference = StringField('Sexual Preferences')
+    biography = TextAreaField('Biography')
+    photos = FieldList(StringField('Pictures'))
+    interests = FieldList(StringField('Interests'))
+    location = FieldList(FloatField('Location'))
+
+    def validate_age(self, field):
+        if not field.data:
+            raise ValueError('Please provide your age')
+        if not field.data.isdigit():
+            raise ValueError('Age must be a number')
+        if int(field.data) < 18:
+            raise ValueError('You must be at least 18 years old')
+
+    def validate_gender(self, field):
+        if not field.data:
+            raise ValueError("""
+Please select a gender
+            """)
+
+    def validate_sexual_preferences(self, field):
+        if not field.data:
+            raise ValueError("""
+Please select at least one sexual preference
+            """)
+
+    def validate_pictures(self, field):
+        if len(field.data) > 6 or len(field.data) < 1:
+            raise ValueError('You can upload 1 to 6 pictures')
+
+    def validate_location(self, field):
+        if len(field.data) != 2:
+            raise ValueError('Invalid location')
+        if not field.data[0] or not field.data[1]:
+            raise ValueError('Invalid location')
+
+
 class ResetPasswordForm(FlaskForm):
     password = PasswordField('Password')
     password2 = PasswordField('Confirm Password')
@@ -162,7 +202,7 @@ one digit and one special character
             raise ValueError('Passwords do not match')
 
 
-class InformationsForm(Form):
+class ProfileForm(Form):
     age = StringField('Age')
     firstname = StringField('First Name')
     lastname = StringField('Last Name')

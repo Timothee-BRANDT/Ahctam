@@ -1,20 +1,24 @@
 from .. import auth
 from ..forms import (
     LoginForm,
-    InformationsForm,
+    ProfileForm,
+    FirstLoginForm,
 )
 from logger import logger
 from flask import (
     current_app,
-    render_template,
     request,
     jsonify,
 )
+from psycopg2.extras import DictCursor
 import jwt
 from datetime import datetime, timedelta
 from ...database import get_db_connection
 from .decorators import jwt_required
-from .utils import store_profile_informations
+from .utils import (
+    store_profile_informations,
+    store_first_login_informations,
+)
 
 
 @auth.route('/login', methods=['POST'])
@@ -91,12 +95,30 @@ WHERE id = %s
 
 @auth.route('/first-login', methods=['POST'])
 def first_login():
-    data = request.get_json()
-    formular = data.get('payload', {})
-    for element in formular:
-        if element != 'photos':
-            logger.info(f'{element}: {formular[element]}')
-    return jsonify({'message': 'First login successful'}), 200
+    connector = get_db_connection()
+    cursor = connector.cursor(cursor_factory=DictCursor)
+    try:
+        data = request.get_json()
+        payload = data.get('payload', {})
+        token = payload.get('token')
+        user = jwt.decode(
+            token,
+            current_app.config['SECRET_KEY'],
+            algorithms=['HS256']
+        )
+        user_id = user['id']
+        form = FirstLoginForm(data=payload)
+        form.validate()
+
+        logger.info(f'{type(payload)=}')
+        logger.info(f'User id: {user_id}')
+        store_first_login_informations(connector, cursor, form, user_id)
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+    finally:
+        cursor.close()
+        connector.close()
 
 
 @auth.route('/update-profile', methods=['POST'])
@@ -107,7 +129,7 @@ def update_profile():
         data = request.get_json()
         profile = data.get('payload', {})
         user_id = profile.get('id')
-        form = InformationsForm(data=profile)
+        form = ProfileForm(data=profile)
         form.validate()
 
         store_profile_informations(conn, cur, form, user_id)

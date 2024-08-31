@@ -84,7 +84,7 @@ const FirstLoginPage: React.FC = () => {
         setGeolocationPermission(true);
       }
     }
-  }, [isJwtInCookie]);
+  }, [isJwtInCookie, geolocationPermission]);
 
   const askLocationPermission = () => {
     if (navigator.geolocation) {

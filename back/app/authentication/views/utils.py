@@ -2,7 +2,6 @@ from flask import (
     current_app,
     url_for,
     render_template,
-    request,
     jsonify,
 )
 from logger import logger
@@ -47,6 +46,88 @@ def send_reset_password_email(email):
         print('Email sent')
 
 
+def store_first_login_informations(conn, cur, form, user_id):
+    try:
+        # User
+        user_query = """
+UPDATE users
+SET age = %s, gender = %s,\
+sexual_preferences = %s,\
+biography = %s,\
+WHERE id = %s
+        """
+        cur.execute(
+            user_query,
+            (
+                int(form.age.data),
+                form.gender.data,
+                form.sexualPreference.data,
+                form.biography.data,
+                user_id
+            )
+        )
+
+        # Pictures
+        picture_query = """
+INSERT INTO pictures (url, owner)
+VALUES (%s, %s)
+        """
+        profile_picture_query = """
+UPDATE pictures
+SET is_profile_picture = TRUE
+WHERE url = %s AND owner = %s
+        """
+        raw_photos: List = form.photos.data
+        photos: List = [photo for photo in raw_photos if photo]
+        for photo in photos:
+            cur.execute(picture_query, (photo, user_id))
+        cur.execute(profile_picture_query, (photos[0], user_id))
+
+        # Interests
+        interests: List = form.interests.data
+        interests_query = """
+SELECT id FROM interests WHERE name = %s
+        """
+        for interest in interests:
+            cur.execute(interests_query, (interest,))
+            interest_id = cur.fetchone()['id']
+            user_interest_query = """
+INSERT INTO user_interests (user_id, interest_id)
+VALUES (%s, %s)
+ON CONFLICT DO NOTHING
+            """
+            cur.execute(user_interest_query, (user_id, interest_id))
+
+        # Location
+        location: List = form.location.data
+        latitude: float = location[0]
+        longitude: float = location[1]
+        town: str
+        if latitude != 0 and longitude != 0:
+            town = _get_location_from_coordinates(latitude, longitude)
+        else:
+            longitude, latitude, town = _get_location_from_ip()
+
+        location_query = """
+INSERT INTO locations \
+(city, latitude, longitude, located_user)
+"""
+        cur.execute(
+            location_query,
+            (
+                town,
+                latitude,
+                longitude,
+                user_id
+            )
+        )
+
+        conn.commit()
+
+    except Exception as e:
+        raise e
+
+
 def store_profile_informations(conn, cur, form, user_id):
     try:
         # User
@@ -89,7 +170,6 @@ WHERE url = %s AND owner = %s
 
         # Interests
         interests: List = form.interests.data
-        print('interests from form are', interests)
         interests_query = """
 SELECT id FROM interests WHERE name = %s
         """
@@ -139,17 +219,32 @@ VALUES (%s, %s, %s, %s, %s)
         conn.close()
 
 
+def _get_location_from_coordinates(latitude, longitude):
+    try:
+        response = requests.get(
+            f'https://api.opencagedata.com/geocode/v1/json?q={latitude}+{longitude}&key={current_app.config["OPENCAGE_API_KEY"]}')
+        print(response.json())
+        if response.status_code == 200:
+            town = response.json()['results'][0]['components']['city']
+            return town
+        else:
+            raise ValueError('Error while getting location from coordinates')
+    except Exception as e:
+        logger.error(f'{e}')
+        raise ValueError(e)
+
+
 def _get_location_from_ip():
-    response = requests.get('https://api.ipify.org?format=json')
-    print(response.json())
-    user_ip = response.json()['ip']
-    # user_ip = request.remote_addr
-    # print(user_ip)
-    response = requests.get(f'http://ipinfo.io/{user_ip}/json')
-    print(response.json())
-    if response.status_code == 200:
-        longitude, latitude = response.json()['loc'].split(',')
-        town = response.json()['city']
-        return longitude, latitude, town
-    else:
-        return None, None, None
+    try:
+        response = requests.get('https://api.ipify.org?format=json')
+        user_ip = response.json()['ip']
+        response = requests.get(f'http://ipinfo.io/{user_ip}/json')
+        if response.status_code == 200:
+            longitude, latitude = response.json()['loc'].split(',')
+            town = response.json()['city']
+            return longitude, latitude, town
+        else:
+            raise ValueError('Error while getting location from ip')
+    except Exception as e:
+        logger.error(f'{e}')
+        raise ValueError(e)
