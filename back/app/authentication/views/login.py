@@ -92,7 +92,10 @@ WHERE id = %s
 @auth.route('/first-login', methods=['POST'])
 def first_login():
     data = request.get_json()
-    logger.info(data)
+    formular = data.get('payload', {})
+    for element in formular:
+        if element != 'photos':
+            logger.info(f'{element}: {formular[element]}')
     return jsonify({'message': 'First login successful'}), 200
 
 

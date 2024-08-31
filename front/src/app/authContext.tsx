@@ -93,8 +93,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               ...initialPig,
               ...data_response,
             });
+            // NOTE: Replace with first-login here ?
+            // not even sure it's needed
             if (!data_response.gender) {
-              router.push("/profile/update");
+              router.push("/first-login");
             }
           } else {
             console.log(data_response.error);
@@ -153,7 +155,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const logout = () => {
-    // NOTE: Here we need to pass the refresh token
+    // :TODO Here we need to pass the refresh token
     // to the server to invalidate it, in a JSON payload
     // Server is waiting for request.get_json()
     //

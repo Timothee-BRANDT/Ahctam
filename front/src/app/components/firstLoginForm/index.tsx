@@ -19,6 +19,7 @@ const FirstLoginPage: React.FC = () => {
   const [allowGeolocation, setAllowGeolocation] = useState(false);
   const hasFetchedFormular = useRef(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [geolocationPermission, setGeolocationPermission] = useState(false);
   const router = useRouter();
 
   const initInterests: Record<string, boolean> = {
@@ -60,7 +61,7 @@ const FirstLoginPage: React.FC = () => {
 
   const filledPhotos = user.photos ? [...user.photos] : [];
   while (filledPhotos.length < MAX_PHOTOS) {
-    filledPhotos.push("");
+    filledPhotos.push("Upload a picture");
   }
 
   // [MOCK]
@@ -73,35 +74,35 @@ const FirstLoginPage: React.FC = () => {
   };
 
   useEffect(() => {
+    console.log("useEffect is called");
     if (!isJwtInCookie) {
       redirectLogin();
     } else {
       setIsLoggedIn(true);
+      if (!geolocationPermission) {
+        askLocationPermission();
+        setGeolocationPermission(true);
+      }
     }
   }, [isJwtInCookie]);
 
-  useEffect(() => {
-    if (allowGeolocation) {
+  const askLocationPermission = () => {
+    if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          console.log("Position:", position);
-          setUser({
-            ...user,
-            location: [position.coords.latitude, position.coords.longitude],
-          });
+          localisationjpp = [
+            position.coords.latitude,
+            position.coords.longitude,
+          ];
+          console.log("localisationjpp", localisationjpp);
         },
         (error) => {
           console.error("Geolocation error:", error);
-          setAllowGeolocation(false);
+          localisationjpp = [0, 0];
         },
       );
-    } else {
-      setUser({
-        ...user,
-        location: [0, 0],
-      });
     }
-  }, [allowGeolocation]);
+  };
 
   const handleUserChange = (e: any) => {
     console.log("handleUserChange is called");
@@ -207,16 +208,6 @@ const FirstLoginPage: React.FC = () => {
                     onChange={handleUserChange}
                     required
                     autoComplete="new-password"
-                  />
-                </div>
-
-                <div className={`${CLASSNAME}__info-container`}>
-                  <p className={`${CLASSNAME}__title`}>Allow Geolocation</p>
-                  <input
-                    type="checkbox"
-                    name="allowGeolocation"
-                    checked={allowGeolocation}
-                    onChange={(e) => setAllowGeolocation(e.target.checked)}
                   />
                 </div>
 
