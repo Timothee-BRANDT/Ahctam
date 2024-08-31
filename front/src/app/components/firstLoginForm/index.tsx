@@ -5,9 +5,8 @@ import { Button } from "@/components/ui/button";
 import { serverIP } from "@/app/constants";
 import { useAuth } from "@/app/authContext";
 import { initializeSocket } from "@/app/sockets";
-import { ProfileInformations } from "@/app/types";
+import { FirstLoginInformations } from "@/app/types";
 import { usePathname, useRouter } from "next/navigation";
-import data from "../../api.json";
 
 const CLASSNAME = "profile";
 const MAX_PHOTOS = 6;
@@ -15,9 +14,10 @@ const MAX_PHOTOS = 6;
 var localisationjpp: number[] = [];
 var townjpp: string = "";
 
-const ProfilePage: React.FC = () => {
+const FirstLoginPage: React.FC = () => {
   const { user, setUser, isJwtInCookie, getCookie } = useAuth();
-  const hasFetchedProfile = useRef(false);
+  const [allowGeolocation, setAllowGeolocation] = useState(false);
+  const hasFetchedFormular = useRef(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const router = useRouter();
 
@@ -68,113 +68,36 @@ const ProfilePage: React.FC = () => {
     initializeInterests(initInterests, []),
   );
 
-  const getProfile = async () => {
-    console.log("getProfile is called");
-    const token = getCookie("jwt_token");
-    const response = await fetch(`http://${serverIP}:5000/api/getUserInfo`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    const data_response = await response.json();
-    console.log(data_response);
-    if (response.ok) {
-      console.log("we set the user");
-      setUser(data_response);
-      if (data_response.message !== "First login") {
-        const updatedInterests = initializeInterests(
-          initInterests,
-          data_response.interests,
-        );
-        console.log("we set interests");
-        setAllInterests(updatedInterests);
-      } else {
-        console.log("No informations yet");
-      }
-    }
-  };
-
   const redirectLogin = () => {
     router.push("/login");
   };
 
   useEffect(() => {
-    console.log("editProfile useEffect is called");
-    const fetchProfileAndLocation = async () => {
-      if (!isJwtInCookie()) {
-        redirectLogin();
-      } else {
-        if (!hasFetchedProfile.current) {
-          await getProfile();
-          hasFetchedProfile.current = true;
-        }
-      }
-
-      if (navigator.geolocation) {
+    if (!isJwtInCookie) {
+      redirectLogin();
+    } else {
+      if (allowGeolocation) {
         navigator.geolocation.getCurrentPosition(
-          async (pos) => {
-            const array = [pos.coords.latitude, pos.coords.longitude];
-            localisationjpp = array;
+          (position) => {
+            console.log("Position:", position);
+            setUser({
+              ...user,
+              location: [position.coords.latitude, position.coords.longitude],
+            });
           },
-          (e) => {
-            console.log("Geolocation error");
-            if (user.address === "") {
-              setUser((prevUser) => ({
-                ...prevUser,
-                address: "Location not provided",
-                localisation: [0, 0],
-                town: "Location not provided",
-              }));
-            }
+          (error) => {
+            console.error("Geolocation error:", error);
+            setAllowGeolocation(false);
           },
         );
+      } else {
+        setUser({
+          ...user,
+          location: [0, 0],
+        });
       }
-
-      setIsLoggedIn(isJwtInCookie());
-    };
-
-    if (!hasFetchedProfile.current) {
-      fetchProfileAndLocation();
     }
-  }, []);
-
-  function capitalizeFirstLetter(value: string) {
-    return value.charAt(0).toUpperCase() + value.slice(1);
-  }
-
-  const convertAdressIntoCoordonates = async () => {
-    console.log("convertAdressIntoCoordonates is called");
-    var requestOptions = {
-      method: "GET",
-    };
-
-    const formattedAddress = encodeURIComponent(user.address);
-    const apiKey = "0b45c5495f8e4f9b8246deebf999830d";
-
-    await fetch(
-      `https://api.geoapify.com/v1/geocode/search?text=${formattedAddress}&apiKey=${apiKey}`,
-      requestOptions,
-    )
-      .then((response) => response.json())
-      .then((result) => {
-        if (result && result.features[0]) {
-          localisationjpp = result.features[0].geometry.coordinates;
-          console.log("localisationjpp", localisationjpp);
-        }
-        if (
-          result &&
-          result.query &&
-          result.query.parsed &&
-          result.query.parsed.city
-        ) {
-          townjpp = capitalizeFirstLetter(result.query.parsed.city);
-          console.log("townjpp", townjpp);
-        }
-      })
-      .catch((error) => console.log("error", error));
-  };
+  }, [allowGeolocation]);
 
   const handleUserChange = (e: any) => {
     console.log("handleUserChange is called");
@@ -207,41 +130,30 @@ const ProfilePage: React.FC = () => {
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     console.log("we clicked on the Save button");
-    if (user.address !== "Location not provided") {
-      await convertAdressIntoCoordonates();
-    }
     const payload = {
-      id: user.id,
-      firstname: user.firstname,
-      lastname: user.lastname,
+      token: getCookie("jwt_token"),
       age: user.age,
-      email: user.email,
       gender: user.gender,
       sexual_preferences: user.sexual_preferences,
       biography: user.biography,
       interests: user.interests,
       photos: user.photos,
       location: localisationjpp,
-      address: user.address,
-      town: townjpp,
     };
     console.log("payload we send:", payload);
     if (!payload.sexual_preferences) {
       payload.sexual_preferences = "both";
     }
-    const response = await fetch(
-      `http://${serverIP}:5000/auth/update-profile`,
-      {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          payload,
-        }),
+    const response = await fetch(`http://${serverIP}:5000/auth/first-login`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
       },
-    );
+      body: JSON.stringify({
+        payload,
+      }),
+    });
     if (response.ok) {
       const token = getCookie("jwt_token");
       const socket = initializeSocket(token);
@@ -282,30 +194,6 @@ const ProfilePage: React.FC = () => {
             <div className={`${CLASSNAME}__web-layout`}>
               <div>
                 <div className={`${CLASSNAME}__info-container`}>
-                  <p className={`${CLASSNAME}__title`}>Firstname</p>
-                  <input
-                    className={`${CLASSNAME}__update-input`}
-                    type="firstname"
-                    name="firstname"
-                    value={user.firstname}
-                    onChange={handleUserChange}
-                    required
-                    autoComplete="new-password"
-                  />
-                </div>
-                <div className={`${CLASSNAME}__info-container`}>
-                  <p className={`${CLASSNAME}__title`}>Lastname</p>
-                  <input
-                    className={`${CLASSNAME}__update-input`}
-                    type="lastname"
-                    name="lastname"
-                    value={user.lastname}
-                    onChange={handleUserChange}
-                    required
-                    autoComplete="new-password"
-                  />
-                </div>
-                <div className={`${CLASSNAME}__info-container`}>
                   <p className={`${CLASSNAME}__title`}>Age</p>
                   <input
                     className={`${CLASSNAME}__update-input`}
@@ -317,30 +205,20 @@ const ProfilePage: React.FC = () => {
                     autoComplete="new-password"
                   />
                 </div>
+
                 <div className={`${CLASSNAME}__info-container`}>
-                  <p className={`${CLASSNAME}__title`}>Location</p>
+                  <p className={`${CLASSNAME}__title`}>Allow Geolocation</p>
                   <input
-                    className={`${CLASSNAME}__update-input`}
-                    type="address"
-                    name="address"
-                    value={user.address}
-                    onChange={handleUserChange}
-                    required
-                    autoComplete="new-password"
+                    type="checkbox"
+                    name="allowGeolocation"
+                    checked={allowGeolocation}
+                    onChange={(e) => setAllowGeolocation(e.target.checked)}
                   />
+                  <label htmlFor="allowGeolocation">
+                    Allow use of my geolocation
+                  </label>
                 </div>
-                <div className={`${CLASSNAME}__info-container`}>
-                  <p className={`${CLASSNAME}__title`}>Email</p>
-                  <input
-                    className={`${CLASSNAME}__update-input`}
-                    type="email"
-                    name="email"
-                    value={user.email}
-                    onChange={handleUserChange}
-                    required
-                    autoComplete="new-password"
-                  />
-                </div>
+
                 <p className={`${CLASSNAME}__title`}>I am</p>
                 <div className={`${CLASSNAME}__radio-button`}>
                   <div>
@@ -498,4 +376,4 @@ const ProfilePage: React.FC = () => {
   );
 };
 
-export default ProfilePage;
+export default FirstLoginPage;

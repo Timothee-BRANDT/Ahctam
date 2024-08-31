@@ -3,7 +3,9 @@ from flask import (
     url_for,
     render_template,
     request,
+    jsonify,
 )
+from logger import logger
 from typing import List, Dict
 from flask_mail import Message
 from itsdangerous import URLSafeTimedSerializer
@@ -86,7 +88,7 @@ WHERE url = %s AND owner = %s
         cur.execute(profile_picture_query, (photos[0], user_id))
 
         # Interests
-        interests: list = form.interests.data
+        interests: List = form.interests.data
         print('interests from form are', interests)
         interests_query = """
 SELECT id FROM interests WHERE name = %s
@@ -111,6 +113,10 @@ ON CONFLICT DO NOTHING
             location = form.location.data
             latitude = location[0]
             longitude = location[1]
+
+        # NOTE: Testing
+        return jsonify({'message': 'Testing'}), 200
+
         location_query = """
 INSERT INTO locations \
 (city, latitude, longitude, address, located_user)
@@ -124,7 +130,9 @@ VALUES (%s, %s, %s, %s, %s)
             user_id)
         )
         conn.commit()
+
     except Exception as e:
+        logger.error(f'Error while storing profile informations: {e}')
         raise ValueError(e)
     finally:
         cur.close()

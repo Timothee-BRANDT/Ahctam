@@ -66,7 +66,7 @@ const LoginPage: React.FC = () => {
       login(data.jwt_token);
 
       if (data.message === "First login") {
-        router.push("/profile/update");
+        router.push("/first-login");
       } else {
         const socket = initializeSocket(data.jwt_token);
         router.push("/");

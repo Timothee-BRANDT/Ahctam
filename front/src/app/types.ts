@@ -39,3 +39,14 @@ export interface ProfileInformations {
     interests: string[];
     photos: string[];
 }
+
+export interface FirstLoginInformations {
+    token: string;
+    age: number;
+    gender: string;
+    sexualPreference: string;
+    biography: string;
+    interests: string[];
+    photos: string[];
+    location: number[];
+}

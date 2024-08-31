@@ -5,6 +5,7 @@ from flask import (
 )
 import jwt
 from psycopg2.extras import RealDictCursor
+from logger import logger
 from app.api.services.user_services import (
     get_user_info,
     get_users_who_like_user,
@@ -57,19 +58,20 @@ def get_user_info_controller():
         user = jwt.decode(
             token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
         user_id = user['id']
+
         query = """
-    SELECT id, gender, username, email, firstname, lastname
-    FROM users
-    WHERE id = %s
+SELECT id, gender, username, email, firstname, lastname
+FROM users
+WHERE id = %s
         """
         cursor.execute(query, (user_id,))
         result = cursor.fetchone()
         gender = result['gender']
-        result['message'] = 'First login'
         if not gender:
-            print(f'{jsonify(result)=}')
+            logger.info(f'User {user_id} first login')
+            result['message'] = 'First login'
             return jsonify(result), 200
-        print(f'{user_id=}')
+
         response, status_code = get_user_info(user_id)
         return jsonify(response), status_code
 

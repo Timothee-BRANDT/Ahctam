@@ -41,7 +41,8 @@ interface AuthContextType {
   setCookie: (name: string, value: string, days?: number) => void;
   deleteCookie: (name: string) => void;
   isJwtInCookie: () => boolean;
-  getCookie: (name: string) => string | undefined;
+  // NOTE: getCookie was string | undefined
+  getCookie: (name: string) => string;
   user: User;
   setUser: React.Dispatch<React.SetStateAction<User>>;
 }

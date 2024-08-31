@@ -3,6 +3,7 @@ from ..forms import (
     LoginForm,
     InformationsForm,
 )
+from logger import logger
 from flask import (
     current_app,
     render_template,
@@ -88,8 +89,15 @@ WHERE id = %s
     }), 200
 
 
-@auth.route('/update-profile', methods=['POST'])
+@auth.route('/first-login', methods=['POST'])
 def first_login():
+    data = request.get_json()
+    logger.info(data)
+    return jsonify({'message': 'First login successful'}), 200
+
+
+@auth.route('/update-profile', methods=['POST'])
+def update_profile():
     conn = get_db_connection()
     cur = conn.cursor()
     try:
@@ -98,13 +106,15 @@ def first_login():
         user_id = profile.get('id')
         form = InformationsForm(data=profile)
         form.validate()
+
         store_profile_informations(conn, cur, form, user_id)
+        return jsonify({'message': 'First login successful'}), 200
+
     except Exception as e:
         return jsonify({'error': str(e)}), 400
     finally:
         cur.close()
         conn.close()
-    return jsonify({'message': 'First login successful'}), 200
 
 
 @auth.route('/logout', methods=['POST'])

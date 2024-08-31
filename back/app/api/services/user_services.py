@@ -1,6 +1,7 @@
 from app.database import get_db_connection
 from typing import Dict, List, Tuple
 from psycopg2.extras import RealDictCursor
+from logger import logger
 
 
 def get_user_info(user_id: int):
@@ -46,6 +47,7 @@ SELECT url
 FROM Pictures
 WHERE owner = %s
     """
+    logger.info(f'Getting user info for user {user_id}')
     conn = get_db_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
     interests = []
@@ -55,7 +57,6 @@ WHERE owner = %s
         result = cur.fetchone()
         user_info: Dict = dict(result)
         user_info['firstTimeLogged'] = False
-        print('user ok with id ', user_id)
 
         # Location
         cur.execute(location_query, (user_id,))
@@ -66,7 +67,6 @@ WHERE owner = %s
                                       float(location_info['longitude'])]
         user_info['town'] = location_info['city']
         user_info['address'] = location_info['address']
-        print('location ok')
 
         # Interests
         cur.execute(user_interests_query, (user_id,))
@@ -76,7 +76,6 @@ WHERE owner = %s
             interest = cur.fetchone()
             interests.append(interest['name'])
         user_info['interests'] = interests
-        print('interests ok')
 
         # Pictures
         cur.execute(all_pictures_query, (user_id,))
@@ -89,7 +88,8 @@ WHERE owner = %s
         del flattened_response['location_list']
 
     except Exception as e:
-        return {'error': str(e)}, 400
+        logger.error(f'Error while getting user info: {str(e)}')
+        raise e
     finally:
         cur.close()
         conn.close()
