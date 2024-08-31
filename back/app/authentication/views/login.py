@@ -16,7 +16,7 @@ from datetime import datetime, timedelta
 from ...database import get_db_connection
 from .decorators import jwt_required
 from .utils import (
-    store_profile_informations,
+    update_profile_informations,
     store_first_login_informations,
 )
 
@@ -133,7 +133,7 @@ def update_profile():
         form = ProfileForm(data=profile)
         form.validate()
 
-        store_profile_informations(conn, cur, form, user_id)
+        update_profile_informations(conn, cur, form, user_id)
         return jsonify({'message': 'First login successful'}), 200
 
     except Exception as e:
