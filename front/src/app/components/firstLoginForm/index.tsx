@@ -76,26 +76,30 @@ const FirstLoginPage: React.FC = () => {
     if (!isJwtInCookie) {
       redirectLogin();
     } else {
-      if (allowGeolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (position) => {
-            console.log("Position:", position);
-            setUser({
-              ...user,
-              location: [position.coords.latitude, position.coords.longitude],
-            });
-          },
-          (error) => {
-            console.error("Geolocation error:", error);
-            setAllowGeolocation(false);
-          },
-        );
-      } else {
-        setUser({
-          ...user,
-          location: [0, 0],
-        });
-      }
+      setIsLoggedIn(true);
+    }
+  }, [isJwtInCookie]);
+
+  useEffect(() => {
+    if (allowGeolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          console.log("Position:", position);
+          setUser({
+            ...user,
+            location: [position.coords.latitude, position.coords.longitude],
+          });
+        },
+        (error) => {
+          console.error("Geolocation error:", error);
+          setAllowGeolocation(false);
+        },
+      );
+    } else {
+      setUser({
+        ...user,
+        location: [0, 0],
+      });
     }
   }, [allowGeolocation]);
 
@@ -214,9 +218,6 @@ const FirstLoginPage: React.FC = () => {
                     checked={allowGeolocation}
                     onChange={(e) => setAllowGeolocation(e.target.checked)}
                   />
-                  <label htmlFor="allowGeolocation">
-                    Allow use of my geolocation
-                  </label>
                 </div>
 
                 <p className={`${CLASSNAME}__title`}>I am</p>
