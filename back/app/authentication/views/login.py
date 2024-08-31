@@ -113,6 +113,7 @@ def first_login():
         logger.info(f'{type(payload)=}')
         logger.info(f'User id: {user_id}')
         store_first_login_informations(connector, cursor, form, user_id)
+        return jsonify({'message': 'First login successful'}), 200
 
     except Exception as e:
         return jsonify({'error': str(e)}), 400

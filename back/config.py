@@ -20,6 +20,7 @@ class Config:
     MAIL_PASSWORD = os.getenv('SMTP_PASSWORD')
     MAIL_DEFAULT_SENDER = os.getenv('SMTP_USER')
     ENV = os.getenv('FLASK_ENV')
+    OPENCAGE_API_KEY = os.getenv('OPENCAGE_API_KEY')
 
 
 class DevelopmentConfig(Config):

@@ -163,6 +163,8 @@ const FirstLoginPage: React.FC = () => {
       const token = getCookie("jwt_token");
       const socket = initializeSocket(token);
       router.push("/");
+    } else {
+      console.log("Error while sending the formular");
     }
   };
 

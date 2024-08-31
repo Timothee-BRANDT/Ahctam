@@ -51,9 +51,10 @@ def store_first_login_informations(conn, cur, form, user_id):
         # User
         user_query = """
 UPDATE users
-SET age = %s, gender = %s,\
-sexual_preferences = %s,\
-biography = %s,\
+SET age = %s, \
+gender = %s, \
+sexual_preferences = %s, \
+biography = %s \
 WHERE id = %s
         """
         cur.execute(
@@ -61,7 +62,7 @@ WHERE id = %s
             (
                 int(form.age.data),
                 form.gender.data,
-                form.sexualPreference.data,
+                form.sexual_preferences.data,
                 form.biography.data,
                 user_id
             )
@@ -110,7 +111,8 @@ ON CONFLICT DO NOTHING
 
         location_query = """
 INSERT INTO locations \
-(city, latitude, longitude, located_user)
+(city, latitude, longitude, located_user) \
+VALUES (%s, %s, %s, %s)
 """
         cur.execute(
             location_query,
@@ -128,7 +130,7 @@ INSERT INTO locations \
         raise e
 
 
-def store_profile_informations(conn, cur, form, user_id):
+def update_profile_informations(conn, cur, form, user_id):
     try:
         # User
         user_query = """
@@ -221,6 +223,7 @@ VALUES (%s, %s, %s, %s, %s)
 
 def _get_location_from_coordinates(latitude, longitude):
     try:
+        logger.info(f"{current_app.config['OPENCAGE_API_KEY']=}")
         response = requests.get(
             f'https://api.opencagedata.com/geocode/v1/json?q={latitude}+{longitude}&key={current_app.config["OPENCAGE_API_KEY"]}')
         print(response.json())

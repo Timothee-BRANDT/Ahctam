@@ -148,7 +148,7 @@ class LoginForm(FlaskForm):
 class FirstLoginForm(Form):
     age = StringField('Age')
     gender = StringField('Gender')
-    sexualPreference = StringField('Sexual Preferences')
+    sexual_preferences = StringField('Sexual Preferences')
     biography = TextAreaField('Biography')
     photos = FieldList(StringField('Pictures'))
     interests = FieldList(StringField('Interests'))
