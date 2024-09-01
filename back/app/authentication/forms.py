@@ -180,8 +180,9 @@ Please select at least one sexual preference
 
     def validate_location(self, field):
         if len(field.data) != 2:
-            raise ValueError('Invalid location')
-        if not field.data[0] or not field.data[1]:
+            raise ValueError('Invalid location (latitude, longitude)')
+        if not isinstance(field.data[0], (int, float))\
+                or not isinstance(field.data[1], (int, float)):
             raise ValueError('Invalid location')
 
 

@@ -4,6 +4,7 @@ from flask import (
     render_template,
     jsonify,
 )
+import psycopg2
 from logger import logger
 from typing import List, Dict
 from flask_mail import Message
@@ -46,7 +47,13 @@ def send_reset_password_email(email):
         print('Email sent')
 
 
-def store_first_login_informations(conn, cur, form, user_id):
+def store_first_login_informations(
+    conn: psycopg2.extensions.connection,
+    cur: psycopg2.extensions.cursor,
+    form: Dict,
+    user_id: int,
+    user_ip: str
+):
     """
     """
     try:
@@ -107,9 +114,11 @@ ON CONFLICT DO NOTHING
         longitude: float = location[1]
         town: str
         if latitude != 0 and longitude != 0:
+            logger.info('Using location provided by user')
             town = _get_location_from_coordinates(latitude, longitude)
         else:
-            longitude, latitude, town = _get_location_from_ip()
+            logger.info('No location provided, getting location from ip')
+            longitude, latitude, town = _get_location_from_ip(user_ip)
 
         location_query = """
 INSERT INTO locations \
@@ -239,14 +248,14 @@ def _get_location_from_coordinates(latitude, longitude):
         raise ValueError(e)
 
 
-def _get_location_from_ip():
+def _get_location_from_ip(user_ip):
     try:
-        response = requests.get('https://api.ipify.org?format=json')
-        user_ip = response.json()['ip']
         response = requests.get(f'http://ipinfo.io/{user_ip}/json')
         if response.status_code == 200:
+            logger.info(f'{response.json()}')
             longitude, latitude = response.json()['loc'].split(',')
             town = response.json()['city']
+            logger.info(f'Location from ip: {longitude}, {latitude}, {town}')
             return longitude, latitude, town
         else:
             raise ValueError('Error while getting location from ip')

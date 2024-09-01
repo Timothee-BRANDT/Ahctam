@@ -96,6 +96,7 @@ WHERE id = %s
 
 @auth.route('/first-login', methods=['POST'])
 def first_login():
+    logger.info(request.headers)
     connector = get_db_connection()
     cursor = connector.cursor(cursor_factory=DictCursor)
     try:
@@ -108,10 +109,19 @@ def first_login():
             algorithms=['HS256']
         )
         user_id = user['id']
+        user_ip = request.remote_addr
+        logger.info(f'{user_ip=}')
+        logger.info(f'{type(user_ip)=}')
         form = FirstLoginForm(data=payload)
         form.validate()
 
-        store_first_login_informations(connector, cursor, form, user_id)
+        store_first_login_informations(
+            connector,
+            cursor,
+            form,
+            user_id,
+            user_ip
+        )
         return jsonify({'message': 'First login successful'}), 200
 
     except Exception as e:

@@ -32,8 +32,15 @@ def create_app(test_config=False, production=False):
 
     CORS(
         app,
-        supports_credentials=True,
-        resources={r"/*": {"origins": "http://localhost:3000"}},
+        allow_credentials=True,
+        resources={
+            r"/*": {
+                "origins": [
+                    "http://localhost:3000",
+                    "https://c892-37-166-33-120.ngrok-free.app"
+                ]
+            }
+        }
     )
     Mail(app)
     redis_client = FlaskRedis(app)
