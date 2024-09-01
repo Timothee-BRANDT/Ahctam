@@ -11,7 +11,7 @@ import { usePathname, useRouter } from "next/navigation";
 const CLASSNAME = "profile";
 const MAX_PHOTOS = 6;
 
-var localisationjpp: number[] = [];
+var localisationjpp: number[] = [0, 0];
 var townjpp: string = "";
 
 const FirstLoginPage: React.FC = () => {
@@ -20,6 +20,8 @@ const FirstLoginPage: React.FC = () => {
   const hasFetchedFormular = useRef(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [geolocationPermission, setGeolocationPermission] = useState(false);
+  const [loadingLocation, setLoadingLocation] = useState(true);
+
   const router = useRouter();
 
   const initInterests: Record<string, boolean> = {
@@ -95,10 +97,12 @@ const FirstLoginPage: React.FC = () => {
             position.coords.longitude,
           ];
           console.log("localisationjpp", localisationjpp);
+          setLoadingLocation(false);
         },
         (error) => {
           console.error("Geolocation error:", error);
           localisationjpp = [0, 0];
+          setLoadingLocation(false);
         },
       );
     }
@@ -359,7 +363,12 @@ const FirstLoginPage: React.FC = () => {
                 </div>
               </div>
             </div>
-            <Button className="button-info" type="submit" onClick={() => {}}>
+            <Button
+              className="button-info"
+              type="submit"
+              disabled={loadingLocation}
+              onClick={() => {}}
+            >
               Save
             </Button>
           </form>
