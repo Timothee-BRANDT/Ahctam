@@ -104,6 +104,11 @@ const FirstLoginPage: React.FC = () => {
           localisationjpp = [0, 0];
           setLoadingLocation(false);
         },
+        {
+          enableHighAccuracy: true,
+          timeout: 5000,
+          maximumAge: 0,
+        },
       );
     }
   };
@@ -347,11 +352,10 @@ const FirstLoginPage: React.FC = () => {
                       />
                       {!photo && (
                         <div
-                          className={`upload-text ${
-                            index === 0
+                          className={`upload-text ${index === 0
                               ? `${CLASSNAME}__profile-picture-uploader`
                               : ""
-                          }`}
+                            }`}
                         >
                           {index === 0
                             ? "Upload a profile picture"
@@ -367,7 +371,7 @@ const FirstLoginPage: React.FC = () => {
               className="button-info"
               type="submit"
               disabled={loadingLocation}
-              onClick={() => {}}
+              onClick={() => { }}
             >
               Save
             </Button>
