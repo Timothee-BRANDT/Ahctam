@@ -140,6 +140,7 @@ def create_pictures_table(cursor):
             is_profile_picture BOOLEAN DEFAULT FALSE,
             owner INTEGER NOT NULL,
             FOREIGN KEY (owner) REFERENCES users(id) ON DELETE CASCADE
+            CONSTRAINT unique_profile_picture UNIQUE(owner, is_profile_picture)
         );
     """)
 
@@ -183,7 +184,7 @@ def create_locations_table(cursor):
             latitude DECIMAL(9, 6) NOT NULL,
             city VARCHAR(100),
             address VARCHAR(100),
-            located_user INTEGER NOT NULL,
+            located_user INTEGER UNIQUE NOT NULL,
             FOREIGN KEY (located_user) REFERENCES users(id) ON DELETE CASCADE
         );
     """)
@@ -239,6 +240,7 @@ def create_user_interests_table(cursor):
             PRIMARY KEY (user_id, interest_id),
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
             FOREIGN KEY (interest_id) REFERENCES interests(id)
+            CONSTRAINT unique_user_interest UNIQUE(user_id, interest_id)
         );
     """)
 
