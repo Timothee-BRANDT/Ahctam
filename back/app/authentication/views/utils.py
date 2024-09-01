@@ -6,7 +6,7 @@ from flask import (
 )
 import psycopg2
 from logger import logger
-from typing import List, Dict
+from typing import List, Dict, Tuple
 from flask_mail import Message
 from itsdangerous import URLSafeTimedSerializer
 import requests
@@ -112,17 +112,19 @@ ON CONFLICT DO NOTHING
         location: List = form.location.data
         latitude: float = location[0]
         longitude: float = location[1]
+        address: str = ''
         town: str
         if latitude != 0 and longitude != 0:
             logger.info('Using location provided by user')
-            town = _get_location_from_coordinates(latitude, longitude)
+            town, address = _get_location_from_coordinates(latitude, longitude)
         else:
             logger.info('No location provided, getting location from ip')
             longitude, latitude, town = _get_location_from_ip(user_ip)
+            address = town
 
         location_query = """
 INSERT INTO locations \
-(city, latitude, longitude, located_user) \
+(city, latitude, longitude, address, located_user) \
 VALUES (%s, %s, %s, %s)
 """
         cur.execute(
@@ -131,6 +133,7 @@ VALUES (%s, %s, %s, %s)
                 town,
                 latitude,
                 longitude,
+                address,
                 user_id
             )
         )
@@ -232,17 +235,24 @@ VALUES (%s, %s, %s, %s, %s)
         conn.close()
 
 
-def _get_location_from_coordinates(latitude, longitude):
+def _get_location_from_coordinates(
+    latitude: float,
+    longitude: float
+) -> Tuple[str, str]:
     try:
-        logger.info(f"{current_app.config['OPENCAGE_API_KEY']=}")
         response = requests.get(
-            f'https://api.opencagedata.com/geocode/v1/json?q={latitude}+{longitude}&key={current_app.config["OPENCAGE_API_KEY"]}')
-        print(response.json())
-        if response.status_code == 200:
-            town = response.json()['results'][0]['components']['city']
-            return town
-        else:
+            f'https://api.opencagedata.com/geocode/v1/json\
+            ?q={latitude}+{longitude}\
+            &key={current_app.config["OPENCAGE_API_KEY"]}'
+        )
+        if response.status_code != 200:
             raise ValueError('Error while getting location from coordinates')
+
+        components: Dict = response.json()['results'][0]['components']
+        town = components.get('city', 'Unknown city')
+        address = components.get('formatted', 'Unknown address')
+        return town, address
+
     except Exception as e:
         logger.error(f'{e}')
         raise ValueError(e)
@@ -251,14 +261,13 @@ def _get_location_from_coordinates(latitude, longitude):
 def _get_location_from_ip(user_ip):
     try:
         response = requests.get(f'http://ipinfo.io/{user_ip}/json')
-        if response.status_code == 200:
-            logger.info(f'{response.json()}')
-            longitude, latitude = response.json()['loc'].split(',')
-            town = response.json()['city']
-            logger.info(f'Location from ip: {longitude}, {latitude}, {town}')
-            return longitude, latitude, town
-        else:
+        if response.status_code != 200:
             raise ValueError('Error while getting location from ip')
+        else:
+            data: Dict = response.json()
+            longitude, latitude = data['loc'].split(',')
+            town = data.get('city', 'Unknown city')
+            return longitude, latitude, town
     except Exception as e:
         logger.error(f'{e}')
         raise ValueError(e)

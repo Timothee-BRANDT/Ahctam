@@ -83,16 +83,6 @@ const ProfilePage: React.FC = () => {
     if (response.ok) {
       console.log("we set the user");
       setUser(data_response);
-      if (data_response.message !== "First login") {
-        const updatedInterests = initializeInterests(
-          initInterests,
-          data_response.interests,
-        );
-        console.log("we set interests");
-        setAllInterests(updatedInterests);
-      } else {
-        console.log("No informations yet");
-      }
     }
   };
 
@@ -112,33 +102,13 @@ const ProfilePage: React.FC = () => {
         }
       }
 
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          async (pos) => {
-            const array = [pos.coords.latitude, pos.coords.longitude];
-            localisationjpp = array;
-          },
-          (e) => {
-            console.log("Geolocation error");
-            if (user.address === "") {
-              setUser((prevUser) => ({
-                ...prevUser,
-                address: "Location not provided",
-                localisation: [0, 0],
-                town: "Location not provided",
-              }));
-            }
-          },
-        );
-      }
-
       setIsLoggedIn(isJwtInCookie());
     };
 
     if (!hasFetchedProfile.current) {
       fetchProfileAndLocation();
     }
-  }, []);
+  }, [isJwtInCookie]);
 
   function capitalizeFirstLetter(value: string) {
     return value.charAt(0).toUpperCase() + value.slice(1);
@@ -472,11 +442,10 @@ const ProfilePage: React.FC = () => {
                       />
                       {!photo && (
                         <div
-                          className={`upload-text ${
-                            index === 0
+                          className={`upload-text ${index === 0
                               ? `${CLASSNAME}__profile-picture-uploader`
                               : ""
-                          }`}
+                            }`}
                         >
                           {index === 0
                             ? "Upload a profile picture"
@@ -488,7 +457,7 @@ const ProfilePage: React.FC = () => {
                 </div>
               </div>
             </div>
-            <Button className="button-info" type="submit" onClick={() => {}}>
+            <Button className="button-info" type="submit" onClick={() => { }}>
               Save
             </Button>
           </form>
