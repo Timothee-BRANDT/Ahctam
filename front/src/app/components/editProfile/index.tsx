@@ -63,9 +63,8 @@ const ProfilePage: React.FC = () => {
     filledPhotos.push("");
   }
 
-  // [MOCK]
   const [allInterests, setAllInterests] = useState<Record<string, boolean>>(
-    initializeInterests(initInterests, []),
+    initializeInterests(initInterests, user.interests),
   );
 
   const getProfile = async () => {
@@ -83,6 +82,7 @@ const ProfilePage: React.FC = () => {
     if (response.ok) {
       console.log("we set the user");
       setUser(data_response);
+      setAllInterests(initializeInterests(initInterests, user.interests));
     }
   };
 
@@ -92,6 +92,7 @@ const ProfilePage: React.FC = () => {
 
   useEffect(() => {
     console.log("editProfile useEffect is called");
+    setAllInterests(initializeInterests(initInterests, user.interests));
     const fetchProfileAndLocation = async () => {
       if (!isJwtInCookie()) {
         redirectLogin();
@@ -101,7 +102,6 @@ const ProfilePage: React.FC = () => {
           hasFetchedProfile.current = true;
         }
       }
-
       setIsLoggedIn(isJwtInCookie());
     };
 

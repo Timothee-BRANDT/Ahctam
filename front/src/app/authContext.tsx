@@ -49,11 +49,11 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType>({
   user: initialPig,
-  login: (token: string) => {},
-  logout: () => {},
-  setUser: () => {},
-  setCookie: (name: string, value: string, days?: number) => {},
-  deleteCookie: (name: string) => {},
+  login: (token: string) => { },
+  logout: () => { },
+  setUser: () => { },
+  setCookie: (name: string, value: string, days?: number) => { },
+  deleteCookie: (name: string) => { },
   getCookie: (name: string) => "",
   isJwtInCookie: () => false,
 });
@@ -93,8 +93,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               ...initialPig,
               ...data_response,
             });
-            // NOTE: Replace with first-login here ?
-            // not even sure it's needed
             if (!data_response.gender) {
               router.push("/first-login");
             }
