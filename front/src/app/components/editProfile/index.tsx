@@ -79,7 +79,7 @@ const ProfilePage: React.FC = () => {
       },
     });
     const data_response = await response.json();
-    console.log(data_response);
+    console.log("data from getUserInfo:", data_response);
     if (response.ok) {
       console.log("we set the user");
       setUser(data_response);

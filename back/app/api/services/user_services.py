@@ -57,11 +57,12 @@ WHERE owner = %s
         result = cur.fetchone()
         user_info: Dict = dict(result)
         user_info['firstTimeLogged'] = False
+        logger.info(f'User info: {result}')
 
         # Location
         cur.execute(location_query, (user_id,))
         result = cur.fetchone()
-        print(result)
+        logger.info(f'Location info: {result}')
         location_info: Dict = dict(result)
         user_info['location_list'] = [float(location_info['latitude']),
                                       float(location_info['longitude'])]
@@ -76,16 +77,19 @@ WHERE owner = %s
             interest = cur.fetchone()
             interests.append(interest['name'])
         user_info['interests'] = interests
+        logger.info(f'Interests: {interests}')
 
         # Pictures
         cur.execute(all_pictures_query, (user_id,))
         all_pictures = cur.fetchall()
         user_info['photos'] = [picture['url'] for picture in all_pictures]
+        logger.info(f'Pictures: {user_info["photos"][0][:10]}')
 
         flattened_response = {**user_info}
         flattened_response['latitude'] = user_info['location_list'][0]
         flattened_response['longitude'] = user_info['location_list'][1]
         del flattened_response['location_list']
+        return flattened_response, 200
 
     except Exception as e:
         logger.error(f'Error while getting user info: {str(e)}')
@@ -93,8 +97,6 @@ WHERE owner = %s
     finally:
         cur.close()
         conn.close()
-
-    return flattened_response, 200
 
 
 def get_users_who_like_user(user_id: int):

@@ -125,7 +125,7 @@ ON CONFLICT DO NOTHING
         location_query = """
 INSERT INTO locations \
 (city, latitude, longitude, address, located_user) \
-VALUES (%s, %s, %s, %s)
+VALUES (%s, %s, %s, %s, %s)
 """
         cur.execute(
             location_query,
@@ -241,16 +241,15 @@ def _get_location_from_coordinates(
 ) -> Tuple[str, str]:
     try:
         response = requests.get(
-            f'https://api.opencagedata.com/geocode/v1/json\
-            ?q={latitude}+{longitude}\
-            &key={current_app.config["OPENCAGE_API_KEY"]}'
+            f'https://api.opencagedata.com/geocode/v1/json?q={latitude}+{longitude}&key={current_app.config["OPENCAGE_API_KEY"]}'
         )
         if response.status_code != 200:
             raise ValueError('Error while getting location from coordinates')
 
         components: Dict = response.json()['results'][0]['components']
+        address_json: Dict = response.json()['results'][0]['formatted']
         town = components.get('city', 'Unknown city')
-        address = components.get('formatted', 'Unknown address')
+        address = address_json.get('formatted', 'Unknown address')
         return town, address
 
     except Exception as e:
@@ -258,16 +257,16 @@ def _get_location_from_coordinates(
         raise ValueError(e)
 
 
-def _get_location_from_ip(user_ip):
+def _get_location_from_ip(user_ip: str) -> Tuple[float, float, str]:
     try:
         response = requests.get(f'http://ipinfo.io/{user_ip}/json')
         if response.status_code != 200:
             raise ValueError('Error while getting location from ip')
-        else:
-            data: Dict = response.json()
-            longitude, latitude = data['loc'].split(',')
-            town = data.get('city', 'Unknown city')
-            return longitude, latitude, town
+
+        data: Dict = response.json()
+        longitude, latitude = data['loc'].split(',')
+        town = data.get('city', 'Unknown city')
+        return float(longitude), float(latitude), town
     except Exception as e:
         logger.error(f'{e}')
         raise ValueError(e)
