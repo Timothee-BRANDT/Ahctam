@@ -2,7 +2,6 @@ from typing import Dict
 from .. import auth
 from ..forms import (
     LoginForm,
-    ProfileForm,
     FirstLoginForm,
 )
 from logger import logger
@@ -17,7 +16,6 @@ from datetime import datetime, timedelta
 from ...database import get_db_connection
 from .decorators import jwt_required
 from .utils import (
-    update_profile_informations,
     store_first_login_informations,
 )
 
@@ -83,19 +81,21 @@ WHERE id = %s
         """
         cur.execute(update_last_connexion_query, (datetime.utcnow(), user_id))
         conn.commit()
+
+        return jsonify({
+            'message': 'Login successful',
+            'jwt_token': jwt_token,
+            'refresh_token': refresh_token,
+            'user_id': user_id
+        }), 200
     finally:
         cur.close()
         conn.close()
-    return jsonify({
-        'message': 'Login successful',
-        'jwt_token': jwt_token,
-        'refresh_token': refresh_token,
-        'user_id': user_id
-    }), 200
 
 
 @auth.route('/first-login', methods=['POST'])
 def first_login():
+    # NOTE: Test with jwt_required
     logger.info(request.headers)
     connector = get_db_connection()
     cursor = connector.cursor(cursor_factory=DictCursor)
@@ -129,27 +129,6 @@ def first_login():
     finally:
         cursor.close()
         connector.close()
-
-
-@auth.route('/update-profile', methods=['POST'])
-def update_profile():
-    conn = get_db_connection()
-    cur = conn.cursor()
-    try:
-        data = request.get_json()
-        profile = data.get('payload', {})
-        user_id = profile.get('id')
-        form = ProfileForm(data=profile)
-        form.validate()
-
-        update_profile_informations(conn, cur, form, user_id)
-        return jsonify({'message': 'First login successful'}), 200
-
-    except Exception as e:
-        return jsonify({'error': str(e)}), 400
-    finally:
-        cur.close()
-        conn.close()
 
 
 @auth.route('/logout', methods=['POST'])
