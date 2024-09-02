@@ -6,11 +6,14 @@ import { serverIP } from "@/app/constants";
 import { useAuth } from "@/app/authContext";
 import { initializeSocket } from "@/app/sockets";
 import { ProfileInformations } from "@/app/types";
+import AddressAutocomplete from "@/app/components/locationAutocomplete/locationAutocomplete";
 import { usePathname, useRouter } from "next/navigation";
 import data from "../../api.json";
 
 const CLASSNAME = "profile";
 const MAX_PHOTOS = 6;
+const BAN_URL =
+  "https://api-adresse.data.gouv.fr/search/?q=<recherche>&autocomplete=1";
 
 var localisationjpp: number[] = [];
 var townjpp: string = "";
@@ -146,15 +149,21 @@ const ProfilePage: React.FC = () => {
       .catch((error) => console.log("error", error));
   };
 
-  const handleUserChange = (e: any) => {
-    console.log("handleUserChange is called");
+  const handleUserChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
+  ) => {
     const { name, value } = e.target;
-    if (name && value !== undefined) {
-      setUser({
-        ...user,
-        [name]: value,
-      });
-    }
+    setUser({
+      ...user,
+      [name]: value,
+    });
+  };
+
+  const handleAddressChange = (address: string) => {
+    setUser({
+      ...user,
+      address: address,
+    });
   };
 
   const handleImageChange = (index: any, e: any) => {
@@ -289,14 +298,9 @@ const ProfilePage: React.FC = () => {
                 </div>
                 <div className={`${CLASSNAME}__info-container`}>
                   <p className={`${CLASSNAME}__title`}>Location</p>
-                  <input
-                    className={`${CLASSNAME}__update-input`}
-                    type="address"
-                    name="address"
+                  <AddressAutocomplete
                     value={user.address}
-                    onChange={handleUserChange}
-                    required
-                    autoComplete="new-password"
+                    onChange={handleAddressChange}
                   />
                 </div>
                 <div className={`${CLASSNAME}__info-container`}>
@@ -442,10 +446,11 @@ const ProfilePage: React.FC = () => {
                       />
                       {!photo && (
                         <div
-                          className={`upload-text ${index === 0
+                          className={`upload-text ${
+                            index === 0
                               ? `${CLASSNAME}__profile-picture-uploader`
                               : ""
-                            }`}
+                          }`}
                         >
                           {index === 0
                             ? "Upload a profile picture"
@@ -457,7 +462,7 @@ const ProfilePage: React.FC = () => {
                 </div>
               </div>
             </div>
-            <Button className="button-info" type="submit" onClick={() => { }}>
+            <Button className="button-info" type="submit" onClick={() => {}}>
               Save
             </Button>
           </form>

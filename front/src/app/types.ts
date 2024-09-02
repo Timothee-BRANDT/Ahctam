@@ -50,3 +50,17 @@ export interface FirstLoginInformations {
     photos: string[];
     location: number[];
 }
+
+export interface AddressProperties {
+    id: string;
+    label: string;
+}
+
+export interface AddressSuggestion {
+    properties: AddressProperties;
+}
+
+export interface AddressAutocompleteProps {
+    value: string;
+    onChange: (value: string) => void;
+}

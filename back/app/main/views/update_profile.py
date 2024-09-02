@@ -114,11 +114,29 @@ VALUES (%s, %s)
                 cur.execute(interest_query, (user_id, interest))
 
         # Location
-        # TODO: Parse the way it's handled front side
+        latitude: float = float(form.latitude.data)
+        longitude: float = float(form.longitude.data)
+        town: str = form.city.data
+        address: str = form.address.data
         location_query = """
-INSERT INTO locations \
-(city, latitude, longitude, address, located_user)
-VALUES (%s, %s, %s, %s, %s)
+UPDATE locations
+SET town = %s, latitude = %s, longitude = %s, address = %s
+WHERE user_id = %s
+        """
+        cur.execute(location_query, (
+            town,
+            latitude,
+            longitude,
+            address,
+            user_id
+        ))
+
+        conn.commit()
+        logger.info(f'Profile informations updated for user {user_id}')
+
+        # location_query = """
+VALUES ( % s, % s, % s, % s, % s)
+WHERE user_id = %s
         """
         # cur.execute(location_query, (
         #     town,

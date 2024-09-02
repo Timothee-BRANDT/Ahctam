@@ -83,7 +83,7 @@ WHERE owner = %s
         cur.execute(all_pictures_query, (user_id,))
         all_pictures = cur.fetchall()
         user_info['photos'] = [picture['url'] for picture in all_pictures]
-        logger.info(f'Pictures: {user_info["photos"][0][:10]}')
+        logger.info(f'Pictures: {user_info["photos"][0][:20]}')
 
         flattened_response = {**user_info}
         flattened_response['latitude'] = user_info['location_list'][0]
