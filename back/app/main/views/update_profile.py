@@ -3,6 +3,7 @@ from ..forms import (
     ProfileForm,
 )
 from typing import Dict, List, Tuple
+from geopy.geocoders import Nominatim
 from logger import logger
 from flask import (
     current_app,
@@ -114,10 +115,8 @@ VALUES (%s, %s)
                 cur.execute(interest_query, (user_id, interest))
 
         # Location
-        latitude: float = float(form.latitude.data)
-        longitude: float = float(form.longitude.data)
-        town: str = form.city.data
         address: str = form.address.data
+        latitude, longitude, town = _get_location_from_address(address)
         location_query = """
 UPDATE locations
 SET town = %s, latitude = %s, longitude = %s, address = %s
@@ -135,9 +134,9 @@ WHERE user_id = %s
         logger.info(f'Profile informations updated for user {user_id}')
 
         # location_query = """
-VALUES ( % s, % s, % s, % s, % s)
-WHERE user_id = %s
-        """
+# VALUES ( % s, % s, % s, % s, % s)
+# WHERE user_id = %s
+#         """
         # cur.execute(location_query, (
         #     town,
         #     float(latitude),
@@ -153,3 +152,30 @@ WHERE user_id = %s
     finally:
         cur.close()
         conn.close()
+
+
+def _get_location_from_address(address: str) -> Tuple[float, float, str]:
+    """
+    Geolocation from IP
+    """
+    try:
+        geolocator = Nominatim(user_agent="geoapiExercises")
+        location = geolocator.geocode(address)
+
+        if location:
+            latitude = location.latitude
+            longitude = location.longitude
+            city = location.raw.get('address', {}).get('city', None)
+            if not city:
+                city = location.raw.get('address', {}).get('town', None)
+            if not city:
+                location.raw.get('address', {}).get('village', None)
+            if not city:
+                city = address.split(' ')[-1]
+            return (latitude, longitude, city)
+        else:
+            raise ValueError("Adresse introuvable.")
+
+    except Exception as e:
+        logger.error(f'Error while getting coordinates from address: {e}')
+        raise ValueError(e)

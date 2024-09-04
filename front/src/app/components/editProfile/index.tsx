@@ -201,9 +201,7 @@ const ProfilePage: React.FC = () => {
       biography: user.biography,
       interests: user.interests,
       photos: user.photos,
-      location: localisationjpp,
       address: user.address,
-      town: townjpp,
     };
     console.log("payload we send:", payload);
     if (!payload.sexual_preferences) {
