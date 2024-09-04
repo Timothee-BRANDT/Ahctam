@@ -19,10 +19,10 @@ var localisationjpp: number[] = [];
 var townjpp: string = "";
 
 const ProfilePage: React.FC = () => {
+  const router = useRouter();
   const { user, setUser, isJwtInCookie, getCookie } = useAuth();
   const hasFetchedProfile = useRef(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const router = useRouter();
 
   const initInterests: Record<string, boolean> = {
     Tunnels: false,
@@ -94,7 +94,7 @@ const ProfilePage: React.FC = () => {
   };
 
   useEffect(() => {
-    console.log("editProfile useEffect is called");
+    console.log("updateProfile useEffect is called");
     setAllInterests(initializeInterests(initInterests, user.interests));
     const fetchProfileAndLocation = async () => {
       if (!isJwtInCookie()) {
@@ -160,6 +160,7 @@ const ProfilePage: React.FC = () => {
   };
 
   const handleAddressChange = (address: string) => {
+    console.log("handleAddressChange is called");
     setUser({
       ...user,
       address: address,
@@ -446,11 +447,10 @@ const ProfilePage: React.FC = () => {
                       />
                       {!photo && (
                         <div
-                          className={`upload-text ${
-                            index === 0
+                          className={`upload-text ${index === 0
                               ? `${CLASSNAME}__profile-picture-uploader`
                               : ""
-                          }`}
+                            }`}
                         >
                           {index === 0
                             ? "Upload a profile picture"
@@ -462,7 +462,7 @@ const ProfilePage: React.FC = () => {
                 </div>
               </div>
             </div>
-            <Button className="button-info" type="submit" onClick={() => {}}>
+            <Button className="button-info" type="submit" onClick={() => { }}>
               Save
             </Button>
           </form>

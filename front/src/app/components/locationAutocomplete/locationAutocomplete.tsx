@@ -1,7 +1,6 @@
 import React, { useState, useEffect, ChangeEvent, useCallback } from "react";
 // import "./locationAutocomplete.css";
 import { AddressSuggestion, AddressAutocompleteProps } from "@/app/types";
-import debounce from "lodash.debounce";
 
 const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
   value,
@@ -10,31 +9,24 @@ const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
   const [query, setQuery] = useState<string>(value || "");
   const [suggestions, setSuggestions] = useState<AddressSuggestion[]>([]);
 
-  const fetchSuggestions = useCallback(
-    debounce(async (value: string) => {
-      if (value.length > 2) {
-        try {
-          const response = await fetch(
-            `https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(value)}&autocomplete=1`,
-          );
-          if (!response.ok) {
-            throw new Error(`HTTP error! status: ${response.status}`);
-          }
-          const data = await response.json();
-          setSuggestions(data.features);
-        } catch (error) {
-          console.error("Failed to fetch address suggestions:", error);
-        }
-      } else {
-        setSuggestions([]);
-      }
-    }, 300),
-    [],
-  );
-
   useEffect(() => {
-    fetchSuggestions(query.trim());
-  }, [query, fetchSuggestions]);
+    setQuery(value);
+  }, [value]);
+
+  const handleInputChange = async (e: ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setQuery(value);
+
+    if (value.length > 3) {
+      const response = await fetch(
+        `https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(value)}&autocomplete=1`,
+      );
+      const data = await response.json();
+      setSuggestions(data.features);
+    } else {
+      setSuggestions([]);
+    }
+  };
 
   const handleSelectSuggestion = (suggestion: AddressSuggestion) => {
     setQuery(suggestion.properties.label);
@@ -47,8 +39,8 @@ const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
       <input
         type="text"
         value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        placeholder="Enter an address"
+        onChange={handleInputChange}
+        placeholder="Entrez une adresse"
       />
       {suggestions.length > 0 && (
         <ul>

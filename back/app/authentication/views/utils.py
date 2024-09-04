@@ -1,3 +1,4 @@
+import re
 from flask import (
     current_app,
     url_for,
@@ -118,6 +119,7 @@ ON CONFLICT DO NOTHING
             logger.info('Using location provided by user')
             town, address = _get_location_from_coordinates(latitude, longitude)
         else:
+            # NOTE: Implement it after nginx is set up
             logger.info('No location provided, getting location from ip')
             longitude, latitude, town = _get_location_from_ip(user_ip)
             address = town
@@ -159,7 +161,9 @@ def _get_location_from_coordinates(
         address_json: Dict = response.json()['results'][0]['formatted']
         town = components.get('city', 'Unknown city')
         address = address_json.get('formatted', 'Unknown address')
-        return town, address
+        address_without_number = re.sub(r'^\d+\s+', '', address)
+        logger.info(f'{address_without_number=}')
+        return town, address_without_number
 
     except Exception as e:
         logger.error(f'{e}')

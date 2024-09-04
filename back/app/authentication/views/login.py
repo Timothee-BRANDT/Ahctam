@@ -95,7 +95,7 @@ WHERE id = %s
 
 @auth.route('/first-login', methods=['POST'])
 def first_login():
-    # NOTE: Test with jwt_required
+    # NOTE:  Put jwt_required
     logger.info(request.headers)
     connector = get_db_connection()
     cursor = connector.cursor(cursor_factory=DictCursor)
