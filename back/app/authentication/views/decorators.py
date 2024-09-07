@@ -14,7 +14,6 @@ def jwt_required(f):
         if not token_bearer:
             return jsonify({'error': 'Token is missing'}), 400
         token = token_bearer.split(' ')[1]
-        print(token)
         try:
             jwt.decode(
                 token,

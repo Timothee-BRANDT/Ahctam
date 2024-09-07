@@ -1,17 +1,14 @@
 from .. import main
-from ..forms import (
-    ProfileForm,
-)
 from typing import Dict, List, Tuple
 from geopy.geocoders import Nominatim
 from logger import logger
 from flask import (
-    current_app,
     request,
     jsonify,
 )
 from ...database import get_db_connection
-from .decorators import jwt_required
+from app.authentication.forms import ProfileForm
+from app.authentication.views.decorators import jwt_required
 from psycopg2.extras import RealDictCursor
 
 
@@ -36,7 +33,7 @@ def update_profile():
         return jsonify({'error': str(e)}), 400
 
 
-def _update_profile_informations(conn, cur, form, user_id):
+def _update_profile_informations(form, user_id):
     conn = get_db_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
     try:
@@ -115,7 +112,39 @@ VALUES (%s, %s)
                 cur.execute(interest_query, (user_id, interest))
 
         # Location
-        address: str = form.address.data
+        new_address: str = form.address.data
+        old_address_query = """
+SELECT address
+FROM locations
+WHERE user_id = %s
+        """
+        cur.execute(old_address_query, (user_id,))
+        old_address = cur.fetchone()['address']
+        if old_address != new_address:
+            _update_location_informations(
+                cur,
+                new_address,
+                user_id
+            )
+
+        conn.commit()
+        logger.info(f'Profile informations updated for user {user_id}')
+
+    except Exception as e:
+        logger.error(f'Error while storing profile informations: {e}')
+        conn.rollback()
+        raise ValueError(e)
+    finally:
+        cur.close()
+        conn.close()
+
+
+def _update_location_informations(
+        cur,
+        address: str,
+        user_id: int
+):
+    try:
         latitude, longitude, town = _get_location_from_address(address)
         location_query = """
 UPDATE locations
@@ -130,28 +159,9 @@ WHERE user_id = %s
             user_id
         ))
 
-        conn.commit()
-        logger.info(f'Profile informations updated for user {user_id}')
-
-        # location_query = """
-# VALUES ( % s, % s, % s, % s, % s)
-# WHERE user_id = %s
-#         """
-        # cur.execute(location_query, (
-        #     town,
-        #     float(latitude),
-        #     float(longitude),
-        #     form.address.data,
-        #     user_id)
-        # )
-        # conn.commit()
-
     except Exception as e:
-        logger.error(f'Error while storing profile informations: {e}')
+        logger.error(f'Error while updating location informations: {e}')
         raise ValueError(e)
-    finally:
-        cur.close()
-        conn.close()
 
 
 def _get_location_from_address(address: str) -> Tuple[float, float, str]:

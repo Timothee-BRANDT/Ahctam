@@ -158,9 +158,11 @@ def _get_location_from_coordinates(
             raise ValueError('Error while getting location from coordinates')
 
         components: Dict = response.json()['results'][0]['components']
-        address_json: Dict = response.json()['results'][0]['formatted']
-        town = components.get('city', 'Unknown city')
-        address = address_json.get('formatted', 'Unknown address')
+        logger.info(f'{components=}')
+        address: str = response.json()['results'][0]['formatted']
+        logger.info(f'{address=}')
+        town: str = components.get('city', 'Unknown city')
+        logger.info(f'{town=}')
         address_without_number = re.sub(r'^\d+\s+', '', address)
         logger.info(f'{address_without_number=}')
         return town, address_without_number

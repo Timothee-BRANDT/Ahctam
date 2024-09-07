@@ -207,19 +207,19 @@ const ProfilePage: React.FC = () => {
     if (!payload.sexual_preferences) {
       payload.sexual_preferences = "both";
     }
-    const response = await fetch(
-      `http://${serverIP}:5000/auth/update-profile`,
-      {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          payload,
-        }),
+    const cookie = getCookie("jwt_token");
+    console.log("cookie", cookie);
+    const response = await fetch(`http://${serverIP}:5000/update-profile`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${cookie}`,
       },
-    );
+      body: JSON.stringify({
+        payload,
+      }),
+    });
     if (response.ok) {
       const token = getCookie("jwt_token");
       const socket = initializeSocket(token);

@@ -26,21 +26,21 @@ def create_app(test_config=False, production=False):
     else:
         app.config.from_object(DevelopmentConfig)
 
-    app.register_blueprint(main_blueprint)
+    app.register_blueprint(main_blueprint, url_prefix='/')
     app.register_blueprint(auth_blueprint, url_prefix='/auth')
     app.register_blueprint(api_blueprint, url_prefix='/api')
 
     CORS(
         app,
+        supports_credentials=True,
         allow_credentials=True,
         resources={
             r"/*": {
                 "origins": [
                     "http://localhost:3000",
-                    "https://c892-37-166-33-120.ngrok-free.app"
                 ]
             }
-        }
+        },
     )
     Mail(app)
     redis_client = FlaskRedis(app)

@@ -123,7 +123,7 @@ const RegisterForm: React.FC = () => {
               autoComplete="new-password"
             />
           </div>
-          <Button type="submit" onClick={() => {}}>
+          <Button type="submit" onClick={() => { }}>
             Register
           </Button>
           <div className="new_member">
