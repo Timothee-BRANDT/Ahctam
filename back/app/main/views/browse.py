@@ -1,11 +1,14 @@
 from flask import (
     request,
+    jsonify,
     current_app,
 )
+from typing import Dict
 import jwt
 from app.main import main
 from app.authentication.views.decorators import jwt_required
 from app.main.services.browse_search_service import perform_browsing
+from logger import logger
 
 
 @main.route('/browse', methods=['GET'])
@@ -24,12 +27,17 @@ def browse():
     distance: int = request.args.get('distance')
     common_interests: int = request.args.get('tags')
     offset: int = int(request.args.get('offset', 0))
-    limit: int = int(request.args.get('limit', 10))
+    logger.info(f'Offset: {offset}')
+    limit: int = int(request.args.get('limit', 9))
+    logger.info(f'Limit: {limit}')
+    return jsonify({'message': 'Hello'}), 300
     # NOTE: location, address, town // interests // photos // is_connected
     token = request.headers.get('Authorization').split(' ')[1]
     user = jwt.decode(
         token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
     user_id = user['id']
+    response: Dict
+    status_code: int
     response, status_code = perform_browsing(
         user_id,
         age,

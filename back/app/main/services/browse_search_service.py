@@ -118,13 +118,14 @@ def apply_filters(
 
 
 def perform_browsing(
-        user_id: int,
-        age: int = None,
-        fame: int = None,
-        distance: int = None,
-        common_interests: int = None,
-        offset: int = 0,
-        limit: int = 10):
+    user_id: int,
+    age: int = None,
+    fame: int = None,
+    distance: int = None,
+    common_interests: int = None,
+    offset: int = 0,
+    limit: int = 10
+):
     """
     Actually it will compute the algorithm every time a user wants to browse
     After talking with collegues, it's the backend job
