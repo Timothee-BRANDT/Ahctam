@@ -22,6 +22,7 @@ def update_profile():
         form = ProfileForm(data=profile)
         form.validate()
 
+        logger.info(f'Updating profile for user {user_id}')
         _update_profile_informations(
             form,
             user_id
@@ -51,7 +52,7 @@ WHERE id = %s
         cur.execute(user_query, (
             int(form.age.data),
             form.gender.data,
-            form.sexualPreference.data,
+            form.sexual_preferences.data,
             form.biography.data,
             form.firstname.data,
             form.lastname.data,
@@ -80,16 +81,20 @@ WHERE url = %s AND owner = %s
         for photo in photos:
             cur.execute(new_pictures_query, (photo, user_id))
         cur.execute(profile_picture_query, (photos[0], user_id))
+        logger.info(f'Pictures updated for user {user_id}')
 
         # Interests
         actual_user_interests_query = """
 SELECT i.id, i.name
-FROM user_interests ui
-JOIN interests i ON ui.interest_id = i.id
-WHERE user_id = %s
+FROM interests i
+JOIN user_interests ui ON ui.interest_id = i.id
+WHERE ui.user_id = %s
         """
-        result = cur.execute(actual_user_interests_query, (user_id,))
-        actual_user_interests_id_and_names: Dict = dict(result)
+        cur.execute(actual_user_interests_query, (user_id,))
+        result = cur.fetchall()
+        actual_user_interests_id_and_names: Dict = {
+            interest['id']: interest['name'] for interest in result
+        }
         logger.info(
             f'Actual user interests: {actual_user_interests_id_and_names}')
         new_user_interests: List[str] = form.interests.data
@@ -104,28 +109,33 @@ WHERE user_id = %s AND interest_id = %s
                 cur.execute(delete_interest_query, (user_id, id))
 
         for interest in new_user_interests:
-            if interest.lower() not in actual_user_interests_id_and_names.values().lower():
+            if interest not in actual_user_interests_id_and_names.values():
                 interest_query = """
 INSERT INTO user_interests (user_id, interest_id)
-VALUES (%s, %s)
-                """
+VALUES (%s, (SELECT id FROM interests WHERE name = %s))
+            """
                 cur.execute(interest_query, (user_id, interest))
+
+        logger.info(f'Interests updated for user {user_id}')
 
         # Location
         new_address: str = form.address.data
         old_address_query = """
 SELECT address
 FROM locations
-WHERE user_id = %s
+WHERE located_user = %s
         """
         cur.execute(old_address_query, (user_id,))
         old_address = cur.fetchone()['address']
         if old_address != new_address:
+            logger.info("Address changed, updating")
             _update_location_informations(
                 cur,
                 new_address,
                 user_id
             )
+        else:
+            logger.info("Address didn't change")
 
         conn.commit()
         logger.info(f'Profile informations updated for user {user_id}')

@@ -3,6 +3,7 @@ from flask_wtf import FlaskForm
 from wtforms import (
     Form,
     StringField,
+    IntegerField,
     FloatField,
     FieldList,
     SubmitField,
@@ -204,12 +205,12 @@ one digit and one special character
 
 
 class ProfileForm(Form):
-    age = StringField('Age')
+    age = IntegerField('Age')
     firstname = StringField('First Name')
     lastname = StringField('Last Name')
     email = EmailField('Email')
     gender = StringField('Gender')
-    sexualPreference = StringField('Sexual Preferences')
+    sexual_preferences = StringField('Sexual Preferences')
     biography = TextAreaField('Biography')
     photos = FieldList(StringField('Pictures'))
     interests = FieldList(StringField('Interests'))
@@ -221,8 +222,6 @@ class ProfileForm(Form):
     def validate_age(self, field):
         if not field.data:
             raise ValueError('Please provide your age')
-        if not field.data.isdigit():
-            raise ValueError('Age must be a number')
         if int(field.data) < 18:
             raise ValueError('You must be at least 18 years old')
 
