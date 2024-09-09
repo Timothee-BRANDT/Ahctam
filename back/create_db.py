@@ -3,6 +3,8 @@ from psycopg2 import sql
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from werkzeug.security import generate_password_hash
 import os
+import requests
+import base64
 import random
 import string
 from faker import Faker
@@ -139,7 +141,7 @@ def create_pictures_table(cursor):
             url VARCHAR NOT NULL,
             is_profile_picture BOOLEAN DEFAULT FALSE,
             owner INTEGER NOT NULL,
-            FOREIGN KEY (owner) REFERENCES users(id) ON DELETE CASCADE
+            FOREIGN KEY (owner) REFERENCES users(id) ON DELETE CASCADE,
             CONSTRAINT unique_profile_picture UNIQUE(owner, is_profile_picture)
         );
     """)
@@ -239,7 +241,7 @@ def create_user_interests_table(cursor):
             interest_id INTEGER NOT NULL,
             PRIMARY KEY (user_id, interest_id),
             FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
-            FOREIGN KEY (interest_id) REFERENCES interests(id)
+            FOREIGN KEY (interest_id) REFERENCES interests(id),
             CONSTRAINT unique_user_interest UNIQUE(user_id, interest_id)
         );
     """)
@@ -276,9 +278,19 @@ VALUES (%s)
         raise ValueError(e)
 
 
-def generate_random_image_string(len=1000):
-    letters = string.ascii_letters + string.digits
-    return ''.join(random.choice(letters) for i in range(len))
+def generate_random_image_string():
+    try:
+        response = requests.get("https://picsum.photos/200", stream=True)
+        if response.status_code != 200:
+            raise Exception("Error fetching image from picsum.photos")
+
+        image_data = base64.b64encode(response.content).decode('utf-8')
+        image_string = f"data:image/png;base64,{image_data}"
+        return image_string
+
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        return None
 
 
 def insert_random_users(cursor, num_users=100):
@@ -316,6 +328,8 @@ RETURNING id
 
         # Picture
         image = generate_random_image_string()
+        if image is None:
+            continue
         cursor.execute("""
 INSERT INTO pictures (url, is_profile_picture, owner)
 VALUES (%s, %s, %s)
