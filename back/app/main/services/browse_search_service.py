@@ -1,3 +1,4 @@
+from logger import logger
 from typing import (
     Dict,
     List,
@@ -50,9 +51,9 @@ def get_matching_users(user_data, cursor, offset, limit):
                     user_data['sexual_preferences'])
 
     location_query = """
-    SELECT l.latitude,
-           l.longitude,
-           l.city,
+    SELECT l.latitude AS latitude,
+           l.longitude AS longitude,
+           l.city AS city,
            STRING_AGG(i.name, ', ') AS interests
     FROM locations l
     LEFT JOIN user_interests ui ON ui.user_id = l.located_user
@@ -78,8 +79,9 @@ def get_matching_users(user_data, cursor, offset, limit):
             print('user_name', matching_user['firstname'])
             print('matching_score', matching_user['matching_score'])
 
-        matching_users: list = sorted(
+        matching_users: List = sorted(
             matching_users, key=lambda x: x['matching_score'], reverse=True)
+
     except Exception as e:
         raise Exception(str(e))
 
@@ -118,13 +120,14 @@ def apply_filters(
 
 
 def perform_browsing(
+    filters: bool,
     user_id: int,
     age: int = None,
     fame: int = None,
     distance: int = None,
     common_interests: int = None,
     offset: int = 0,
-    limit: int = 10
+    limit: int = 9
 ):
     """
     Actually it will compute the algorithm every time a user wants to browse
@@ -136,11 +139,6 @@ def perform_browsing(
     redis_client = current_app.extensions['redis']
     matching_users: Dict = {}
     try:
-        # token = request.headers.get('Authorization').split(' ')[1]
-        # user = jwt.decode(
-        #     token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
-        # WARNING: Remove this mock, replace by the id in the param
-        user = {'id': 5}
         user_query = """
 SELECT id,\
 firstname,\
@@ -154,11 +152,11 @@ fame
 FROM users
 WHERE id = %s
         """
-        redis_key: str = f"matching:{user['id']}"
+        redis_key: str = f"matching:{user_id}"
         matching_users: List = []
         if not redis_client.exists(redis_key):
             print('nothing in redis yet')
-            cur.execute(user_query, (user['id'],))
+            cur.execute(user_query, (user_id,))
             user_data: Dict = dict(cur.fetchone())
             print(user_data)
             matching_users = get_matching_users(

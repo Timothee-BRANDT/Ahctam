@@ -1,4 +1,5 @@
 import math
+from typing import List
 # import numpy as np
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
@@ -7,14 +8,16 @@ from sklearn.metrics.pairwise import cosine_similarity
 
 def haversine(lat1, lon1, lat2, lon2):
     earth_radius = 6371
+    max_earth_distance = 20000
     dlat = math.radians(lat2 - lat1)
     dlon = math.radians(lon2 - lon1)
     a = math.sin(dlat / 2) ** 2 + math.cos(math.radians(lat1)) * \
         math.cos(math.radians(lat2)) * math.sin(dlon / 2) ** 2
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
     distance = earth_radius * c
+    normalized_distance = distance / max_earth_distance
 
-    return distance
+    return 1 - normalized_distance
 
 
 def age_similarity(age1, age2):
@@ -22,8 +25,10 @@ def age_similarity(age1, age2):
 
 
 def interest_similarity(interests1, interests2):
-    interests1: list = interests1.split(', ')
-    interests2: list = interests2.split(', ')
+    interests1: List = interests1.split(', ')
+    interests2: List = interests2.split(', ')
+    print('interests1', interests1)
+    print('interests2', interests2)
 
     vectorizer = CountVectorizer().fit(interests1 + interests2)
     print(type(vectorizer))
