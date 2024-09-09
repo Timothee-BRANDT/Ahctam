@@ -149,33 +149,40 @@ age,\
 biography,\
 gender,\
 sexual_preferences,\
+status,\
 fame
 FROM users
 WHERE id = %s
         """
         redis_key: str = f"matching:{user['id']}"
+        matching_users: List = []
         if not redis_client.exists(redis_key):
             print('nothing in redis yet')
             cur.execute(user_query, (user['id'],))
-            user_data: dict = cur.fetchone()
+            user_data: Dict = dict(cur.fetchone())
             print(user_data)
-            matching_users: list = get_matching_users(
-                user_data, cur, offset, limit)
+            matching_users = get_matching_users(
+                user_data,
+                cur,
+                offset,
+                limit
+            )
             print('we received the matching users: ', matching_users)
             redis_client.set(redis_key, json.dumps(matching_users), ex=3600)
         else:
             print('something in redis')
-            matching_users: list = json.loads(
+            matching_users = json.loads(
                 redis_client.get(redis_key).decode('utf-8'))
             print('in redis the matching users: ', matching_users)
         print('end of browsing')
-        matching_users: list = apply_filters(
+        # TODO: if filters validator, test with and without
+        matching_users = apply_filters(
             matching_users,
             age,
             fame,
             distance,
-            common_interests)
-
+            common_interests
+        )
         return jsonify({'users': matching_users[offset:limit]}), 200
 
     except Exception as e:

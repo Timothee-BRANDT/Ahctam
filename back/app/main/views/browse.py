@@ -23,6 +23,7 @@ def browse():
     Returns: an array of user objects
     """
     age: int = request.args.get('age')
+    logger.info(f'Age: {age}')
     fame: int = request.args.get('fame')
     distance: int = request.args.get('distance')
     common_interests: int = request.args.get('tags')
