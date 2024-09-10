@@ -15,7 +15,12 @@ from app.main.services.algo_service import matching_score
 # from app.authentication.views.decorators import jwt_required
 
 
-def get_matching_users(user_data, cursor, offset, limit):
+def get_matching_users(
+    user_data: Dict,
+    cursor,
+    offset: int,
+    limit: int
+):
     """
     TODO: Now work on the interests brooo
     It will need another join with the user_interest relation table
@@ -67,8 +72,7 @@ def get_matching_users(user_data, cursor, offset, limit):
         user_data['latitude'] = location_and_interests['latitude']
         user_data['longitude'] = location_and_interests['longitude']
         user_data['city'] = location_and_interests['city']
-        user_data['interests'] = location_and_interests['interests']
-        print('the user data is ', user_data)
+        user_data['interests']: str = location_and_interests['interests']
 
         cursor.execute(gender_sex_query, query_params)
         matching_users = cursor.fetchall()
@@ -158,12 +162,12 @@ WHERE id = %s
             print('nothing in redis yet')
             cur.execute(user_query, (user_id,))
             user_data: Dict = dict(cur.fetchone())
-            print(user_data)
+            print(f'{user_data=}')
             matching_users = get_matching_users(
-                user_data,
-                cur,
-                offset,
-                limit
+                user_data=user_data,
+                cursor=cur,
+                offset=offset,
+                limit=limit
             )
             print('we received the matching users: ', matching_users)
             redis_client.set(redis_key, json.dumps(matching_users), ex=3600)
@@ -172,8 +176,6 @@ WHERE id = %s
             matching_users = json.loads(
                 redis_client.get(redis_key).decode('utf-8'))
             print('in redis the matching users: ', matching_users)
-        print('end of browsing')
-        # TODO: if filters validator, test with and without
         matching_users = apply_filters(
             matching_users,
             age,
