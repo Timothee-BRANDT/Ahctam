@@ -1,3 +1,4 @@
+from logger import logger
 from typing import (
     Dict,
     List,
@@ -14,7 +15,12 @@ from app.main.services.algo_service import matching_score
 # from app.authentication.views.decorators import jwt_required
 
 
-def get_matching_users(user_data, cursor, offset, limit):
+def get_matching_users(
+    user_data: Dict,
+    cursor,
+    offset: int,
+    limit: int
+):
     """
     TODO: Now work on the interests brooo
     It will need another join with the user_interest relation table
@@ -50,9 +56,9 @@ def get_matching_users(user_data, cursor, offset, limit):
                     user_data['sexual_preferences'])
 
     location_query = """
-    SELECT l.latitude,
-           l.longitude,
-           l.city,
+    SELECT l.latitude AS latitude,
+           l.longitude AS longitude,
+           l.city AS city,
            STRING_AGG(i.name, ', ') AS interests
     FROM locations l
     LEFT JOIN user_interests ui ON ui.user_id = l.located_user
@@ -66,8 +72,7 @@ def get_matching_users(user_data, cursor, offset, limit):
         user_data['latitude'] = location_and_interests['latitude']
         user_data['longitude'] = location_and_interests['longitude']
         user_data['city'] = location_and_interests['city']
-        user_data['interests'] = location_and_interests['interests']
-        print('the user data is ', user_data)
+        user_data['interests']: str = location_and_interests['interests']
 
         cursor.execute(gender_sex_query, query_params)
         matching_users = cursor.fetchall()
@@ -78,8 +83,9 @@ def get_matching_users(user_data, cursor, offset, limit):
             print('user_name', matching_user['firstname'])
             print('matching_score', matching_user['matching_score'])
 
-        matching_users: list = sorted(
+        matching_users: List = sorted(
             matching_users, key=lambda x: x['matching_score'], reverse=True)
+
     except Exception as e:
         raise Exception(str(e))
 
@@ -118,13 +124,15 @@ def apply_filters(
 
 
 def perform_browsing(
-        user_id: int,
-        age: int = None,
-        fame: int = None,
-        distance: int = None,
-        common_interests: int = None,
-        offset: int = 0,
-        limit: int = 10):
+    filters: bool,
+    user_id: int,
+    age: int = None,
+    fame: int = None,
+    distance: int = None,
+    common_interests: int = None,
+    offset: int = 0,
+    limit: int = 9
+):
     """
     Actually it will compute the algorithm every time a user wants to browse
     After talking with collegues, it's the backend job
@@ -135,11 +143,6 @@ def perform_browsing(
     redis_client = current_app.extensions['redis']
     matching_users: Dict = {}
     try:
-        # token = request.headers.get('Authorization').split(' ')[1]
-        # user = jwt.decode(
-        #     token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
-        # WARNING: Remove this mock, replace by the id in the param
-        user = {'id': 5}
         user_query = """
 SELECT id,\
 firstname,\
@@ -148,33 +151,38 @@ age,\
 biography,\
 gender,\
 sexual_preferences,\
+status,\
 fame
 FROM users
 WHERE id = %s
         """
-        redis_key: str = f"matching:{user['id']}"
+        redis_key: str = f"matching:{user_id}"
+        matching_users: List = []
         if not redis_client.exists(redis_key):
             print('nothing in redis yet')
-            cur.execute(user_query, (user['id'],))
-            user_data: dict = cur.fetchone()
-            print(user_data)
-            matching_users: list = get_matching_users(
-                user_data, cur, offset, limit)
+            cur.execute(user_query, (user_id,))
+            user_data: Dict = dict(cur.fetchone())
+            print(f'{user_data=}')
+            matching_users = get_matching_users(
+                user_data=user_data,
+                cursor=cur,
+                offset=offset,
+                limit=limit
+            )
             print('we received the matching users: ', matching_users)
             redis_client.set(redis_key, json.dumps(matching_users), ex=3600)
         else:
             print('something in redis')
-            matching_users: list = json.loads(
+            matching_users = json.loads(
                 redis_client.get(redis_key).decode('utf-8'))
             print('in redis the matching users: ', matching_users)
-        print('end of browsing')
-        matching_users: list = apply_filters(
+        matching_users = apply_filters(
             matching_users,
             age,
             fame,
             distance,
-            common_interests)
-
+            common_interests
+        )
         return jsonify({'users': matching_users[offset:limit]}), 200
 
     except Exception as e:
