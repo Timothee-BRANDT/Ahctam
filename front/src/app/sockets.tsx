@@ -6,7 +6,7 @@ let socket: Socket | null = null;
 const setupSocketListeners = (): void => {
   if (socket) {
     socket.on("connect", () => {
-      console.log("Connected to socket server:", socket.id);
+      console.log("Connected to socket server:", socket?.id);
     });
 
     socket.on("disconnect", () => {

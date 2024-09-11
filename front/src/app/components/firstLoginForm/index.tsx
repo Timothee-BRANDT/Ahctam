@@ -76,8 +76,7 @@ const FirstLoginPage: React.FC = () => {
   };
 
   useEffect(() => {
-    console.log("useEffect is called");
-    if (!isJwtInCookie) {
+    if (!isJwtInCookie()) {
       redirectLogin();
     } else {
       setIsLoggedIn(true);
@@ -86,7 +85,7 @@ const FirstLoginPage: React.FC = () => {
         setGeolocationPermission(true);
       }
     }
-  }, [isJwtInCookie, geolocationPermission]);
+  }, [geolocationPermission]);
 
   const askLocationPermission = () => {
     if (navigator.geolocation) {
@@ -213,7 +212,7 @@ const FirstLoginPage: React.FC = () => {
                     className={`${CLASSNAME}__update-input`}
                     type="age"
                     name="age"
-                    value={user.age}
+                    value={user.age === 0 ? '' : user.age}
                     onChange={handleUserChange}
                     required
                     autoComplete="new-password"

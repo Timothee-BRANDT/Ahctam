@@ -88,7 +88,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
           const data_response = await response.json();
 
           if (response.ok) {
-            console.log("setuser in authContext");
             setUser({
               ...initialPig,
               ...data_response,

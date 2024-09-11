@@ -71,7 +71,6 @@ const ProfilePage: React.FC = () => {
   );
 
   const getProfile = async () => {
-    console.log("getProfile is called");
     const token = getCookie("jwt_token");
     const response = await fetch(`http://${serverIP}:5000/api/getUserInfo`, {
       method: "GET",
@@ -81,9 +80,7 @@ const ProfilePage: React.FC = () => {
       },
     });
     const data_response = await response.json();
-    console.log("data from getUserInfo:", data_response);
     if (response.ok) {
-      console.log("we set the user");
       setUser(data_response);
       setAllInterests(initializeInterests(initInterests, user.interests));
     }
@@ -94,7 +91,6 @@ const ProfilePage: React.FC = () => {
   };
 
   useEffect(() => {
-    console.log("updateProfile useEffect is called");
     setAllInterests(initializeInterests(initInterests, user.interests));
     const fetchProfileAndLocation = async () => {
       if (!isJwtInCookie()) {
@@ -450,9 +446,6 @@ const ProfilePage: React.FC = () => {
                               : ""
                             }`}
                         >
-                          {index === 0
-                            ? "Upload a profile picture"
-                            : "Upload a picture"}
                         </div>
                       )}
                     </div>

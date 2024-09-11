@@ -29,6 +29,9 @@ npm run dev
 docker compose up --build
 ```
 
+### Reset DB volumes
+docker compose down -v
+
 ### 2) Create / activate your virtual environment
 
 If it's the first time:
