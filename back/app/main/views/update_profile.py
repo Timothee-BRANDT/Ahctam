@@ -1,6 +1,8 @@
+from collections.abc import Coroutine
 from .. import main
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, cast
 from geopy.geocoders import Nominatim
+from geopy.location import Location
 from logger import logger
 from flask import (
     request,
@@ -158,8 +160,8 @@ def _update_location_informations(
         latitude, longitude, town = _get_location_from_address(address)
         location_query = """
 UPDATE locations
-SET town = %s, latitude = %s, longitude = %s, address = %s
-WHERE user_id = %s
+SET city = %s, latitude = %s, longitude = %s, address = %s
+WHERE located_user = %s
         """
         cur.execute(location_query, (
             town,
@@ -180,11 +182,13 @@ def _get_location_from_address(address: str) -> Tuple[float, float, str]:
     """
     try:
         geolocator = Nominatim(user_agent="geoapiExercises")
-        location = geolocator.geocode(address)
+        location = cast(Location, geolocator.geocode(address))
 
         if location:
             latitude = location.latitude
+            logger.info(f'Latitude: {latitude}')
             longitude = location.longitude
+            logger.info(f'Longitude: {longitude}')
             city = location.raw.get('address', {}).get('city', None)
             if not city:
                 city = location.raw.get('address', {}).get('town', None)

@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, Any
 from .. import auth
 from ..forms import (
     LoginForm,
@@ -102,8 +102,10 @@ def first_login():
     try:
         data = request.get_json()
         payload: Dict = data.get('payload', {})
-        token = payload.get('token')
-        user = jwt.decode(
+        token = payload.get('token', '')
+        if token == '':
+            raise Exception('No token provided')
+        user: Dict[str, Any] = jwt.decode(
             token,
             current_app.config['SECRET_KEY'],
             algorithms=['HS256']
@@ -112,7 +114,7 @@ def first_login():
         user_ip = request.remote_addr
         logger.info(f'{user_ip=}')
         logger.info(f'{type(user_ip)=}')
-        form = FirstLoginForm(data=payload)
+        form: FirstLoginForm = FirstLoginForm(data=payload)
         form.validate()
 
         store_first_login_informations(

@@ -3,7 +3,6 @@ from flask import (
     current_app,
     url_for,
     render_template,
-    jsonify,
 )
 import psycopg2
 from logger import logger
@@ -11,6 +10,7 @@ from typing import List, Dict, Tuple
 from flask_mail import Message
 from itsdangerous import URLSafeTimedSerializer
 import requests
+from app.authentication.forms import FirstLoginForm
 
 
 def send_confirmation_email(email, token):
@@ -51,9 +51,9 @@ def send_reset_password_email(email):
 def store_first_login_informations(
     conn: psycopg2.extensions.connection,
     cur: psycopg2.extensions.cursor,
-    form: Dict,
+    form: FirstLoginForm,
     user_id: int,
-    user_ip: str
+    user_ip: str | None
 ):
     """
     """
@@ -70,7 +70,7 @@ WHERE id = %s
         cur.execute(
             user_query,
             (
-                int(form.age.data),
+                form.age.data,
                 form.gender.data,
                 form.sexual_preferences.data,
                 form.biography.data,
@@ -92,7 +92,9 @@ WHERE url = %s AND owner = %s
         photos: List = [photo for photo in raw_photos if photo]
         for photo in photos:
             cur.execute(picture_query, (photo, user_id))
+        logger.info("All pictures stored")
         cur.execute(profile_picture_query, (photos[0], user_id))
+        logger.info('Profile picture stored')
 
         # Interests
         interests: List = form.interests.data
@@ -101,7 +103,9 @@ SELECT id FROM interests WHERE name = %s
         """
         for interest in interests:
             cur.execute(interests_query, (interest,))
-            interest_id = cur.fetchone()['id']
+            result = cur.fetchone()
+            if result:
+                interest_id = result['id']
             user_interest_query = """
 INSERT INTO user_interests (user_id, interest_id)
 VALUES (%s, %s)

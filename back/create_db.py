@@ -142,7 +142,8 @@ def create_pictures_table(cursor):
             is_profile_picture BOOLEAN DEFAULT FALSE,
             owner INTEGER NOT NULL,
             FOREIGN KEY (owner) REFERENCES users(id) ON DELETE CASCADE,
-            CONSTRAINT unique_profile_picture UNIQUE(owner, is_profile_picture)
+            CONSTRAINT unique_profile_picture UNIQUE(owner)
+            WHERE is_profile_picture = TRUE
         );
     """)
 
