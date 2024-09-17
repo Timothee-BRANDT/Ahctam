@@ -2,6 +2,7 @@ from logger import logger
 from typing import (
     Dict,
     List,
+    Tuple
 )
 from flask import (
     jsonify,
@@ -132,7 +133,7 @@ def perform_browsing(
     common_interests: int = None,
     offset: int = 0,
     limit: int = 9
-):
+) -> Tuple[Dict, int]:
     """
     Actually it will compute the algorithm every time a user wants to browse
     After talking with collegues, it's the backend job
@@ -141,7 +142,6 @@ def perform_browsing(
     conn = get_db_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
     redis_client = current_app.extensions['redis']
-    matching_users: Dict = {}
     try:
         user_query = """
 SELECT id,\
@@ -183,10 +183,10 @@ WHERE id = %s
             distance,
             common_interests
         )
-        return jsonify({'users': matching_users[offset:limit]}), 200
+        return {'users': matching_users[offset:limit]}, 200
 
     except Exception as e:
-        return jsonify({'error': str(e)}), 400
+        return {'error': str(e)}, 400
     finally:
         cur.close()
         conn.close()
