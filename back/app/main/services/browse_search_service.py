@@ -31,9 +31,12 @@ def get_matching_users(
         l.latitude,
         l.longitude,
         l.city,
+        p.url AS profile_picture,
         STRING_AGG(i.name, ', ') AS interests
     FROM users u
     JOIN locations l ON u.id = l.located_user
+    LEFT JOIN pictures p ON u.id = p.owner
+    WHERE p.is_profile_picture = TRUE
     LEFT JOIN user_interests ui ON u.id = ui.user_id
     LEFT JOIN interests i ON ui.interest_id = i.id
     WHERE u.id != %s
