@@ -11,7 +11,7 @@ from logger import logger
 from psycopg2.extras import RealDictCursor
 
 
-def get_matching_users(
+def _get_matching_users(
     user_data: Dict,
     cursor,
 ) -> List[Dict]:
@@ -115,7 +115,7 @@ def test_redis():
     return jsonify({"message": test}), 200
 
 
-def apply_filters(
+def _apply_filters(
     matching_users: List[Dict],
     age: int,
     fame: int,
@@ -185,7 +185,7 @@ WHERE id = %s
             cur.execute(user_query, (user_id,))
             user_data: Dict[str, Any] = dict(cur.fetchone())
             logger.info(f"from db:{user_data=}")
-            matching_users = get_matching_users(
+            matching_users = _get_matching_users(
                 user_data=user_data,
                 cursor=cur,
             )
@@ -199,7 +199,7 @@ WHERE id = %s
             logger.info("matching_users in redis: ", matching_users)
 
         if filters:
-            matching_users = apply_filters(
+            matching_users = _apply_filters(
                 matching_users=matching_users,
                 age=age,
                 fame=fame,
