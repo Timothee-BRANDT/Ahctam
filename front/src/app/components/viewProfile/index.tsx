@@ -1,7 +1,6 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useAuth } from "@/app/authContext";
-import data from "../../api.json";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Carousel,
@@ -57,44 +56,39 @@ const ProfileView: React.FC<ProfileViewProps> = (idProps) => {
   const [profileViewed, setProfileViewed] =
     useState<User>(initialProfileViewed);
   const [currentURL, setCurrentURL] = useState<string | null>(null);
+  const [idMatch, setIdMatch] = useState<string[] | null>(null);
 
   useEffect(() => {
     const currentURL = window.location.href;
     setCurrentURL(currentURL);
+    setIdMatch(currentURL.match(/profile\/(\d+)/));
   }, []);
-  useEffect(() => {
-    if (currentURL) {
-      const idMatch = currentURL.match(/\/profile\/(\d+)/);
-    }
-  }, [currentURL]);
 
   const getOtherUserInfo = async () => {
-    // try {
-    //     if (idMatch) {
-    //         const id = idMatch[1];
-    //         const token = getCookie('jwt_token');
-    //         const response = await fetch(`http://${serverIP}:5000/getOtherUserInfo`, {
-    //             method: 'POST',
-    //             headers: {
-    //                 'Content-Type': 'application/json',
-    //                 "Authorization": `Bearer ${token}`,
-    //             },
-    //             body: JSON.stringify({
-    //                 user_id: id,
-    //             })
-    //         });
-    //         if (!response.ok) {
-    //             throw new Error('Network response was not ok');
-    //         }
-    //         const data = await response.json();
-    //         console.log('Server response:', data);
-    //         setProfileViewed(data);
-    //     }
-    // } catch (e) {
-    //     console.log(e);
-    // }
+    try {
+      if (idMatch) {
+        const id = idMatch[1];
+        const token = getCookie("jwt_token");
+        const url = `http://${serverIP}:5000/api/getOtherUserInfo/${id}`;
+        const response = await fetch(url, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const data = await response.json();
+        console.log("Server response:", data);
+        setProfileViewed(data);
+      }
+    } catch (e) {
+      console.log(e);
+    }
     // [MOCK]
-    setProfileViewed(data.user);
+    // setProfileViewed(data.user);
   };
   const redirectLogin = () => {
     router.push("/login");
@@ -106,7 +100,7 @@ const ProfileView: React.FC<ProfileViewProps> = (idProps) => {
     }
     getOtherUserInfo();
     setIsLoggedIn(isJwtInCookie());
-  });
+  }, [idMatch]);
 
   const handleLike = async () => {
     const token = getCookie("jwt_token");

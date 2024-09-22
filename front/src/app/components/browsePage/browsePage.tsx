@@ -42,7 +42,7 @@ const browsePage: React.FC = () => {
     getProfiles();
     setIsLoggedIn(isJwtInCookie());
   }, []);
-  // WARNING: only 1 display "[]" because infinite loop with profiles
+  // WARNING: only 1 display "[]" because infinite loop with [profiles]
 
   const redirect = (id: number) => {
     router.push(`/profile/${id}`);

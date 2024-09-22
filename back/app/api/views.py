@@ -1,19 +1,14 @@
-from flask import (
-    jsonify,
-    request,
-    current_app,
-)
 import jwt
-from psycopg2.extras import RealDictCursor
+from app.api.services.user_services import (get_user_info,
+                                            get_users_who_like_user,
+                                            get_users_who_viewed_user)
+from flask import current_app, jsonify, request
 from logger import logger
-from app.api.services.user_services import (
-    get_user_info,
-    get_users_who_like_user,
-    get_users_who_viewed_user,
-)
-from . import api
-from ..database import get_db_connection
+from psycopg2.extras import RealDictCursor
+
 from ..authentication.views.decorators import jwt_required
+from ..database import get_db_connection
+from . import api
 
 
 @api.route('/test')
@@ -54,7 +49,7 @@ def get_user_info_controller():
     connector = get_db_connection()
     cursor = connector.cursor(cursor_factory=RealDictCursor)
     try:
-        token = request.headers.get('Authorization').split(' ')[1]
+        token = request.headers.get('Authorization', '').split(' ')[1]
         user = jwt.decode(
             token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
         user_id = user['id']
@@ -82,13 +77,14 @@ WHERE id = %s
         connector.close()
 
 
-@api.route('/getOtherUserInfo', methods=['GET'])
+@api.route('/getOtherUserInfo/<int:user_id>', methods=['GET'])
 @jwt_required
-def get_other_user_info_controller():
-    user_id = request.args.get('user_id')
+def get_other_user_info_controller(user_id: int):
+    print('getOtherUserInfo')
+    if not user_id:
+        return jsonify({'error': 'User id not provided'}), 400
 
     response, status_code = get_user_info(user_id)
-
     return jsonify(response), status_code
 
 
