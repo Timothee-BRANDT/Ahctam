@@ -60,8 +60,8 @@ def _get_matching_users(
         user_data["id"],
         user_data["sexual_preferences"],
         user_data["gender"],
-        user_data["gender"],
         user_data["sexual_preferences"],
+        user_data["gender"],
     )
 
     location_query = """
@@ -85,28 +85,21 @@ def _get_matching_users(
 
         cursor.execute(matchers_query, matchers_query_params)
         matching_users: List = cursor.fetchall()
-        logger.info(f"after cursor: {type(matching_users)=}")
 
         for matching_user in matching_users:
             matching_user["matching_score"] = matching_score(
                 user_data, matching_user)
             matching_user["latitude"] = float(matching_user["latitude"])
             matching_user["longitude"] = float(matching_user["longitude"])
-            # NOTE: have to give a list to front, called photos
             matching_user["photos"] = [matching_user["photos"]]
-            logger.info(f"user_name: {matching_user['firstname']}")
-            logger.info(f"matching_score: {matching_user['matching_score']}")
+            # logger.info(f"user_firstname: {matching_user['firstname']}")
+            # logger.info(f"matching_score: {matching_user['matching_score']}")
 
-        logger.info(f"{type(matching_users)=}")
-        logger.info(f"{len(matching_users)=}")
-
-        logger.info("we breaked")
         matching_users: List = sorted(
             matching_users,
             key=lambda x: x["matching_score"],
             reverse=True
         )
-        logger.info("we return")
         return matching_users
 
     except Exception as e:
@@ -190,22 +183,18 @@ WHERE id = %s
             logger.info("nothing in redis yet")
             cur.execute(user_query, (user_id,))
             user_data: Dict[str, Any] = dict(cur.fetchone())
-            logger.info(f"from db:{user_data=}")
             matching_users = _get_matching_users(
                 user_data=user_data,
                 cursor=cur,
             )
             logger.info(f"we received {len(matching_users)} matching users")
-            # for element in matching_users:
-            #     logger.info(f"element: {element}")
             redis_client.set(redis_key, json.dumps(matching_users), ex=3600)
-            logger.info(f"It's set in redis")
+            logger.info(f"It's now set in redis")
         else:
             logger.info("something in redis")
             matching_users = json.loads(
                 redis_client.get(redis_key).decode("utf-8")
             )
-            logger.info("matching_users in redis: ", matching_users)
 
         if filters:
             matching_users = _apply_filters(

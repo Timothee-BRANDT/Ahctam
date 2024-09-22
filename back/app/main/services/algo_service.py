@@ -61,7 +61,7 @@ def matching_score(
     user2: Dict
 ) -> float:
     geo_weight = 0.5
-    age_weight = 0.3
+    age_weight = 1.5
     interest_weight = 0.3
     fame_weight = 0.1
 
