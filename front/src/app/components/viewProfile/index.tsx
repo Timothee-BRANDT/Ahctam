@@ -191,8 +191,8 @@ const ProfileView: React.FC<ProfileViewProps> = (idProps) => {
           </Carousel>
           <div className={`${CLASSNAME}__informations`}>
             <div className={`${CLASSNAME}__text-love`}>
-              <p className={`${CLASSNAME}__informations-username`}>
-                {profileViewed.username}, {profileViewed.age} years
+              <p className={`${CLASSNAME}__informations-firstname`}>
+                {profileViewed.firstname}, {profileViewed.age} years
               </p>
               <div onClick={handleLike}>
                 {liked === true ? (

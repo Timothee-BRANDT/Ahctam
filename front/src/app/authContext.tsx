@@ -7,6 +7,7 @@ import React, {
   useEffect,
 } from "react";
 import { User } from "./types";
+import { initializeSocket } from "@/app/sockets";
 import { useRouter } from "next/navigation";
 import data from "./api.json";
 import { getSocket, disconnectSocket } from "./sockets";
@@ -49,11 +50,11 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType>({
   user: initialPig,
-  login: (token: string) => { },
-  logout: () => { },
-  setUser: () => { },
-  setCookie: (name: string, value: string, days?: number) => { },
-  deleteCookie: (name: string) => { },
+  login: (token: string) => {},
+  logout: () => {},
+  setUser: () => {},
+  setCookie: (name: string, value: string, days?: number) => {},
+  deleteCookie: (name: string) => {},
   getCookie: (name: string) => "",
   isJwtInCookie: () => false,
 });
@@ -95,6 +96,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             if (!data_response.gender) {
               router.push("/first-login");
             }
+            const socket = initializeSocket(token);
           } else {
             console.log(data_response.error);
           }

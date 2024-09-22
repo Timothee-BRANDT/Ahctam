@@ -31,7 +31,7 @@
         max-width: 400px;
     }
 
-    &__informations-username {
+    &__informations-firstname {
         font-size: 18px;
         font-weight: bold;
     }
@@ -55,7 +55,6 @@
     &__informations-location-text {
         font-size: 18px;
     }
-
 
     &__informations-bio {
         color: #5d5d5d;
@@ -108,5 +107,4 @@
         width: 30px;
         height: 30px;
     }
-
 }
