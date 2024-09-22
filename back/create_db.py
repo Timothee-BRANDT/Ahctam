@@ -1,31 +1,33 @@
+import base64
+import os
+import random
+import string
+
 import psycopg2
+import requests
+from dotenv import load_dotenv
+from faker import Faker
 from psycopg2 import sql
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from werkzeug.security import generate_password_hash
-import os
-import requests
-import base64
-import random
-import string
-from faker import Faker
-from dotenv import load_dotenv
+
 load_dotenv()
 
 
 def create_database():
     print('Creating database...')
+    conn = psycopg2.connect(
+        dbname='postgres',
+        # user=current_app.config['POSTGRES_USER'],
+        # password=current_app.config['POSTGRES_PASSWORD'],
+        user=os.getenv('POSTGRES_USER'),
+        password=os.getenv('POSTGRES_PASSWORD'),
+        host='localhost',
+        port='5433'
+    )
+    conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+    cur = conn.cursor()
     try:
-        conn = psycopg2.connect(
-            dbname='postgres',
-            # user=current_app.config['POSTGRES_USER'],
-            # password=current_app.config['POSTGRES_PASSWORD'],
-            user=os.getenv('POSTGRES_USER'),
-            password=os.getenv('POSTGRES_PASSWORD'),
-            host='localhost',
-            port='5433'
-        )
-        conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
-        cur = conn.cursor()
         # Check if database exists
         cur.execute("""
 SELECT 1
@@ -141,10 +143,11 @@ def create_pictures_table(cursor):
             url VARCHAR NOT NULL,
             is_profile_picture BOOLEAN DEFAULT FALSE,
             owner INTEGER NOT NULL,
-            FOREIGN KEY (owner) REFERENCES users(id) ON DELETE CASCADE,
-            CONSTRAINT unique_profile_picture UNIQUE(owner)
-            WHERE is_profile_picture = TRUE
+            FOREIGN KEY (owner) REFERENCES users(id) ON DELETE CASCADE
         );
+        CREATE UNIQUE INDEX unique_profile_picture
+        ON pictures(owner)
+        WHERE is_profile_picture = TRUE;
     """)
 
 
@@ -281,9 +284,13 @@ VALUES (%s)
 
 def generate_random_image_string():
     try:
-        response = requests.get("https://picsum.photos/200", stream=True)
+        response = requests.get(
+            "https://thispersondoesnotexist.com",
+            stream=True,
+        )
         if response.status_code != 200:
-            raise Exception("Error fetching image from picsum.photos")
+            raise Exception(
+                "Error fetching image from thispersondoesnotexist.com")
 
         image_data = base64.b64encode(response.content).decode('utf-8')
         image_string = f"data:image/png;base64,{image_data}"
@@ -294,9 +301,9 @@ def generate_random_image_string():
         return None
 
 
-def insert_random_users(cursor, num_users=100):
+def insert_random_users(cursor, num_users=700):
     print('Inserting random users...')
-    fake = Faker()
+    fake = Faker('fr_FR')
     genders = ['male', 'female', 'other']
     sexual_preferences = ['male', 'female', 'both']
     interests = [
@@ -377,6 +384,7 @@ INSERT INTO views (viewer, user_viewed)
 VALUES (%s, %s)
 ON CONFLICT DO NOTHING
                 """, (viewer, user_viewed))
+        print(f"User {user_id} inserted")
 
 
 def create_all_tables():
@@ -404,7 +412,7 @@ def create_all_tables():
         create_messages_table(cursor)
         insert_interests(cursor)
 
-        insert_random_users(cursor, 100)
+        insert_random_users(cursor, 700)
 
         conn.commit()
     except Exception as e:

@@ -8,7 +8,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 # from app.authentication.views.decorators import jwt_required
 
 
-def haversine(
+def _haversine(
     lat1: float,
     lon1: float,
     lat2: float,
@@ -27,14 +27,14 @@ def haversine(
     return 1 - normalized_distance
 
 
-def age_similarity(
+def _age_similarity(
     age1: int,
     age2: int
 ) -> float:
     return 1 / (1 + abs(age1 - age2))
 
 
-def interest_similarity(
+def _interest_similarity(
     interests1: str,
     interests2: str
 ) -> float:
@@ -49,7 +49,7 @@ def interest_similarity(
     return cosine_similarity(vector_1, vector_2)[0][0]
 
 
-def fame_similarity(
+def _fame_similarity(
     fame1: float,
     fame2: float
 ) -> float:
@@ -61,28 +61,28 @@ def matching_score(
     user2: Dict
 ) -> float:
     geo_weight = 0.5
-    age_weight = 1.5
+    age_weight = 0.3
     interest_weight = 0.3
     fame_weight = 0.1
 
-    geo_score = haversine(
+    geo_score = _haversine(
         user1['latitude'],
         user1['longitude'],
         user2['latitude'],
         user2['longitude']
     ) * geo_weight
 
-    age_score = age_similarity(
+    age_score = _age_similarity(
         user1['age'],
         user2['age']
     ) * age_weight
 
-    interest_score = interest_similarity(
+    interest_score = _interest_similarity(
         user1['interests'],
         user2['interests']
     ) * interest_weight
 
-    fame_score = fame_similarity(
+    fame_score = _fame_similarity(
         user1['fame'],
         user2['fame']
     ) * fame_weight
