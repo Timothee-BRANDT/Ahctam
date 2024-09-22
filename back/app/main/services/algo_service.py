@@ -15,7 +15,7 @@ def _haversine(
     lon2: float
 ) -> float:
     earth_radius = 6371
-    max_earth_distance = 20000
+    max_earth_distance = 40000
     dlat = math.radians(lat2 - lat1)
     dlon = math.radians(lon2 - lon1)
     a = math.sin(dlat / 2) ** 2 + math.cos(math.radians(lat1)) * \
@@ -24,7 +24,7 @@ def _haversine(
     distance = earth_radius * c
     normalized_distance = distance / max_earth_distance
 
-    return 1 - normalized_distance
+    return 1 / (1 + normalized_distance)
 
 
 def _age_similarity(
@@ -60,9 +60,9 @@ def matching_score(
     user1: Dict,
     user2: Dict
 ) -> float:
-    geo_weight = 0.5
+    geo_weight = 1.4
     age_weight = 0.3
-    interest_weight = 0.3
+    interest_weight = 0.4
     fame_weight = 0.1
 
     geo_score = _haversine(

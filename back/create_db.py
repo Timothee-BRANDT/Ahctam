@@ -1,17 +1,56 @@
 import base64
 import os
 import random
+import re
 import string
+from typing import Dict, Tuple
 
 import psycopg2
 import requests
 from dotenv import load_dotenv
 from faker import Faker
+from flask import current_app
 from psycopg2 import sql
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from werkzeug.security import generate_password_hash
 
 load_dotenv()
+
+
+def _get_location_from_coordinates(
+    latitude: float,
+    longitude: float
+) -> Tuple[str, str]:
+    try:
+        response = requests.get(
+            f'https://api.opencagedata.com/geocode/v1/json?q={latitude}+{longitude}&key={os.getenv("OPENCAGE_API_KEY")}'
+        )
+        if response.status_code != 200:
+            raise ValueError('Error while getting location from coordinates')
+
+        components: Dict = response.json()['results'][0]['components']
+        address: str = response.json()['results'][0]['formatted']
+        address_elements = address.split(',')
+        if len(address_elements) > 1:
+            city_from_address = address_elements[-2].strip()
+            city_from_address_without_number = re.sub(
+                r'^\d{5}\s+', '', city_from_address).strip()
+        else:
+            city_from_address_without_number = address_elements[0]
+        town: str = components.get('city', city_from_address_without_number)
+        print(f'{town=}')
+        return town, address
+
+    except Exception as e:
+        raise ValueError(e)
+
+
+def french_latitude():
+    return random.uniform(41.3333, 51.1242)
+
+
+def french_longitude():
+    return random.uniform(-5.1422, 9.5594)
 
 
 def create_database():
@@ -189,7 +228,7 @@ def create_locations_table(cursor):
             longitude DECIMAL(9, 6) NOT NULL,
             latitude DECIMAL(9, 6) NOT NULL,
             city VARCHAR(100),
-            address VARCHAR(100),
+            address VARCHAR(200),
             located_user INTEGER UNIQUE NOT NULL,
             FOREIGN KEY (located_user) REFERENCES users(id) ON DELETE CASCADE
         );
@@ -304,7 +343,7 @@ def generate_random_image_string():
 def insert_random_users(cursor, num_users=700):
     print('Inserting random users...')
     fake = Faker('fr_FR')
-    genders = ['male', 'female', 'other']
+    genders = ['male', 'female']
     sexual_preferences = ['male', 'female', 'both']
     interests = [
         'Tunnels', 'Obstacle', 'Naps', 'Vegetable', 'Chewing', 'Rolling',
@@ -315,12 +354,15 @@ def insert_random_users(cursor, num_users=700):
 
     for _ in range(num_users):
         username = fake.user_name()
-        firstname = fake.first_name()
+        gender = random.choice(genders)
+        if gender == 'male':
+            firstname = fake.first_name_male()
+        else:
+            firstname = fake.first_name_female()
         lastname = fake.last_name()
         age = random.randint(18, 70)
         email = fake.email()
         password = generate_password_hash('Bobby123!')
-        gender = random.choice(genders)
         sexual_preference = random.choice(sexual_preferences)
         biography = fake.text()
         fame = random.randint(0, 100)
@@ -352,10 +394,9 @@ VALUES (%s, (SELECT id FROM interests WHERE name=%s))
             """, (user_id, interest))
 
         # Location
-        longitude = fake.longitude()
-        latitude = fake.latitude()
-        city = fake.city()
-        address = fake.address()
+        longitude = french_longitude()
+        latitude = french_latitude()
+        city, address = _get_location_from_coordinates(latitude, longitude)
         cursor.execute("""
 INSERT INTO locations (longitude, latitude, city, address, located_user)
 VALUES (%s, %s, %s, %s, %s)
@@ -384,7 +425,7 @@ INSERT INTO views (viewer, user_viewed)
 VALUES (%s, %s)
 ON CONFLICT DO NOTHING
                 """, (viewer, user_viewed))
-        print(f"User {user_id} inserted")
+        print(f"User {gender}{user_id}: {firstname} {lastname} inserted")
 
 
 def create_all_tables():
