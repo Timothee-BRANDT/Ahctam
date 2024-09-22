@@ -1,3 +1,5 @@
+from typing import Dict
+
 import jwt
 from app.api.services.user_services import (get_user_info,
                                             get_users_who_like_user,
@@ -63,10 +65,11 @@ WHERE id = %s
         result = cursor.fetchone()
         gender = result['gender']
         if not gender:
-            logger.info(f'User {user_id} first login')
             result['message'] = 'First login'
             return jsonify(result), 200
 
+        response: Dict
+        status_code: int
         response, status_code = get_user_info(user_id)
         return jsonify(response), status_code
 
@@ -120,7 +123,7 @@ FROM likes
 WHERE user_liked = %s
     """
     try:
-        token = request.headers.get('Authorization').split(' ')[1]
+        token = request.headers.get('Authorization', '').split(' ')[1]
         user = jwt.decode(
             token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
         cur.execute(query, (user['id'],))
@@ -139,7 +142,7 @@ WHERE user_liked = %s
 @jwt_required
 def get_users_who_like_user_controller():
     try:
-        token = request.headers.get('Authorization').split(' ')[1]
+        token = request.headers.get('Authorization', '').split(' ')[1]
         user = jwt.decode(
             token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
         user_id = user['id']
@@ -163,7 +166,7 @@ FROM views
 WHERE user_viewed = %s
     """
     try:
-        token = request.headers.get('Authorization').split(' ')[1]
+        token = request.headers.get('Authorization', '').split(' ')[1]
         user = jwt.decode(
             token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
         cur.execute(query, (user['id'],))
@@ -182,7 +185,7 @@ WHERE user_viewed = %s
 @jwt_required
 def get_users_who_viewed_user_controller():
     try:
-        token = request.headers.get('Authorization').split(' ')[1]
+        token = request.headers.get('Authorization', '').split(' ')[1]
         user = jwt.decode(
             token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
         user_id = user['id']
@@ -209,7 +212,7 @@ AND user_blocked = %s
         data = request.get_json()
         user_blocked = data.get('user_blocked')
 
-        token = request.headers.get('Authorization').split(' ')[1]
+        token = request.headers.get('Authorization', '').split(' ')[1]
         user = jwt.decode(
             token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
 

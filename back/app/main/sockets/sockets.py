@@ -1,17 +1,10 @@
+from typing import cast
+
 import jwt
-from flask_socketio import (
-    emit,
-    # send,
-    # join_room,
-    # leave_room
-)
-from flask import (
-    request,
-    current_app,
-    jsonify
-)
 from app import socketio
 from app.database import get_db_connection
+from flask import current_app, request
+from flask_socketio import emit
 from psycopg2.extras import RealDictCursor
 
 
@@ -39,20 +32,22 @@ WHERE id = %s
 def handle_connect():
     print('***********************************************')
     try:
-        token: str = request.args.get('token')
+        token: str = request.args.get('token', '')
         if token:
             user = jwt.decode(
                 token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
             user_id = user['id']
             redis_client = current_app.extensions['redis']
-            redis_sid_key: str = f"socket_sid:{request.sid}"
-            redis_user_key: str = f"socket:{user_id}"
+            sid = request.sid  # type: ignore
+            redis_sid_key: str = f"socket_sid:{sid}"
+            redis_user_key: str = f"socket:{sid}"
             redis_client.set(redis_sid_key, user_id)
-            redis_client.set(redis_user_key, request.sid)
+            redis_client.set(redis_user_key, sid)
             update_status_and_connection_time(user_id, 'online')
-            print(f'Client connected: {request.sid}')
+            # print(f'Client connected: {sid}')
             print(redis_client.get(redis_sid_key))
             print(redis_client.get(redis_user_key))
+            print(f'Client connected: {sid}')
             print('***********************************************')
         else:
             print('No token provided')
@@ -67,18 +62,19 @@ def handle_connect():
 def handle_disconnect():
     print('###########################################')
     try:
-        token: str = request.args.get('token')
+        token: str = request.args.get('token', '')
         if token:
             user = jwt.decode(
                 token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
             user_id = user['id']
             redis_client = current_app.extensions['redis']
-            redis_sid_key = f"socket_sid:{request.sid}"
+            sid = request.sid  # type: ignore
+            redis_sid_key = f"socket_sid:{sid}"
             redis_user_key = f"socket:{user_id}"
             redis_client.delete(redis_sid_key)
             redis_client.delete(redis_user_key)
             update_status_and_connection_time(user_id, 'offline')
-            print(f'Client disconnected: {request.sid}')
+            print(f'Client disconnected: {sid}')
             print(redis_client.get(redis_user_key))
             print(redis_client.get(f"socket:{user_id}"))
             print('###########################################')
@@ -92,7 +88,8 @@ def handle_disconnect():
 
 @socketio.on('hello')
 def handle_hello(data):
-    print(f'Received hello from {request.sid}: {data}')
+    sid = request.sid  # type: ignore
+    print(f'Received hello from {sid}: {data}')
     emit('server_message', {'response': 'Hello from server'})
 
 

@@ -1,10 +1,11 @@
-from app.database import get_db_connection
 from typing import Dict, List, Tuple
-from psycopg2.extras import RealDictCursor
+
+from app.database import get_db_connection
 from logger import logger
+from psycopg2.extras import RealDictCursor
 
 
-def get_user_info(user_id: int):
+def get_user_info(user_id: int) -> Tuple[Dict, int]:
     """
     """
     user_query = """
@@ -50,7 +51,7 @@ WHERE owner = %s
     logger.info(f'Getting user info for user {user_id}')
     conn = get_db_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
-    interests = []
+    interests: List = []
     try:
         # User data
         cur.execute(user_query, (user_id,))
@@ -62,7 +63,6 @@ WHERE owner = %s
         # Location
         cur.execute(location_query, (user_id,))
         result = cur.fetchone()
-        logger.info(f'Location info: {result}')
         location_info: Dict = dict(result)
         user_info['location_list'] = [float(location_info['latitude']),
                                       float(location_info['longitude'])]
@@ -71,21 +71,19 @@ WHERE owner = %s
 
         # Interests
         cur.execute(user_interests_query, (user_id,))
-        user_interests = cur.fetchall()
+        user_interests: List = cur.fetchall()
         for user_interest in user_interests:
             cur.execute(interests_query, (user_interest['interest_id'],))
             interest = cur.fetchone()
             interests.append(interest['name'])
         user_info['interests'] = interests
-        logger.info(f'Interests: {interests}')
 
         # Pictures
         cur.execute(all_pictures_query, (user_id,))
         all_pictures = cur.fetchall()
         user_info['photos'] = [picture['url'] for picture in all_pictures]
-        logger.info(f'Pictures: {user_info["photos"][0][:20]}')
 
-        flattened_response = {**user_info}
+        flattened_response: Dict = {**user_info}
         flattened_response['latitude'] = user_info['location_list'][0]
         flattened_response['longitude'] = user_info['location_list'][1]
         del flattened_response['location_list']

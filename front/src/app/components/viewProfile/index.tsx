@@ -87,9 +87,8 @@ const ProfileView: React.FC<ProfileViewProps> = (idProps) => {
     } catch (e) {
       console.log(e);
     }
-    // [MOCK]
-    // setProfileViewed(data.user);
   };
+
   const redirectLogin = () => {
     router.push("/login");
   };

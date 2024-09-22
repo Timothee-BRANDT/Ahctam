@@ -1,13 +1,11 @@
-from flask import (
-    jsonify,
-    request,
-    current_app,
-)
 import jwt
-from psycopg2.extras import RealDictCursor
-from .. import main
-from app.database import get_db_connection
 from app.authentication.views.decorators import jwt_required
+from app.database import get_db_connection
+from flask import current_app, jsonify, request
+from logger import logger
+from psycopg2.extras import RealDictCursor
+
+from .. import main
 
 
 @main.route('/viewUser', methods=['POST'])
@@ -31,7 +29,7 @@ SET fame = fame + 1
     conn = get_db_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
     try:
-        token = request.headers.get('Authorization').split(' ')[1]
+        token = request.headers.get('Authorization', '').split(' ')[1]
         user = jwt.decode(
             token,
             current_app.config['SECRET_KEY'],
@@ -62,11 +60,12 @@ def like_a_user():
     """
     conn = get_db_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
-    token = request.headers.get('Authorization').split(' ')[1]
+    token = request.headers.get('Authorization', '').split(' ')[1]
     user = jwt.decode(
         token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
     data = request.get_json()
-    user_liked = data.get('user_id')
+    user_liked = data.get('user_liked_id')
+    logger.info(f'{user["id"]} liked {user_liked}')
     like_query = """
 INSERT INTO likes (liker, user_liked)
 VALUES (%s, %s)
