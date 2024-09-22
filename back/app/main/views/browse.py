@@ -1,4 +1,4 @@
-from typing import Any, Dict, Tuple
+from typing import Any, Dict, List, Tuple
 
 import jwt
 from app.authentication.views.decorators import jwt_required
@@ -31,9 +31,9 @@ def browse() -> Tuple[Response, int]:
             token, current_app.config["SECRET_KEY"], algorithms=["HS256"]
         )
         user_id: int = int(user["id"])
-        response_dict: Dict
+        response: List
         status_code: int
-        response_dict, status_code = perform_browsing(
+        response, status_code = perform_browsing(
             filters=filters,
             user_id=user_id,
             age=age,
@@ -43,7 +43,7 @@ def browse() -> Tuple[Response, int]:
             offset=offset,
             limit=limit,
         )
-        return jsonify(response_dict), status_code
+        return jsonify(response), status_code
 
     except Exception as e:
         logger.error(f"Error: {e}")

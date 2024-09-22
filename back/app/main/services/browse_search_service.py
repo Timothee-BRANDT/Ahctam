@@ -1,11 +1,10 @@
 import json
-from typing import Dict, List, Tuple, Any
-##########################################################
+from typing import Any, Dict, List, Tuple
+
 from app.database import get_db_connection
 from app.main import main
 from app.main.services.algo_service import matching_score
 # from app.authentication.views.decorators import jwt_required
-##########################################################
 from flask import current_app, jsonify
 from logger import logger
 from psycopg2.extras import RealDictCursor
@@ -31,12 +30,11 @@ def _get_matching_users(
         l.latitude,
         l.longitude,
         l.city,
-        p.url AS profile_picture,
+        p.url AS photos,
         STRING_AGG(i.name, ', ') AS interests
     FROM users u
     JOIN locations l ON u.id = l.located_user
-    LEFT JOIN pictures p ON u.id = p.owner
-    WHERE p.is_profile_picture = TRUE
+    LEFT JOIN pictures p ON u.id = p.owner AND p.is_profile_picture = TRUE
     LEFT JOIN user_interests ui ON u.id = ui.user_id
     LEFT JOIN interests i ON ui.interest_id = i.id
     WHERE u.id != %s
@@ -54,7 +52,8 @@ def _get_matching_users(
         u.fame,
         l.latitude,
         l.longitude,
-        l.city
+        l.city,
+        p.url
     """
 
     matchers_query_params = (
@@ -85,22 +84,29 @@ def _get_matching_users(
         user_data["interests"] = location_and_interests["interests"]
 
         cursor.execute(matchers_query, matchers_query_params)
-        matching_users = cursor.fetchall()
+        matching_users: List = cursor.fetchall()
+        logger.info(f"after cursor: {type(matching_users)=}")
 
-        for index, matching_user in enumerate(matching_users):
+        for matching_user in matching_users:
             matching_user["matching_score"] = matching_score(
                 user_data, matching_user)
-            logger.info("user_name", matching_user["firstname"])
-            logger.info("matching_score", matching_user["matching_score"])
-            # TODO: Remove this break
-            if index == 10:
-                break
+            matching_user["latitude"] = float(matching_user["latitude"])
+            matching_user["longitude"] = float(matching_user["longitude"])
+            # NOTE: have to give a list to front, called photos
+            matching_user["photos"] = [matching_user["photos"]]
+            logger.info(f"user_name: {matching_user['firstname']}")
+            logger.info(f"matching_score: {matching_user['matching_score']}")
 
+        logger.info(f"{type(matching_users)=}")
+        logger.info(f"{len(matching_users)=}")
+
+        logger.info("we breaked")
         matching_users: List = sorted(
             matching_users,
             key=lambda x: x["matching_score"],
             reverse=True
         )
+        logger.info("we return")
         return matching_users
 
     except Exception as e:
@@ -154,7 +160,7 @@ def perform_browsing(
     common_interests: int,
     offset: int,
     limit: int,
-) -> Tuple[Dict, int]:
+) -> Tuple[List, int]:
     """
     Actually it will compute the algorithm every time a user wants to browse
     After talking with collegues, it's the backend job
@@ -189,8 +195,11 @@ WHERE id = %s
                 user_data=user_data,
                 cursor=cur,
             )
-            logger.info("get_matching_users:", matching_users)
+            logger.info(f"we received {len(matching_users)} matching users")
+            # for element in matching_users:
+            #     logger.info(f"element: {element}")
             redis_client.set(redis_key, json.dumps(matching_users), ex=3600)
+            logger.info(f"It's set in redis")
         else:
             logger.info("something in redis")
             matching_users = json.loads(
@@ -206,10 +215,10 @@ WHERE id = %s
                 distance=distance,
                 common_interests=common_interests
             )
-        return {"users": matching_users[offset:limit]}, 200
+        return matching_users[offset:limit], 200
 
     except Exception as e:
-        return {"error": str(e)}, 400
+        return [str(e)], 500
     finally:
         cur.close()
         conn.close()

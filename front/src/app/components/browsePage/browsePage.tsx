@@ -26,6 +26,7 @@ const browsePage: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [profiles, setProfiles] = useState<User[]>([]);
   const [responsiveFilterButton, setResponsiveFilterButton] = useState(false);
+  const [isFetched, setIsFetched] = useState(false);
 
   const router = useRouter();
 
@@ -40,7 +41,8 @@ const browsePage: React.FC = () => {
     }
     getProfiles();
     setIsLoggedIn(isJwtInCookie());
-  }, [profiles]);
+  }, []);
+  // WARNING: only 1 display "[]" because infinite loop with profiles
 
   const redirect = (id: number) => {
     router.push(`/profile/${id}`);
@@ -50,10 +52,10 @@ const browsePage: React.FC = () => {
     const cookie = getCookie("jwt_token");
     const response = await fetch(
       `http://${serverIP}:5000/browse?` +
-        new URLSearchParams({
-          offset: String(0),
-          limit: String(9),
-        }),
+      new URLSearchParams({
+        offset: String(0),
+        limit: String(9),
+      }),
       {
         method: "GET",
         credentials: "include",
@@ -65,21 +67,22 @@ const browsePage: React.FC = () => {
     );
     const data_response = await response.json();
     if (response.ok) {
+      console.log(data_response);
       setProfiles(data_response);
     }
     // [MOCK]
-    setProfiles(data.userArray);
+    // setProfiles(data.userArray);
   };
 
   const applyFilters = async () => {
     const response = await fetch(
       `http://${serverIP}:5000/browse?` +
-        new URLSearchParams({
-          age: String(age),
-          fame: String(fame),
-          distance: String(distance),
-          tags: String(tags),
-        }),
+      new URLSearchParams({
+        age: String(age),
+        fame: String(fame),
+        distance: String(distance),
+        tags: String(tags),
+      }),
       {
         method: "POST",
         credentials: "include",

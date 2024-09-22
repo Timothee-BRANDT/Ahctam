@@ -1,8 +1,10 @@
 import math
-from typing import List, Dict
+from typing import Dict, List
+
 import numpy as np
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+
 # from app.authentication.views.decorators import jwt_required
 
 
@@ -57,7 +59,7 @@ def fame_similarity(
 def matching_score(
     user1: Dict,
     user2: Dict
-):
+) -> float:
     geo_weight = 0.5
     age_weight = 0.3
     interest_weight = 0.3
@@ -85,4 +87,5 @@ def matching_score(
         user2['fame']
     ) * fame_weight
 
-    return geo_score + age_score + interest_score + fame_score
+    score = float(geo_score + age_score + interest_score + fame_score)
+    return score
