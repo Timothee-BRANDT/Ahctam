@@ -29,7 +29,7 @@ def _get_matching_users(
         u.fame,
         l.latitude,
         l.longitude,
-        l.city,
+        l.city AS town,
         p.url AS photos,
         STRING_AGG(i.name, ', ') AS interests
     FROM users u
