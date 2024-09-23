@@ -3,7 +3,7 @@ from typing import Any, Dict, List, Tuple
 
 from app.database import get_db_connection
 from app.main import main
-from app.main.services.algo_service import matching_score
+from app.main.services.algo_service import haversine, matching_score
 # from app.authentication.views.decorators import jwt_required
 from flask import current_app, jsonify
 from logger import logger
@@ -106,15 +106,18 @@ def _get_matching_users(
         raise Exception(str(e))
 
 
-@main.route("/test-redis", methods=["GET"])
-def test_redis():
-    redis_client = current_app.extensions["redis"]
-    redis_client.set("test", "coucou")
-    test = redis_client.get("test").decode("utf-8")
-    return jsonify({"message": test}), 200
+def _count_common_interests(
+    user_interests: List[str],
+    matcher_interests: List[str]
+) -> int:
+    """
+    This function will count the common interests between two users
+    """
+    return len(set(user_interests).intersection(matcher_interests))
 
 
 def _apply_filters(
+    user_data: Dict[str, Any],
     matching_users: List[Dict],
     age: int,
     fame: int,
@@ -125,20 +128,42 @@ def _apply_filters(
     This function will filter the matching users based on the query parameters
     """
     if age:
+        min_age: int = user_data["age"] - age
+        max_age: int = user_data["age"] + age
         matching_users = [
-            user for user in matching_users if user["age"] == age]
-    if fame:
-        matching_users = [
-            user for user in matching_users if user["fame"] == fame]
-    if distance:
-        matching_users = [
-            user for user in matching_users if user["distance"] == distance
+            user for user in matching_users if (
+                user["age"] >= min_age
+                and user["age"] <= max_age
+            )
         ]
-    if common_interests:
+    if fame:
         matching_users = [
             user
             for user in matching_users
-            if user["common_interests"] == common_interests
+            if user["fame"] >= fame
+        ]
+    if distance:
+        matching_users = [
+            user
+            for user in matching_users
+            if (
+                haversine(
+                    user_data["latitude"],
+                    user_data["longitude"],
+                    user["latitude"],
+                    user["longitude"]
+                ) <= distance
+            )
+        ]
+    if common_interests:
+        user_interests_list: List[str] = user_data["interests"].split(", ")
+        matching_users = [
+            user
+            for user in matching_users
+            if _count_common_interests(
+                user_interests_list,
+                user["interests"].split(", ")
+            ) >= common_interests
         ]
 
     return matching_users
@@ -165,31 +190,49 @@ def perform_browsing(
     try:
         user_query = """
 SELECT \
-id,\
-firstname,\
-lastname,\
-age,\
-biography,\
-gender,\
-sexual_preferences,\
-status,\
-fame
-FROM users
-WHERE id = %s
+u.id,\
+u.firstname,\
+u.lastname,\
+u.age,\
+u.biography,\
+u.gender,\
+u.sexual_preferences,\
+u.status,\
+u.fame,\
+l.latitude,\
+l.longitude,\
+STRING_AGG(i.name, ', ') AS interests
+FROM users u
+JOIN locations l ON u.id = l.located_user
+LEFT JOIN user_interests ui ON u.id = ui.user_id
+LEFT JOIN interests i on ui.interest_id = i.id
+WHERE u.id = %s
+GROUP BY
+    u.id,
+    u.firstname,
+    u.lastname,
+    u.age,
+    u.biography,
+    u.gender,
+    u.sexual_preferences,
+    u.status,
+    u.fame,
+    l.latitude,
+    l.longitude
         """
         redis_key: str = f"matching:{user_id}"
         matching_users: List[Dict] = []
+        cur.execute(user_query, (user_id,))
+        user_data: Dict[str, Any] = dict(cur.fetchone())
+        user_data["longitude"] = float(user_data["longitude"])
+        user_data["latitude"] = float(user_data["latitude"])
         if not redis_client.exists(redis_key):
             logger.info("nothing in redis yet")
-            cur.execute(user_query, (user_id,))
-            user_data: Dict[str, Any] = dict(cur.fetchone())
             matching_users = _get_matching_users(
                 user_data=user_data,
                 cursor=cur,
             )
-            logger.info(f"we received {len(matching_users)} matching users")
             redis_client.set(redis_key, json.dumps(matching_users), ex=3600)
-            logger.info(f"It's now set in redis")
         else:
             logger.info("something in redis")
             matching_users = json.loads(
@@ -198,6 +241,7 @@ WHERE id = %s
 
         if filters:
             matching_users = _apply_filters(
+                user_data=user_data,
                 matching_users=matching_users,
                 age=age,
                 fame=fame,

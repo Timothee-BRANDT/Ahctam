@@ -52,10 +52,10 @@ const browsePage: React.FC = () => {
     const cookie = getCookie("jwt_token");
     const response = await fetch(
       `http://${serverIP}:5000/browse?` +
-      new URLSearchParams({
-        offset: String(0),
-        limit: String(9),
-      }),
+        new URLSearchParams({
+          offset: String(0),
+          limit: String(9),
+        }),
       {
         method: "GET",
         credentials: "include",
@@ -75,19 +75,23 @@ const browsePage: React.FC = () => {
   };
 
   const applyFilters = async () => {
+    const cookie = getCookie("jwt_token");
     const response = await fetch(
       `http://${serverIP}:5000/browse?` +
-      new URLSearchParams({
-        age: String(age),
-        fame: String(fame),
-        distance: String(distance),
-        tags: String(tags),
-      }),
+        new URLSearchParams({
+          age: String(age),
+          fame: String(fame),
+          distance: String(distance),
+          tags: String(tags),
+          offset: String(0),
+          limit: String(9),
+        }),
       {
-        method: "POST",
+        method: "GET",
         credentials: "include",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${cookie}`,
         },
       },
     );

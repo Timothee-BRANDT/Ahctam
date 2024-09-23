@@ -8,23 +8,25 @@ from sklearn.metrics.pairwise import cosine_similarity
 # from app.authentication.views.decorators import jwt_required
 
 
-def _haversine(
+def haversine(
     lat1: float,
     lon1: float,
     lat2: float,
     lon2: float
 ) -> float:
     earth_radius = 6371
-    max_earth_distance = 40000
     dlat = math.radians(lat2 - lat1)
     dlon = math.radians(lon2 - lon1)
     a = math.sin(dlat / 2) ** 2 + math.cos(math.radians(lat1)) * \
         math.cos(math.radians(lat2)) * math.sin(dlon / 2) ** 2
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
     distance = earth_radius * c
-    normalized_distance = distance / max_earth_distance
 
-    return 1 / (1 + normalized_distance)
+    return distance
+
+
+def _normalized_haversine(distance: float) -> float:
+    return 1 / (1 + distance)
 
 
 def _age_similarity(
@@ -65,12 +67,13 @@ def matching_score(
     interest_weight = 0.4
     fame_weight = 0.1
 
-    geo_score = _haversine(
+    geo_distance: float = haversine(
         user1['latitude'],
         user1['longitude'],
         user2['latitude'],
         user2['longitude']
-    ) * geo_weight
+    )
+    geo_score: float = geo_weight * _normalized_haversine(geo_distance)
 
     age_score = _age_similarity(
         user1['age'],
