@@ -7,7 +7,6 @@ import { useAuth } from "@/app/authContext";
 import { initializeSocket } from "@/app/sockets";
 import { ProfileInformations } from "@/app/types";
 import { usePathname, useRouter } from "next/navigation";
-import data from "../../api.json";
 
 const CLASSNAME = "profile";
 const MAX_PHOTOS = 6;
