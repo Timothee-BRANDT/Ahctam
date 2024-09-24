@@ -1,18 +1,19 @@
 from typing import cast
 
 import jwt
-from app import socketio
-from app.database import get_db_connection
 from flask import current_app, request
 from flask_socketio import emit
 from psycopg2.extras import RealDictCursor
+
+from app import socketio
+from app.database import get_db_connection
 
 
 def update_status_and_connection_time(user_id: int, status: str):
     query = """
 UPDATE Users
 SET status = %s,
-    last_connexion = CURRENT_TIMESTAMP
+    last_connexion = NOW() AT TIME ZONE 'Europe/Paris'
 WHERE id = %s
     """
     conn = get_db_connection()
@@ -30,7 +31,7 @@ WHERE id = %s
 
 @socketio.on('connect')
 def handle_connect():
-    print('***********************************************')
+    print('******************CONNECT*****************************')
     try:
         token: str = request.args.get('token', '')
         if token:
@@ -39,16 +40,13 @@ def handle_connect():
             user_id = user['id']
             redis_client = current_app.extensions['redis']
             sid = request.sid  # type: ignore
-            redis_sid_key: str = f"socket_sid:{sid}"
-            redis_user_key: str = f"socket:{sid}"
-            redis_client.set(redis_sid_key, user_id)
+            redis_user_key: str = f"socket:{user_id}"
             redis_client.set(redis_user_key, sid)
             update_status_and_connection_time(user_id, 'online')
             # print(f'Client connected: {sid}')
-            print(redis_client.get(redis_sid_key))
             print(redis_client.get(redis_user_key))
             print(f'Client connected: {sid}')
-            print('***********************************************')
+            print('******************CONNECT*****************************')
         else:
             print('No token provided')
             return False
@@ -60,7 +58,7 @@ def handle_connect():
 
 @socketio.on('disconnect')
 def handle_disconnect():
-    print('###########################################')
+    print('##################DISCONNECT#########################')
     try:
         token: str = request.args.get('token', '')
         if token:
@@ -69,15 +67,12 @@ def handle_disconnect():
             user_id = user['id']
             redis_client = current_app.extensions['redis']
             sid = request.sid  # type: ignore
-            redis_sid_key = f"socket_sid:{sid}"
-            redis_user_key = f"socket:{user_id}"
-            redis_client.delete(redis_sid_key)
+            redis_user_key: str = f"socket:{user_id}"
             redis_client.delete(redis_user_key)
             update_status_and_connection_time(user_id, 'offline')
             print(f'Client disconnected: {sid}')
             print(redis_client.get(redis_user_key))
-            print(redis_client.get(f"socket:{user_id}"))
-            print('###########################################')
+            print('##################DISCONNECT#########################')
         else:
             print('No token provided')
             return False
