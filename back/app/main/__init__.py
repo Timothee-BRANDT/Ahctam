@@ -7,4 +7,5 @@ from .views import (
     views,
     browse,
     update_profile,
+    notifications,
 )

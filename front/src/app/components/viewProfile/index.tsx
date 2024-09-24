@@ -65,6 +65,8 @@ const ProfileView: React.FC<ProfileViewProps> = (idProps) => {
   }, []);
 
   const getOtherUserInfo = async () => {
+    console.log("we enter getOtherUserInfo");
+    console.log("idMatch", idMatch);
     try {
       if (idMatch) {
         const id = idMatch[1];
@@ -107,6 +109,7 @@ const ProfileView: React.FC<ProfileViewProps> = (idProps) => {
       try {
         if (idMatch) {
           const id = idMatch[1];
+          console.log("id from idMatch:", id);
           const response = await fetch(`http://${serverIP}:5000/dislikeUser`, {
             method: "POST",
             headers: {
@@ -130,6 +133,7 @@ const ProfileView: React.FC<ProfileViewProps> = (idProps) => {
       try {
         if (idMatch) {
           const id = idMatch[1];
+          console.log("id from idMatch:", id);
           const response = await fetch(`http://${serverIP}:5000/likeUser`, {
             method: "POST",
             headers: {

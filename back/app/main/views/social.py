@@ -1,9 +1,11 @@
 import jwt
+from flask import current_app, jsonify, request
+from psycopg2.extras import RealDictCursor
+
 from app.authentication.views.decorators import jwt_required
 from app.database import get_db_connection
-from flask import current_app, jsonify, request
+from app.main.views.notifications import send_notification
 from logger import logger
-from psycopg2.extras import RealDictCursor
 
 from .. import main
 
@@ -78,6 +80,12 @@ WHERE id = %s
     try:
         cur.execute(like_query, (user['id'], user_liked))
         cur.execute(fame_query, (user_liked,))
+        send_notification(
+            cursor=cur,
+            sender_id=user['id'],
+            receiver_id=user_liked,
+            message=f'{user["id"]} liked you 😍'
+        )
         conn.commit()
     except Exception as e:
         return jsonify({'error': str(e)}), 400
@@ -95,7 +103,7 @@ def unlike_a_user():
     """
     conn = get_db_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
-    token = request.headers.get('Authorization').split(' ')[1]
+    token = request.headers.get('Authorization', '').split(' ')[1]
     user = jwt.decode(
         token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
     data = request.get_json()
@@ -129,7 +137,7 @@ def block_a_user():
     """
     conn = get_db_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
-    token = request.headers.get('Authorization').split(' ')[1]
+    token = request.headers.get('Authorization', '').split(' ')[1]
     user = jwt.decode(
         token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
     data = request.get_json()
