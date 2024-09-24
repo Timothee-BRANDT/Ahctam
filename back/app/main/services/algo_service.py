@@ -26,7 +26,10 @@ def haversine(
 
 
 def _normalized_haversine(distance: float) -> float:
-    return 1 / (1 + distance)
+    max_distance: float = 300
+    if distance > max_distance:
+        return 0
+    return 1 - (distance / max_distance)
 
 
 def _age_similarity(
