@@ -6,7 +6,10 @@ socket.on("connect", () => {
   console.log("Socket ID:", socket.id);
 
   // Envoyer un message "hello"
-  socket.emit("message", { message: "Hello from client", receiver: receiverID });
+  socket.emit("message", {
+    message: "Hello from client",
+    receiver: receiverID,
+  });
 });
 
 socket.on("server_message", (data) => {
@@ -24,3 +27,9 @@ socket.on("disconnect", (reason) => {
 socket.on("connect_error", (error) => {
   console.log("Connection error:", error);
 });
+
+socket.on("notification", (data) => {
+  console.log(data.message);
+  // Handle this shit
+});
+

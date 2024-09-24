@@ -94,15 +94,6 @@ def default_error_handler(e):
     print(f"Socket error type: {type(e).__name__}")
     print(f"Socket error args: {e.args}")
 
-# @socketio.on_error()
-# def handle_error(e):
-#     print('An error has occurred: ' + str(e))
-#
-#
-# @socketio.on('connect')
-# def handle_connect():
-#     print('Client connected serverside')
-#
 # TODO: - get the token from the client
 #       - decode the token (make a function)
 #       - get the arguments given with the socket call
