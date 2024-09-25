@@ -9,7 +9,6 @@ import React, {
 import { User } from "./types";
 import { initializeSocket } from "@/app/sockets";
 import { useRouter } from "next/navigation";
-import data from "./api.json";
 import { getSocket, disconnectSocket } from "./sockets";
 import { serverIP } from "@/app/constants";
 
@@ -50,11 +49,11 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType>({
   user: initialPig,
-  login: (token: string) => { },
-  logout: () => { },
-  setUser: () => { },
-  setCookie: (name: string, value: string, days?: number) => { },
-  deleteCookie: (name: string) => { },
+  login: (token: string) => {},
+  logout: () => {},
+  setUser: () => {},
+  setCookie: (name: string, value: string, days?: number) => {},
+  deleteCookie: (name: string) => {},
   getCookie: (name: string) => "",
   isJwtInCookie: () => false,
 });

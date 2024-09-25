@@ -1,3 +1,5 @@
+from typing import Dict
+
 import jwt
 from flask import current_app, jsonify, request
 from psycopg2.extras import RealDictCursor
@@ -39,7 +41,7 @@ SET fame = fame + 1
         data = request.get_json()
         user_viewed = data.get('user_id')
         cur.execute(view_user_query, (user['id'], user_viewed))
-        result = cur.fetchone()
+        result: Dict = dict(cur.fetchone())
         if result:
             cur.execute(fame_query, (user_viewed,))
             conn.commit()
@@ -48,6 +50,7 @@ SET fame = fame + 1
             return jsonify({'message': 'User already viewed'}), 200
 
     except Exception as e:
+        conn.rollback()
         return jsonify({'error': str(e)}), 400
     finally:
         cur.close()

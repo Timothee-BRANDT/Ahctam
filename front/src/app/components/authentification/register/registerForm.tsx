@@ -8,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import { serverIP } from "@/app/constants";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/app/authContext";
-import data from "../../../api.json";
 
 const RegisterForm: React.FC = () => {
   const router = useRouter();
@@ -42,7 +41,7 @@ const RegisterForm: React.FC = () => {
         body: JSON.stringify(payload),
       });
       if (response.ok) {
-        setUser(data.user);
+        console.log("User registered");
         router.push("register-confirm");
       }
       // si le token est expire, fait l'appel au endpoint qui le renouvelle
@@ -123,7 +122,7 @@ const RegisterForm: React.FC = () => {
               autoComplete="new-password"
             />
           </div>
-          <Button type="submit" onClick={() => { }}>
+          <Button type="submit" onClick={() => {}}>
             Register
           </Button>
           <div className="new_member">

@@ -8,7 +8,6 @@ import { State } from "@/app/types";
 import { Button } from "@/components/ui/button";
 import { initializeSocket } from "@/app/sockets";
 import { useRouter } from "next/navigation";
-import data from "../../../api.json";
 
 import "./login.scss";
 import { serverIP } from "@/app/constants";
