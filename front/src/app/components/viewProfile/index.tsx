@@ -91,6 +91,31 @@ const ProfileView: React.FC<ProfileViewProps> = (idProps) => {
     }
   };
 
+  const getIsUserLiked = async () => {
+    try {
+      if (idMatch) {
+        const id = idMatch[1];
+        const token = getCookie("jwt_token");
+        const url = `http://${serverIP}:5000/api/doILikeThisUser/${id}`;
+        const response = await fetch(url, {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const data = await response.json();
+        console.log("Server response:", data);
+        setLiked(data.liked);
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
   const redirectLogin = () => {
     router.push("/login");
   };
@@ -100,6 +125,7 @@ const ProfileView: React.FC<ProfileViewProps> = (idProps) => {
       redirectLogin();
     }
     getOtherUserInfo();
+    getIsUserLiked();
     setIsLoggedIn(isJwtInCookie());
   }, [idMatch]);
 

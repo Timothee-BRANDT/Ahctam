@@ -88,6 +88,7 @@ WHERE id = %s
         )
         conn.commit()
     except Exception as e:
+        conn.rollback()
         return jsonify({'error': str(e)}), 400
     finally:
         cur.close()
@@ -107,7 +108,8 @@ def unlike_a_user():
     user = jwt.decode(
         token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
     data = request.get_json()
-    user_unliked = data.get('user_id')
+    user_unliked = data.get('user_disliked_id')
+    logger.info(f'{user["id"]} unliked {user_unliked}')
     unlike_query = """
 DELETE FROM likes
 WHERE liker = %s AND user_liked = %s

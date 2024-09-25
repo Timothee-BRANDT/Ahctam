@@ -1,22 +1,45 @@
-from typing import Dict
+from typing import Dict, Optional, Tuple
 
 import jwt
+from flask import current_app, jsonify, request
+from psycopg2.extras import RealDictCursor
+
+from app.api import api
 from app.api.services.user_services import (get_user_info,
                                             get_users_who_like_user,
                                             get_users_who_viewed_user)
-from flask import current_app, jsonify, request
+from app.authentication.views.decorators import jwt_required
+from app.database import get_db_connection
 from logger import logger
-from psycopg2.extras import RealDictCursor
-
-from ..authentication.views.decorators import jwt_required
-from ..database import get_db_connection
-from . import api
 
 
-@api.route('/test')
-def get_test():
-    data = {"message": "Hello World from the API!"}
-    return jsonify(data)
+@api.route('/doILikeThisUser/<int:target_id>', methods=['GET'])
+@jwt_required
+def does_user_like_me(target_id: int):
+    conn = get_db_connection()
+    cur = conn.cursor()
+    query = """
+SELECT COUNT(*)
+FROM likes
+WHERE liker = %s
+AND user_liked = %s
+    """
+    try:
+        token = request.headers.get('Authorization', '').split(' ')[1]
+        requester_user = jwt.decode(
+            token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
+        user_id = requester_user['id']
+
+        cur.execute(query, (user_id, target_id))
+        query_result: Tuple = cur.fetchone()
+        return jsonify({'liked': bool(query_result[0] > 0)}), 200
+
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'error': str(e)}), 400
+    finally:
+        cur.close()
+        conn.close()
 
 
 @api.route('/checkUsername', methods=['POST'])
