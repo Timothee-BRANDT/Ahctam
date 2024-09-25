@@ -11,6 +11,12 @@ from logger import logger
 
 from .. import main
 
+# TODO: - a @blocked_protection decorator to protect routes from blocked users
+#       - Trello for Tim
+#       - Match users when they like each other
+#       - On every /viewUser, send the target to the history of the viewer
+#       - /reportUser
+
 
 @main.route('/viewUser', methods=['POST'])
 @jwt_required
