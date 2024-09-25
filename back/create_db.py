@@ -242,7 +242,7 @@ def create_notifications_table(cursor):
             id SERIAL PRIMARY KEY,
             date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             message VARCHAR(255),
-            status VARCHAR(50),
+            type VARCHAR(50),
             sender INTEGER NOT NULL,
             receiver INTEGER NOT NULL,
             FOREIGN KEY (sender) REFERENCES users(id) ON DELETE CASCADE,

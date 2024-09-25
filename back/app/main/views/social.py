@@ -6,7 +6,7 @@ from psycopg2.extras import RealDictCursor
 
 from app.authentication.views.decorators import jwt_required
 from app.database import get_db_connection
-from app.main.views.notifications import send_notification
+from app.main.views.notifications import send_notification, store_notification
 from logger import logger
 
 from .. import main
@@ -31,29 +31,46 @@ WHERE id = %s
 SET fame = fame + 1
     """
     conn = get_db_connection()
-    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
     try:
+        data = request.get_json()
         token = request.headers.get('Authorization', '').split(' ')[1]
         user = jwt.decode(
             token,
             current_app.config['SECRET_KEY'],
             algorithms=['HS256'])
-        data = request.get_json()
-        user_viewed = data.get('user_id')
-        cur.execute(view_user_query, (user['id'], user_viewed))
-        result: Dict = dict(cur.fetchone())
+
+        user_id: int = int(user['id'])
+        user_username: str = user['username']
+        user_viewed_id: int = int(data.get('user_id', ''))
+        if not user_viewed_id:
+            raise ValueError('user_viewed_id is required')
+
+        cursor.execute(view_user_query, (user_id, user_viewed_id))
+        result: Dict = dict(cursor.fetchone())
         if result:
-            cur.execute(fame_query, (user_viewed,))
+            cursor.execute(fame_query, (user_viewed_id,))
+            send_notification(
+                sender_id=user_id,
+                receiver_id=user_viewed_id,
+                message=f'{user_username} viewed your profile 👀',
+                notification_type='view'
+            )
+            store_notification(
+                cursor=cursor,
+                sender_id=user_id,
+                receiver_id=user_viewed_id,
+                message=f'{user_username} viewed your profile 👀',
+                notification_type='view'
+            )
             conn.commit()
-            return jsonify({'message': 'User viewed'}), 200
-        else:
-            return jsonify({'message': 'User already viewed'}), 200
+        return jsonify({'message': 'User viewed'}), 200
 
     except Exception as e:
         conn.rollback()
         return jsonify({'error': str(e)}), 400
     finally:
-        cur.close()
+        cursor.close()
         conn.close()
 
 
@@ -64,13 +81,7 @@ def like_a_user():
     Liking a user also increases his fame by 3
     """
     conn = get_db_connection()
-    cur = conn.cursor(cursor_factory=RealDictCursor)
-    token = request.headers.get('Authorization', '').split(' ')[1]
-    user = jwt.decode(
-        token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
-    data = request.get_json()
-    user_liked = data.get('user_liked_id')
-    logger.info(f'{user["id"]} liked {user_liked}')
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
     like_query = """
 INSERT INTO likes (liker, user_liked)
 VALUES (%s, %s)
@@ -81,22 +92,43 @@ SET fame = fame + 3
 WHERE id = %s
     """
     try:
-        cur.execute(like_query, (user['id'], user_liked))
-        cur.execute(fame_query, (user_liked,))
+        token = request.headers.get('Authorization', '').split(' ')[1]
+        user = jwt.decode(
+            token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
+        data = request.get_json()
+
+        user_id: int = int(user['id'])
+        user_username: str = user['username']
+        user_liked_id: int = int(data.get('user_liked_id', ''))
+        if not user_liked_id:
+            raise ValueError('user_liked_id is required')
+
+        cursor.execute(like_query, (user_id, user_liked_id))
+        cursor.execute(fame_query, (user_liked_id,))
+
         send_notification(
-            cursor=cur,
-            sender_id=user['id'],
-            receiver_id=user_liked,
-            message=f'{user["id"]} liked you 😍'
+            sender_id=user_id,
+            receiver_id=user_liked_id,
+            message=f'{user_username} liked you 😍',
+            notification_type='like'
         )
+        store_notification(
+            cursor=cursor,
+            sender_id=user_id,
+            receiver_id=user_liked_id,
+            message=f'{user_username} liked you 😍',
+            notification_type='like'
+        )
+
         conn.commit()
+        return jsonify({'message': f'User {user_liked_id} liked'}), 200
+
     except Exception as e:
         conn.rollback()
         return jsonify({'error': str(e)}), 400
     finally:
-        cur.close()
+        cursor.close()
         conn.close()
-    return jsonify({'message': 'User liked'}), 200
 
 
 @main.route('/dislikeUser', methods=['POST'])
@@ -106,13 +138,11 @@ def unlike_a_user():
     Unliking a user also reduces his fame by 3
     """
     conn = get_db_connection()
-    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
     token = request.headers.get('Authorization', '').split(' ')[1]
     user = jwt.decode(
         token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
-    data = request.get_json()
-    user_unliked = data.get('user_disliked_id')
-    logger.info(f'{user["id"]} unliked {user_unliked}')
+
     unlike_query = """
 DELETE FROM likes
 WHERE liker = %s AND user_liked = %s
@@ -123,15 +153,40 @@ SET fame = fame - 3
 WHERE id = %s
     """
     try:
-        cur.execute(unlike_query, (user['id'], user_unliked))
-        cur.execute(fame_query, (user_unliked,))
+        data = request.get_json()
+        user_id: int = int(user['id'])
+        user_username: str = user['username']
+        user_unliked_id: int = int(data.get('user_disliked_id', ''))
+        if not user_unliked_id:
+            raise ValueError('user_unliked_id is required')
+        logger.info(f'{user["id"]} unliked {user_unliked_id}')
+
+        cursor.execute(unlike_query, (user_id, user_unliked_id))
+        if cursor.rowcount > 0:
+            cursor.execute(fame_query, (user_unliked_id,))
+            send_notification(
+                sender_id=user_id,
+                receiver_id=user_unliked_id,
+                message=f'{user_username} unliked you 💔',
+                notification_type='unlike'
+            )
+            store_notification(
+                cursor=cursor,
+                sender_id=user_id,
+                receiver_id=user_unliked_id,
+                message=f'{user_username} unliked you 💔',
+                notification_type='unlike'
+            )
+
         conn.commit()
+        return jsonify({'message': f'User {user_unliked_id} unliked'}), 200
+
     except Exception as e:
+        conn.rollback()
         return jsonify({'error': str(e)}), 400
     finally:
-        cur.close()
+        cursor.close()
         conn.close()
-    return jsonify({'message': 'User unliked'}), 200
 
 
 @main.route('/blockUser', methods=['POST'])
@@ -141,12 +196,7 @@ def block_a_user():
     Blocking a user also reduces his fame by 5
     """
     conn = get_db_connection()
-    cur = conn.cursor(cursor_factory=RealDictCursor)
-    token = request.headers.get('Authorization', '').split(' ')[1]
-    user = jwt.decode(
-        token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
-    data = request.get_json()
-    user_blocked = data.get('user_id')
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
     block_query = """
 INSERT INTO blocks (blocker, user_blocked)
 VALUES (%s, %s)
@@ -157,12 +207,24 @@ SET fame = fame - 5
 WHERE id = %s
     """
     try:
-        cur.execute(block_query, (user['id'], user_blocked))
-        cur.execute(fame_query, (user_blocked,))
+        data = request.get_json()
+        token = request.headers.get('Authorization', '').split(' ')[1]
+        user = jwt.decode(
+            token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
+
+        user_id: int = int(user['id'])
+        user_username: str = user['username']
+        user_blocked = data.get('user_id')
+
+        cursor.execute(block_query, (user_id, user_blocked))
+        cursor.execute(fame_query, (user_blocked,))
+
         conn.commit()
+        return jsonify({'message': f'User {user_blocked} blocked'}), 200
+
     except Exception as e:
+        conn.rollback()
         return jsonify({'error': str(e)}), 400
     finally:
-        cur.close()
+        cursor.close()
         conn.close()
-    return jsonify({'message': 'User blocked'}), 200
