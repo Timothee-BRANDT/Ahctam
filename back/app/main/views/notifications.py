@@ -1,13 +1,15 @@
 from flask import current_app, jsonify, request
 
+from app.authentication.views.decorators import (jwt_required,
+                                                 sender_not_blocked)
+from logger import logger
+
 from .. import main
-
-# from app.authentication.views.decorators import jwt_required
-
 
 # from app.main.sockets.sockets import
 
 
+@sender_not_blocked
 def store_notification(
     cursor,
     sender_id: int,
@@ -34,10 +36,13 @@ def store_notification(
                 receiver_id,
             )
         )
+        logger.info(f"Notification stored for {receiver_id}")
+
     except Exception as e:
         raise e
 
 
+@sender_not_blocked
 def send_notification(
     sender_id: int,
     receiver_id: int,
@@ -64,6 +69,7 @@ def send_notification(
                 },
                 room=receiver_sid
             )
+            logger.info(f"Notification sent to {receiver_id}")
 
     except Exception as e:
         raise e
