@@ -1,10 +1,11 @@
 from typing import Any, Dict, List, Tuple
 
 import jwt
+from flask import Response, current_app, jsonify, request
+
 from app.authentication.views.decorators import jwt_required
 from app.main import main
 from app.main.services.browse_search_service import perform_browsing
-from flask import Response, current_app, jsonify, request
 from logger import logger
 
 
@@ -33,7 +34,8 @@ def browse() -> Tuple[Response, int]:
         user_id: int = int(user["id"])
         response: List
         status_code: int
-        response, status_code = perform_browsing(
+        total_number_of_users: int
+        response, total_number_of_user, status_code = perform_browsing(
             filters=filters,
             user_id=user_id,
             age=age,
@@ -43,7 +45,11 @@ def browse() -> Tuple[Response, int]:
             offset=offset,
             limit=limit,
         )
-        return jsonify(response), status_code
+        response_with_total: Dict = {
+            "total": total_number_of_user,
+            "users": response
+        }
+        return jsonify(response_with_total), status_code
 
     except Exception as e:
         logger.error(f"Error: {e}")

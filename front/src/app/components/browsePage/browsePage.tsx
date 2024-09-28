@@ -28,6 +28,7 @@ const browsePage: React.FC = () => {
   const [responsiveFilterButton, setResponsiveFilterButton] = useState(false);
   const [isFetched, setIsFetched] = useState(false);
   const [offset, setOffset] = useState(0);
+  const [totalProfiles, setTotalProfiles] = useState(0);
   const limit = 8;
 
   const router = useRouter();
@@ -45,6 +46,7 @@ const browsePage: React.FC = () => {
     setIsLoggedIn(isJwtInCookie());
   }, [offset]);
   // WARNING: only 1 display "[]" because infinite loop with [profiles]
+  // I replaced it with offset to rerender every pagination changes
 
   const redirect = (id: number) => {
     router.push(`/profile/${id}`);
@@ -74,34 +76,8 @@ const browsePage: React.FC = () => {
     const data_response = await response.json();
     if (response.ok) {
       console.log("From browse:", data_response);
-      setProfiles(data_response);
-    }
-  };
-
-  const applyFilters = async () => {
-    const cookie = getCookie("jwt_token");
-    const response = await fetch(
-      `http://${serverIP}:5000/browse?` +
-        new URLSearchParams({
-          age: String(age),
-          fame: String(fame),
-          distance: String(distance),
-          tags: String(tags),
-          offset: String(0),
-          limit: String(9),
-        }),
-      {
-        method: "GET",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${cookie}`,
-        },
-      },
-    );
-    const data = await response.json();
-    if (response.ok) {
-      setProfiles(data);
+      setProfiles(data_response.users);
+      setTotalProfiles(data_response.total);
     }
   };
 
@@ -188,7 +164,7 @@ const browsePage: React.FC = () => {
             </div>
           )}
           {responsiveFilterButton && (
-            <Button onClick={applyFilters} className="btn">
+            <Button onClick={() => setOffset(0)} className="btn">
               Apply filters
             </Button>
           )}
@@ -215,7 +191,7 @@ const browsePage: React.FC = () => {
             </Button>
             <Button
               onClick={goToNextPage}
-              // disabled={offset + limit >= totalProfiles}
+              disabled={offset + limit >= totalProfiles}
               className="flex items-center"
             >
               Suivant <ChevronRight className="ml-2" />

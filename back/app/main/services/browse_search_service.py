@@ -188,7 +188,7 @@ def perform_browsing(
     common_interests: int,
     offset: int,
     limit: int,
-) -> Tuple[List, int]:
+) -> Tuple[List, int, int]:
     """
     Actually it will compute the algorithm every time a user wants to browse
     After talking with collegues, it's the backend job
@@ -258,10 +258,10 @@ GROUP BY
                 distance=distance,
                 common_interests=common_interests
             )
-        return matching_users[offset:limit], 200
+        return matching_users[offset:limit], len(matching_users), 200
 
     except Exception as e:
-        return [str(e)], 500
+        raise e
     finally:
         cur.close()
         conn.close()
