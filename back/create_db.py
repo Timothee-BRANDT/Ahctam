@@ -446,6 +446,7 @@ def create_all_tables():
         create_locations_table(cursor)
         create_notifications_table(cursor)
         create_blocks_table(cursor)
+        create_reports_table(cursor)
         create_interests_table(cursor)
         create_user_interests_table(cursor)
         create_refresh_tokens_table(cursor)

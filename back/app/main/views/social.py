@@ -11,11 +11,12 @@ from logger import logger
 
 from .. import main
 
-# TODO: - a @blocked_protection decorator to protect routes from blocked users
-#       - Trello for Tim
+# TODO:
 #       - Match users when they like each other
 #       - On every /viewUser, send the target to the history of the viewer
-#       - /reportUser
+#       - /reportUser ✅
+#       - Reported and Blocked users must not appear in browse
+#       - Adapt algo weights to the new haversine formula
 
 
 @main.route('/viewUser', methods=['POST'])
@@ -226,7 +227,49 @@ WHERE id = %s
         cursor.execute(fame_query, (user_blocked,))
 
         conn.commit()
-        return jsonify({'message': f'User {user_blocked} blocked'}), 200
+        return jsonify({'message': f'User {user_username} blocked'}), 200
+
+    except Exception as e:
+        conn.rollback()
+        return jsonify({'error': str(e)}), 400
+    finally:
+        cursor.close()
+        conn.close()
+
+
+@main.route('/reportUser', methods=['POST'])
+@jwt_required
+def report_a_user():
+    """
+    A report decreases the user's fame by 5
+    At 5 reports, the user is banned
+    """
+    conn = get_db_connection()
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+    report_query = """
+INSERT INTO reports (blocker, user_blocked)
+VALUES (%s, %s)
+    """
+    fame_query = """
+UPDATE users
+SET fame = fame - 5
+WHERE id = %s
+    """
+    try:
+        data = request.get_json()
+        token = request.headers.get('Authorization', '').split(' ')[1]
+        user = jwt.decode(
+            token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
+
+        user_id: int = int(user['id'])
+        user_username: str = user['username']
+        user_reported = data.get('user_id')
+
+        cursor.execute(report_query, (user_id, user_reported))
+        cursor.execute(fame_query, (user_reported,))
+
+        conn.commit()
+        return jsonify({'message': f'User {user_username} reported'}), 200
 
     except Exception as e:
         conn.rollback()
