@@ -6,16 +6,14 @@ from psycopg2.extras import RealDictCursor
 
 from app.authentication.views.decorators import jwt_required
 from app.database import get_db_connection
-from app.main.services.match import create_match_if_mutual_like
+from app.main.services.match import create_match_if_mutual_like, delete_match
 from app.main.views.notifications import send_notification, store_notification
 from logger import logger
 
 from .. import main
 
 # TODO:
-#       - Match users when they like each other
-#       - On every /viewUser, send the target to the history of the viewer
-#       - /reportUser ✅
+#       - History route fetches views and sort them by date
 #       - Reported and Blocked users must not appear in browse
 #       - Adapt algo weights to the new haversine formula
 
@@ -172,15 +170,20 @@ WHERE id = %s
             send_notification(
                 sender_id=user_id,
                 receiver_id=user_unliked_id,
-                message=f'{user_username} unliked you 💔',
+                message=f'{user_username} unliked you 🤕',
                 notification_type='unlike'
             )
             store_notification(
                 cursor=cursor,
                 sender_id=user_id,
                 receiver_id=user_unliked_id,
-                message=f'{user_username} unliked you 💔',
+                message=f'{user_username} unliked you 🤕',
                 notification_type='unlike'
+            )
+            delete_match(
+                cursor=cursor,
+                user_id=user_id,
+                user_unliked_id=user_unliked_id
             )
 
         conn.commit()
@@ -211,6 +214,10 @@ UPDATE users
 SET fame = fame - 5
 WHERE id = %s
     """
+    remove_like_query = """
+DELETE FROM likes
+WHERE liker = %s AND user_liked = %s
+    """
     try:
         data = request.get_json()
         token = request.headers.get('Authorization', '').split(' ')[1]
@@ -223,6 +230,12 @@ WHERE id = %s
 
         cursor.execute(block_query, (user_id, user_blocked))
         cursor.execute(fame_query, (user_blocked,))
+        cursor.execute(remove_like_query, (user_id, user_blocked))
+        delete_match(
+            cursor=cursor,
+            user_id=user_id,
+            user_unliked_id=user_blocked
+        )
 
         conn.commit()
         return jsonify({'message': f'User {user_username} blocked'}), 200
@@ -265,6 +278,11 @@ WHERE id = %s
 
         cursor.execute(report_query, (user_id, user_reported))
         cursor.execute(fame_query, (user_reported,))
+        delete_match(
+            cursor=cursor,
+            user_id=user_id,
+            user_unliked_id=user_reported
+        )
 
         conn.commit()
         return jsonify({'message': f'User {user_username} reported'}), 200

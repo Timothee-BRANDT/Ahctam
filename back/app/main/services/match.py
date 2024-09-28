@@ -11,6 +11,33 @@ from logger import logger
 # from psycopg2.extras import RealDictCursor
 
 
+def delete_match(
+    cursor,
+    user_id: int,
+    user_unliked_id: int,
+) -> None:
+    delete_match_query = """
+DELETE FROM matches
+WHERE
+    (user1 = %s AND user2 = %s)
+    OR (user1 = %s AND user2 = %s)
+    """
+    try:
+        cursor.execute(
+            delete_match_query,
+            (user_id, user_unliked_id, user_unliked_id, user_id)
+        )
+        if cursor.rowcount:
+            logger.info(
+                f"Deleted match between {user_id} and {user_unliked_id}")
+        else:
+            logger.info(
+                f"No match found between {user_id} and {user_unliked_id}")
+
+    except Exception as e:
+        raise e
+
+
 def create_match_if_mutual_like(
     cursor,
     user_id: int,
