@@ -1,0 +1,135 @@
+.browse {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+
+  &__list {
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 18px;
+
+    @media only screen and (max-width: 1300px) {
+      grid-template-columns: repeat(5, 1fr);
+    }
+
+    @media only screen and (max-width: 1070px) {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    @media only screen and (max-width: 850px) {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    @media only screen and (max-width: 630px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+
+    @media only screen and (max-width: 540px) {
+      grid-template-columns: repeat(1, 1fr);
+    }
+  }
+}
+
+.search-box {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  border-radius: 8px;
+  margin-left: 20px;
+
+  /* Adjust margin to align with filter image */
+  @media only screen and (max-width: 700px) {
+    flex-direction: column;
+    margin-left: 0;
+    /* Remove margin for small screens */
+  }
+}
+
+.search {
+  position: relative;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  margin-top: -40px;
+  display: grid;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  padding: 16px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.search-hidden {
+  @media only screen and (max-width: 700px) {
+    display: none;
+  }
+
+  display: grid;
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  padding: 16px;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.search-button {
+  display: grid;
+  justify-content: center;
+  align-items: center;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.search-button:last-child:nth-child(2n - 1) {
+  grid-column: span 2;
+}
+
+.filters {
+  display: flex;
+  flex-direction: column;
+  width: 200px;
+  padding: 12px;
+  border-radius: 8px;
+  background-color: #e0e0e0;
+  gap: 16px;
+  position: absolute;
+  top: 80;
+  margin-left: 80px;
+}
+
+.filters-selectors {
+  display: flex;
+  gap: 16px;
+}
+
+.filters-img-and-icon {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  /* Align items to the start to avoid shifting */
+}
+
+.filter-image {
+  margin-left: 20px;
+  width: 40px;
+  height: 40px;
+  cursor: pointer;
+}
+
+.sliders {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 16px;
+  gap: 20px;
+  padding: 16px;
+}
+
+.btn {
+  display: flex;
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 16px;
+}
