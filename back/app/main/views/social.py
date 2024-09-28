@@ -6,6 +6,7 @@ from psycopg2.extras import RealDictCursor
 
 from app.authentication.views.decorators import jwt_required
 from app.database import get_db_connection
+from app.main.services.match import create_match_if_mutual_like
 from app.main.views.notifications import send_notification, store_notification
 from logger import logger
 
@@ -117,6 +118,11 @@ WHERE id = %s
             receiver_id=user_liked_id,
             message=f'{user_username} liked you 😍',
             notification_type='like'
+        )
+        create_match_if_mutual_like(
+            cursor=cursor,
+            user_id=user_id,
+            user_liked_id=user_liked_id
         )
 
         conn.commit()
