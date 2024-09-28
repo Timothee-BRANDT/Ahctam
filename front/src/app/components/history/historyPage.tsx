@@ -28,7 +28,8 @@ const historyPage: React.FC = () => {
         }
         getProfiles();
         setIsLoggedIn(isJwtInCookie());
-    }, [profiles]);
+    }, []);
+    // WARNING: I put [] because [profiles] was causing an infinite loop]
 
     const getProfiles = async () => {
         const token = getCookie("jwt_token");
