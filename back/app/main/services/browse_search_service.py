@@ -94,6 +94,16 @@ def _get_matching_users(
             matching_user["photos"] = [matching_user["photos"]]
             matching_user["fame"] = scale_fame_into_percentiles(
                 cursor, matching_user["fame"])
+            matching_user["nb_common_tags"] = _count_common_interests(
+                user_data["interests"].split(", "),
+                matching_user["interests"].split(", ")
+            )
+            matching_user["distance"] = haversine(
+                float(user_data["latitude"]),
+                float(user_data["longitude"]),
+                matching_user["latitude"],
+                matching_user["longitude"]
+            )
 
         matching_users: List = sorted(
             matching_users,

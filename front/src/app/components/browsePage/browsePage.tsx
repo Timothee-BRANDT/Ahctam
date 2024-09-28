@@ -52,10 +52,10 @@ const browsePage: React.FC = () => {
     const cookie = getCookie("jwt_token");
     const response = await fetch(
       `http://${serverIP}:5000/browse?` +
-        new URLSearchParams({
-          offset: String(0),
-          limit: String(9),
-        }),
+      new URLSearchParams({
+        offset: String(0),
+        limit: String(9),
+      }),
       {
         method: "GET",
         credentials: "include",
@@ -67,7 +67,7 @@ const browsePage: React.FC = () => {
     );
     const data_response = await response.json();
     if (response.ok) {
-      console.log(data_response);
+      console.log("From browse:", data_response);
       setProfiles(data_response);
     }
     // [MOCK]
@@ -78,14 +78,14 @@ const browsePage: React.FC = () => {
     const cookie = getCookie("jwt_token");
     const response = await fetch(
       `http://${serverIP}:5000/browse?` +
-        new URLSearchParams({
-          age: String(age),
-          fame: String(fame),
-          distance: String(distance),
-          tags: String(tags),
-          offset: String(0),
-          limit: String(9),
-        }),
+      new URLSearchParams({
+        age: String(age),
+        fame: String(fame),
+        distance: String(distance),
+        tags: String(tags),
+        offset: String(0),
+        limit: String(9),
+      }),
       {
         method: "GET",
         credentials: "include",
