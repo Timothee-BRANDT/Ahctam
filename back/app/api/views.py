@@ -7,7 +7,7 @@ from psycopg2.extras import RealDictCursor
 from app.api import api
 from app.api.services.user_services import (get_user_info,
                                             get_users_who_like_user,
-                                            get_users_who_viewed_user)
+                                            get_views_history)
 from app.authentication.views.decorators import jwt_required
 from app.database import get_db_connection
 from logger import logger
@@ -206,14 +206,14 @@ WHERE user_viewed = %s
 
 @api.route('/getMyViews', methods=['GET'])
 @jwt_required
-def get_users_who_viewed_user_controller():
+def get_users_i_viewed_controller():
     try:
         token = request.headers.get('Authorization', '').split(' ')[1]
         user = jwt.decode(
             token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
         user_id = user['id']
 
-        response, status_code = get_users_who_viewed_user(user_id)
+        response, status_code = get_views_history(user_id)
 
         return jsonify(response), status_code
 

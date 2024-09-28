@@ -1,8 +1,9 @@
 from typing import Dict, List, Tuple
 
+from psycopg2.extras import RealDictCursor
+
 from app.database import get_db_connection
 from logger import logger
-from psycopg2.extras import RealDictCursor
 
 
 def get_user_info(user_id: int) -> Tuple[Dict, int]:
@@ -123,28 +124,28 @@ WHERE user_liked = %s
     return users, 200
 
 
-def get_users_who_viewed_user(user_id: int):
+def get_views_history(user_id: int) -> Tuple[List[Dict], int]:
     viewers_id_query = """
-SELECT viewer
+SELECT user_viewed
 FROM Views
-WHERE user_viewed = %s
+WHERE viewer = %s
+ORDER BY date DESC
     """
     conn = get_db_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
     users: List[Dict] = []
     try:
         cur.execute(viewers_id_query, (user_id,))
-        viewers = cur.fetchall()
-        print(viewers)
+        viewers: List = cur.fetchall()
+        logger.info(f'Viewers: {viewers}')
         for viewer in viewers:
-            user: Tuple[Dict, int] = get_user_info(viewer['viewer'])
+            user: Tuple[Dict, int] = get_user_info(viewer['user_viewed'])
             if user[1] == 200:
                 users.append(user[0])
+        return users, 200
 
     except Exception as e:
-        return {'error': str(e)}, 400
+        raise e
     finally:
         cur.close()
         conn.close()
-
-    return users, 200
