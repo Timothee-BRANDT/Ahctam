@@ -19,59 +19,51 @@ from .. import main
 #       - Adapt algo weights to the new haversine formula
 
 
-@main.route('/viewUser', methods=['POST'])
+@main.route('/viewUser/<int:user_viewed_id>', methods=['POST'])
 @jwt_required
-def view_a_user():
+def view_a_user(user_viewed_id: int):
     """
     Viewing a user also increases his fame by 1
     """
     view_user_query = """
-INSERT INTO views (viewer, user_viewed)
-VALUES (%s, %s)
-ON CONFLICT (viewer, user_viewed)
-DO NOTHING
-RETURNING *
+INSERT INTO views (date, viewer, user_viewed) 
+VALUES (NOW() AT TIME ZONE 'Europe/Paris', %s, %s)
     """
     fame_query = """
 UPDATE users
-WHERE id = %s
 SET fame = fame + 1
+WHERE id = %s
     """
     conn = get_db_connection()
     cursor = conn.cursor(cursor_factory=RealDictCursor)
     try:
-        data = request.get_json()
         token = request.headers.get('Authorization', '').split(' ')[1]
         user = jwt.decode(
             token,
             current_app.config['SECRET_KEY'],
             algorithms=['HS256'])
-
         user_id: int = int(user['id'])
         user_username: str = user['username']
-        user_viewed_id: int = int(data.get('user_id', ''))
-        if not user_viewed_id:
-            raise ValueError('user_viewed_id is required')
 
         cursor.execute(view_user_query, (user_id, user_viewed_id))
-        result: Dict = dict(cursor.fetchone())
-        if result:
-            cursor.execute(fame_query, (user_viewed_id,))
-            send_notification(
-                sender_id=user_id,
-                receiver_id=user_viewed_id,
-                message=f'{user_username} viewed your profile 👀',
-                notification_type='view'
-            )
-            store_notification(
-                cursor=cursor,
-                sender_id=user_id,
-                receiver_id=user_viewed_id,
-                message=f'{user_username} viewed your profile 👀',
-                notification_type='view'
-            )
-            conn.commit()
-        return jsonify({'message': 'User viewed'}), 200
+        cursor.execute(fame_query, (user_viewed_id,))
+
+        send_notification(
+            sender_id=user_id,
+            receiver_id=user_viewed_id,
+            message=f'{user_username} viewed your profile 👀',
+            notification_type='view'
+        )
+        store_notification(
+            cursor=cursor,
+            sender_id=user_id,
+            receiver_id=user_viewed_id,
+            message=f'{user_username} viewed your profile 👀',
+            notification_type='view'
+        )
+
+        conn.commit()
+        return jsonify({'message': f'User {user_username} viewed'}), 200
 
     except Exception as e:
         conn.rollback()

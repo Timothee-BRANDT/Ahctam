@@ -126,8 +126,33 @@ const ProfileView: React.FC<ProfileViewProps> = (idProps) => {
     }
     getOtherUserInfo();
     getIsUserLiked();
+    addViewToWatchedUser();
     setIsLoggedIn(isJwtInCookie());
   }, [idMatch]);
+
+  const addViewToWatchedUser = async () => {
+    const token = getCookie("jwt_token");
+    try {
+      if (idMatch) {
+        const id = idMatch[1];
+        const url = `http://${serverIP}:5000/viewUser/${id}`;
+        const response = await fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const data = await response.json();
+        console.log("Server response:", data);
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
 
   const handleLike = async () => {
     const token = getCookie("jwt_token");
