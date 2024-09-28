@@ -49,6 +49,7 @@ WHERE id = %s
 SELECT url
 FROM Pictures
 WHERE owner = %s
+ORDER BY is_profile_picture DESC
     """
     logger.info(f'Getting user info for user {user_id}')
     conn = get_db_connection()
