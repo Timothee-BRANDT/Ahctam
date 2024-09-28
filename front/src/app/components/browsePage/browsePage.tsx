@@ -8,8 +8,8 @@ import { UserCard } from "@/components/ui/carousel";
 import { Button } from "@/components/ui/button";
 
 import { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
-import data from "../../api.json";
 import "./browsePage.scss";
 import { Slider } from "@/components/ui/slider";
 import { serverIP } from "@/app/constants";
@@ -27,6 +27,8 @@ const browsePage: React.FC = () => {
   const [profiles, setProfiles] = useState<User[]>([]);
   const [responsiveFilterButton, setResponsiveFilterButton] = useState(false);
   const [isFetched, setIsFetched] = useState(false);
+  const [offset, setOffset] = useState(0);
+  const limit = 8;
 
   const router = useRouter();
 
@@ -41,7 +43,7 @@ const browsePage: React.FC = () => {
     }
     getProfiles();
     setIsLoggedIn(isJwtInCookie());
-  }, []);
+  }, [offset]);
   // WARNING: only 1 display "[]" because infinite loop with [profiles]
 
   const redirect = (id: number) => {
@@ -52,10 +54,14 @@ const browsePage: React.FC = () => {
     const cookie = getCookie("jwt_token");
     const response = await fetch(
       `http://${serverIP}:5000/browse?` +
-      new URLSearchParams({
-        offset: String(0),
-        limit: String(9),
-      }),
+        new URLSearchParams({
+          age: String(age),
+          fame: String(fame),
+          distance: String(distance),
+          tags: String(tags),
+          offset: offset.toString(),
+          limit: (offset + limit).toString(),
+        }),
       {
         method: "GET",
         credentials: "include",
@@ -70,22 +76,20 @@ const browsePage: React.FC = () => {
       console.log("From browse:", data_response);
       setProfiles(data_response);
     }
-    // [MOCK]
-    // setProfiles(data.userArray);
   };
 
   const applyFilters = async () => {
     const cookie = getCookie("jwt_token");
     const response = await fetch(
       `http://${serverIP}:5000/browse?` +
-      new URLSearchParams({
-        age: String(age),
-        fame: String(fame),
-        distance: String(distance),
-        tags: String(tags),
-        offset: String(0),
-        limit: String(9),
-      }),
+        new URLSearchParams({
+          age: String(age),
+          fame: String(fame),
+          distance: String(distance),
+          tags: String(tags),
+          offset: String(0),
+          limit: String(9),
+        }),
       {
         method: "GET",
         credentials: "include",
@@ -99,6 +103,16 @@ const browsePage: React.FC = () => {
     if (response.ok) {
       setProfiles(data);
     }
+  };
+
+  const goToPreviousPage = () => {
+    if (offset > 0) {
+      setOffset(offset - limit);
+    }
+  };
+
+  const goToNextPage = () => {
+    setOffset(offset + limit);
   };
 
   const toggleResponsiveFilter = (event: React.MouseEvent) => {
@@ -190,6 +204,22 @@ const browsePage: React.FC = () => {
                 );
               })}
             </div>
+          </div>
+          <div className="flex justify-between mt-4">
+            <Button
+              onClick={goToPreviousPage}
+              disabled={offset === 0}
+              className="flex items-center"
+            >
+              <ChevronLeft className="mr-2" /> Précédent
+            </Button>
+            <Button
+              onClick={goToNextPage}
+              // disabled={offset + limit >= totalProfiles}
+              className="flex items-center"
+            >
+              Suivant <ChevronRight className="ml-2" />
+            </Button>
           </div>
         </>
       )}
