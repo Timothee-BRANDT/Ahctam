@@ -1,4 +1,4 @@
-from typing import Dict, Optional, Tuple
+from typing import Dict, List, Optional, Tuple
 
 import jwt
 from flask import current_app, jsonify, request
@@ -202,6 +202,37 @@ WHERE user_viewed = %s
     finally:
         cur.close()
         conn.close()
+
+
+@api.route('/getMyMatches', methods=['GET'])
+@jwt_required
+def get_user_matches():
+    conn = get_db_connection()
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+    matches_query = """
+SELECT u.id
+FROM users u
+JOIN matches m ON u.id = m.user1 OR u.id = m.user2
+WHERE (m.user1 = %s OR m.user2 = %s)
+AND u.id != %s
+    """
+    try:
+        token = request.headers.get('Authorization', '').split(' ')[1]
+        user = jwt.decode(
+            token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
+        user_id = user['id']
+        cursor.execute(matches_query, (user_id, user_id, user_id))
+        matches_id_list: List = [match['id'] for match in cursor.fetchall()]
+        matches: List = []
+        for match_id in matches_id_list:
+            user, status_code = get_user_info(match_id)
+            if status_code == 200:
+                matches.append(user)
+
+        return jsonify(matches), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
 
 
 @api.route('/getMyViews', methods=['GET'])
