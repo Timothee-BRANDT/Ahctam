@@ -13,9 +13,7 @@ from logger import logger
 from .. import main
 
 # TODO:
-#       - History route fetches views and sort them by date
 #       - Reported and Blocked users must not appear in browse
-#       - Adapt algo weights to the new haversine formula
 
 
 @main.route('/viewUser/<int:user_viewed_id>', methods=['POST'])

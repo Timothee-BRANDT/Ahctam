@@ -3,6 +3,7 @@ from typing import Dict, List, Tuple
 from psycopg2.extras import RealDictCursor
 
 from app.database import get_db_connection
+from app.main.services.algo_service import scale_fame_into_percentiles
 from logger import logger
 
 
@@ -51,19 +52,22 @@ WHERE owner = %s
     """
     logger.info(f'Getting user info for user {user_id}')
     conn = get_db_connection()
-    cur = conn.cursor(cursor_factory=RealDictCursor)
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
     interests: List = []
     try:
         # User data
-        cur.execute(user_query, (user_id,))
-        result = cur.fetchone()
+        cursor.execute(user_query, (user_id,))
+        result = cursor.fetchone()
         user_info: Dict = dict(result)
         user_info['firstTimeLogged'] = False
-        logger.info(f'User info: {result}')
+        user_info['fame_rating'] = scale_fame_into_percentiles(
+            cursor=cursor,
+            fame=user_info['fame_rating']
+        )
 
         # Location
-        cur.execute(location_query, (user_id,))
-        result = cur.fetchone()
+        cursor.execute(location_query, (user_id,))
+        result = cursor.fetchone()
         location_info: Dict = dict(result)
         user_info['location_list'] = [float(location_info['latitude']),
                                       float(location_info['longitude'])]
@@ -71,17 +75,17 @@ WHERE owner = %s
         user_info['address'] = location_info['address']
 
         # Interests
-        cur.execute(user_interests_query, (user_id,))
-        user_interests: List = cur.fetchall()
+        cursor.execute(user_interests_query, (user_id,))
+        user_interests: List = cursor.fetchall()
         for user_interest in user_interests:
-            cur.execute(interests_query, (user_interest['interest_id'],))
-            interest = cur.fetchone()
+            cursor.execute(interests_query, (user_interest['interest_id'],))
+            interest = cursor.fetchone()
             interests.append(interest['name'])
         user_info['interests'] = interests
 
         # Pictures
-        cur.execute(all_pictures_query, (user_id,))
-        all_pictures = cur.fetchall()
+        cursor.execute(all_pictures_query, (user_id,))
+        all_pictures = cursor.fetchall()
         user_info['photos'] = [picture['url'] for picture in all_pictures]
 
         flattened_response: Dict = {**user_info}
@@ -94,7 +98,7 @@ WHERE owner = %s
         logger.error(f'Error while getting user info: {str(e)}')
         raise e
     finally:
-        cur.close()
+        cursor.close()
         conn.close()
 
 

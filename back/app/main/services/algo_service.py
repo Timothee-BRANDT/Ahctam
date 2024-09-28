@@ -65,9 +65,9 @@ def matching_score(
     user1: Dict,
     user2: Dict
 ) -> float:
-    geo_weight = 1.4
-    age_weight = 0.3
-    interest_weight = 0.4
+    geo_weight = 0.7
+    age_weight = 0.7
+    interest_weight = 0.3
     fame_weight = 0.1
 
     geo_distance: float = haversine(
@@ -95,3 +95,33 @@ def matching_score(
 
     score = float(geo_score + age_score + interest_score + fame_score)
     return score
+
+
+def _get_fame_rating(fame: float, percentiles: np.ndarray) -> int:
+    match fame:
+        case _ if fame < percentiles[0]:
+            return 1
+        case _ if fame < percentiles[1]:
+            return 2
+        case _ if fame < percentiles[2]:
+            return 3
+        case _ if fame < percentiles[3]:
+            return 4
+        case _:
+            return 5
+
+
+def scale_fame_into_percentiles(cursor, fame: int) -> int:
+    min_max_fame_query = """
+SELECT fame
+FROM users
+    """
+    try:
+        cursor.execute(min_max_fame_query)
+        fame_list: List[float] = [row['fame'] for row in cursor.fetchall()]
+        percentiles = np.percentile(fame_list, [20, 40, 60, 80])
+
+        return _get_fame_rating(fame, percentiles)
+
+    except Exception as e:
+        raise e

@@ -1,13 +1,15 @@
 import json
 from typing import Any, Dict, List, Tuple
 
-from app.database import get_db_connection
-from app.main import main
-from app.main.services.algo_service import haversine, matching_score
 # from app.authentication.views.decorators import jwt_required
 from flask import current_app, jsonify
-from logger import logger
 from psycopg2.extras import RealDictCursor
+
+from app.database import get_db_connection
+from app.main import main
+from app.main.services.algo_service import (haversine, matching_score,
+                                            scale_fame_into_percentiles)
+from logger import logger
 
 
 def _get_matching_users(
@@ -15,8 +17,6 @@ def _get_matching_users(
     cursor,
 ) -> List[Dict]:
     """
-    TODO: Now work on the interests brooo
-    It will need another join with the user_interest relation table
     """
     matchers_query = """
     SELECT
@@ -92,8 +92,8 @@ def _get_matching_users(
             matching_user["latitude"] = float(matching_user["latitude"])
             matching_user["longitude"] = float(matching_user["longitude"])
             matching_user["photos"] = [matching_user["photos"]]
-            # logger.info(f"user_firstname: {matching_user['firstname']}")
-            # logger.info(f"matching_score: {matching_user['matching_score']}")
+            matching_user["fame"] = scale_fame_into_percentiles(
+                cursor, matching_user["fame"])
 
         matching_users: List = sorted(
             matching_users,
