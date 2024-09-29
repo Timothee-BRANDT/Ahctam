@@ -59,6 +59,29 @@ export default function Component() {
     setIsChatWindowOpen(true);
   };
 
+  const sendMessagetoAPI = async (newMessage: Message) => {
+    const token = getCookie("jwt_token");
+    const response = await fetch(`http://${serverIP}:5000/sendMessage`, {
+      method: "POST",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify({
+        conversationId: selectedMatch!.id,
+        useruuid: selectedMatch!.useruuid,
+        matchedUseruuid: selectedMatch!.matchedUseruuid,
+        message: newMessage.text,
+      }),
+    });
+    const data = await response.json();
+    console.log("sendMessagetoAPI data:", data);
+    if (response.ok) {
+      console.log("Message sent successfully");
+    }
+  };
+
   const sendMessage = (text: string) => {
     console.log("Called sendMessage with : ", text);
     if (!text) {
@@ -74,6 +97,10 @@ export default function Component() {
         hour12: true,
       }),
     };
+
+    // call the endpoint to send the message
+    sendMessagetoAPI(newMessage);
+
     const updatedMatchs = matchs.map((m) =>
       m.id === selectedMatch!.id
         ? { ...m, messages: [...m.messages, newMessage] }

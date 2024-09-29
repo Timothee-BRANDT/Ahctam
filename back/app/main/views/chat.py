@@ -11,6 +11,26 @@ from app.main import main
 from logger import logger
 
 
+@main.route('/sendMessage', methods=['POST'])
+@jwt_required
+def send_new_message():
+    logger.info("Storing message")
+    conn = get_db_connection()
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+    try:
+        data = request.get_json()
+        sender_id = data['useruuid']
+        receiver_id = data['matchedUseruuid']
+        message = data['message']
+        match_id = data['conversationId']
+        logger.info(
+            f"Sender: {sender_id}, Receiver: {receiver_id}, Message: {message}, Match ID: {match_id}")
+        return jsonify({'message': 'Message sent'}), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+
 @main.route('/getMyConversations', methods=['GET'])
 @jwt_required
 def get_user_matches():
