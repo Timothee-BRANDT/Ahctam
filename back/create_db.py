@@ -150,11 +150,11 @@ def create_messages_table(cursor):
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS messages (
             id SERIAL PRIMARY KEY,
-            conversation_id INTEGER NOT NULL,
+            match_id INTEGER NOT NULL,
             sender_id INTEGER NOT NULL,
             message TEXT NOT NULL,
             sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (conversation_id) REFERENCES conversations(id) ON DELETE CASCADE,
+            FOREIGN KEY (match_id) REFERENCES matches(id) ON DELETE CASCADE,
             FOREIGN KEY (sender_id) REFERENCES users(id) ON DELETE CASCADE
         );
     """)

@@ -71,6 +71,7 @@ export default function Component() {
   ]);
 
   const openChatWindow = (match: Match) => {
+    console.log("Called openChatWindow for : ", match);
     // call the endpoint that give me all the messages
     setSelectedMatch(match);
     setIsMatchsListOpen(false);
@@ -78,6 +79,7 @@ export default function Component() {
   };
 
   const sendMessage = (text: string) => {
+    console.log("Called sendMessage with : ", text);
     if (!text) {
       return;
     }
@@ -107,6 +109,7 @@ export default function Component() {
   };
 
   const handleClickOutside = (event: MouseEvent) => {
+    console.log("Called handleClickOutside");
     if (
       chatWindowRef.current &&
       !chatWindowRef.current.contains(event.target as Node)
@@ -126,6 +129,7 @@ export default function Component() {
   };
 
   useEffect(() => {
+    console.log("First useEffect");
     // if (isLoggedIn) {
     //     const io = require("socket.io-client");
     //     const socket = io("http://localhost:5000", {
@@ -150,6 +154,7 @@ export default function Component() {
   }, [isLoggedIn]);
 
   useEffect(() => {
+    console.log("useEffect Selected match changed:", selectedMatch);
     scrollToBottom();
     if (messageInputRef.current) {
       messageInputRef.current.focus();
@@ -208,11 +213,10 @@ export default function Component() {
           )}
           {isChatWindowOpen && (
             <div
-              className={`fixed inset-0 z-20 flex items-end justify-end bg-black/50 transition-opacity duration-300 ${
-                isChatWindowOpen
+              className={`fixed inset-0 z-20 flex items-end justify-end bg-black/50 transition-opacity duration-300 ${isChatWindowOpen
                   ? "opacity-100"
                   : "pointer-events-none opacity-0"
-              }`}
+                }`}
             >
               <div
                 ref={chatWindowRef}
@@ -247,11 +251,10 @@ export default function Component() {
                       className={`mb-2 flex items-end gap-2 ${message.isMe ? "justify-end" : "justify-start"}`}
                     >
                       <div
-                        className={`max-w-[70%] break-words rounded-lg px-4 py-2 ${
-                          message.isMe
+                        className={`max-w-[70%] break-words rounded-lg px-4 py-2 ${message.isMe
                             ? "bg-black text-primary-foreground"
                             : "bg-muted text-black"
-                        }`}
+                          }`}
                       >
                         <div>{message.text}</div>
                         <div
