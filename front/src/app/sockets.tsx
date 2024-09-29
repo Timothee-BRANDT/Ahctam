@@ -5,6 +5,8 @@ let socket: Socket | null = null;
 
 const setupSocketListeners = (): void => {
   if (socket) {
+    console.log("Setting up general socket listeners");
+
     socket.on("connect", () => {
       console.log("Connected to socket server:", socket?.id);
     });
@@ -26,6 +28,11 @@ const setupSocketListeners = (): void => {
       // import { handleNotification } from "notification_file";
       // handeNotification(data);
     });
+
+    // socket.on("new_message", (data) => {
+    //   console.log("New message!!");
+    //   console.log(data.text);
+    // });
   }
 };
 

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState, useCallback } from "react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import { Truck } from "lucide-react";
 import { AppBuildManifestPlugin } from "next/dist/build/webpack/plugins/app-build-manifest-plugin";
 import { serverIP } from "@/app/constants";
+import { getSocket } from "@/app/sockets";
 
 interface Match {
   id: number;
@@ -32,6 +33,7 @@ interface Message {
 //     avatar: string;
 //     createdAt: new Date() | string;
 // };
+//
 
 export default function Component() {
   const router = useRouter();
@@ -45,11 +47,8 @@ export default function Component() {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messageInputRef = useRef<HTMLTextAreaElement>(null);
 
-  // [MOCK]
-  // faire une fonction qui est trigger lorsqu'on clique sur l'icon des 2 bonhommes pour ouvrir la liste de matchs
-  // un event est listen en permanence pour ecouter si j'ai des nouveaux messages ou pas (newMessage)
-  // un autre est listen lorsqu'on ouvre le tchat avec qqn (message)
   const [matchs, setMatchs] = useState<Match[]>([]);
+  const [lastMessageTimestamp, setLastMessageTimestamp] = useState<number>(0);
 
   const openChatWindow = (match: Match) => {
     console.log("Called openChatWindow for : ", match);
@@ -82,6 +81,58 @@ export default function Component() {
     }
   };
 
+  const handleNewMessage = useCallback((data: any) => {
+    console.log("New message received:", data);
+    setMatchs((prevMatchs) =>
+      prevMatchs.map((match) => {
+        console.log("match.id:", match.id);
+        console.log("data.match_id:", data.match_id);
+        if (match.id === data.match_id) {
+          const newMessage: Message = {
+            id: match.messages.length + 1,
+            text: data.text,
+            isMe: false,
+            timestamp: new Date(data.timestamp).toLocaleTimeString("en-US", {
+              hour: "2-digit",
+              minute: "2-digit",
+              hour12: true,
+            }),
+          };
+          return {
+            ...match,
+            messages: [...match.messages, newMessage],
+          };
+        }
+        return match;
+      }),
+    );
+    setLastMessageTimestamp(Date.now()); // Force re-render
+  }, []);
+
+  useEffect(() => {
+    console.log("Setting up message socket listener");
+    const socket = getSocket();
+    if (socket) {
+      socket.on("new_message", handleNewMessage);
+      return () => {
+        socket.off("new_message", handleNewMessage);
+      };
+    }
+  }, [handleNewMessage]);
+
+  useEffect(() => {
+    console.log(
+      "Matchs or lastMessageTimestamp updated:",
+      lastMessageTimestamp,
+    );
+    if (selectedMatch) {
+      const updatedMatch = matchs.find((m) => m.id === selectedMatch.id);
+      if (updatedMatch && updatedMatch !== selectedMatch) {
+        setSelectedMatch(updatedMatch);
+      }
+    }
+  }, [matchs, lastMessageTimestamp]);
+
   const sendMessage = (text: string) => {
     console.log("Called sendMessage with : ", text);
     if (!text) {
@@ -98,7 +149,6 @@ export default function Component() {
       }),
     };
 
-    // call the endpoint to send the message
     sendMessagetoAPI(newMessage);
 
     const updatedMatchs = matchs.map((m) =>
@@ -137,6 +187,7 @@ export default function Component() {
   };
 
   const getConversations = async () => {
+    console.log("Called getConversations");
     const token = getCookie("jwt_token");
     const response = await fetch(`http://${serverIP}:5000/getMyConversations`, {
       method: "GET",
@@ -163,22 +214,6 @@ export default function Component() {
 
   useEffect(() => {
     console.log("First useEffect");
-    // if (isLoggedIn) {
-    //     const io = require("socket.io-client");
-    //     const socket = io("http://localhost:5000", {
-    //         auth: {
-    //             token: getCookie('jwt_token'),
-    //         },
-    //     });
-    //     socket.on("connect", () => {
-    //         socket.on("notification", (data: any) => {
-    //             console.log("Nouvelle notification reçue:", data);
-    //         });
-    //     });
-    //     socket.on("connect_error", (error: any) => {
-    //         console.error("Erreur de connexion socket:", error);
-    //     });
-    // }
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);

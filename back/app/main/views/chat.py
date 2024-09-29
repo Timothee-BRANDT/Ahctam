@@ -8,6 +8,7 @@ from app.api.services.user_services import get_user_info
 from app.authentication.views.decorators import jwt_required
 from app.database import get_db_connection
 from app.main import main
+from app.main.services.messages import send_message, store_message
 from logger import logger
 
 
@@ -19,12 +20,27 @@ def send_new_message():
     cursor = conn.cursor(cursor_factory=RealDictCursor)
     try:
         data = request.get_json()
-        sender_id = data['useruuid']
-        receiver_id = data['matchedUseruuid']
-        message = data['message']
-        match_id = data['conversationId']
+        sender_id: int = int(data['useruuid'])
+        receiver_id: int = int(data['matchedUseruuid'])
+        message: str = data['message']
+        match_id: int = int(data['conversationId'])
         logger.info(
             f"Sender: {sender_id}, Receiver: {receiver_id}, Message: {message}, Match ID: {match_id}")
+        new_message_id = store_message(
+            cursor=cursor,
+            sender_id=sender_id,
+            message=message,
+            match_id=match_id
+        )
+        send_message(
+            message_id=new_message_id,
+            conversation_id=match_id,
+            sender_id=sender_id,
+            receiver_id=receiver_id,
+            message=message,
+        )
+
+        conn.commit()
         return jsonify({'message': 'Message sent'}), 200
 
     except Exception as e:
@@ -50,6 +66,7 @@ AND u.id != %s
 SELECT *
 FROM messages
 WHERE match_id = %s
+ORDER BY sent_at
     """
     try:
         token = request.headers.get('Authorization', '').split(' ')[1]
@@ -79,14 +96,14 @@ WHERE match_id = %s
                     "messages": [
                         {
                             "id": message['id'],
-                            "text": message['text'],
+                            "text": message['message'],
                             "isMe": message['sender_id'] == user_id,
                             "timestamp": message['sent_at']
                         } for message in messages_query_result
                     ]
                 })
 
-        logger.info(f"Matches and messages: {matches_and_messages}")
+        # logger.info(f"Matches and messages: {matches_and_messages}")
         return jsonify(matches_and_messages), 200
 
     except Exception as e:
