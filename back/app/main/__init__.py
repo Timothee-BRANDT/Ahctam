@@ -8,4 +8,5 @@ from .views import (
     browse,
     update_profile,
     notifications,
+    chat,
 )

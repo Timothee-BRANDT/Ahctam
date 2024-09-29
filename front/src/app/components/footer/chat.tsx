@@ -4,11 +4,11 @@ import React, { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
-import data from "../../api.json";
 import { useAuth } from "@/app/authContext";
 import { useRouter } from "next/navigation";
 import { Truck } from "lucide-react";
 import { AppBuildManifestPlugin } from "next/dist/build/webpack/plugins/app-build-manifest-plugin";
+import { serverIP } from "@/app/constants";
 
 interface Match {
   id: number;
@@ -49,26 +49,7 @@ export default function Component() {
   // faire une fonction qui est trigger lorsqu'on clique sur l'icon des 2 bonhommes pour ouvrir la liste de matchs
   // un event est listen en permanence pour ecouter si j'ai des nouveaux messages ou pas (newMessage)
   // un autre est listen lorsqu'on ouvre le tchat avec qqn (message)
-  const [matchs, setMatchs] = useState<Match[]>([
-    {
-      id: 1,
-      name: "John Doe",
-      avatar: "https://picsum.photos/201",
-      messages: data.messagesRoom1,
-    },
-    {
-      id: 2,
-      name: "Jane Smith",
-      avatar: "https://picsum.photos/202",
-      messages: data.messagesRoom2,
-    },
-    {
-      id: 3,
-      name: "Bob Johnson",
-      avatar: "https://picsum.photos/203",
-      messages: data.messagesRoom3,
-    },
-  ]);
+  const [matchs, setMatchs] = useState<Match[]>([]);
 
   const openChatWindow = (match: Match) => {
     console.log("Called openChatWindow for : ", match);
@@ -127,6 +108,31 @@ export default function Component() {
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
+
+  const getConversations = async () => {
+    const token = getCookie("jwt_token");
+    const response = await fetch(`http://${serverIP}:5000/getMyConversations`, {
+      method: "GET",
+      credentials: "include",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const data = await response.json();
+    console.log("getConversations data:", data);
+    if (response.ok) {
+      setMatchs(data);
+    }
+  };
+
+  useEffect(() => {
+    console.log("useEffect openMatchList");
+    if (!isJwtInCookie()) {
+      router.push("/login");
+    }
+    getConversations();
+  }, [isMatchsListOpen, isChatWindowOpen]);
 
   useEffect(() => {
     console.log("First useEffect");
