@@ -49,7 +49,7 @@ export default function Component() {
   const messageInputRef = useRef<HTMLTextAreaElement>(null);
 
   const [matchs, setMatchs] = useState<Match[]>([]);
-  const [lastMessageTimestamp, setLastMessageTimestamp] = useState<number>(0);
+  // const [lastMessageTimestamp, setLastMessageTimestamp] = useState<number>(0);
 
   const openChatWindow = (match: Match) => {
     console.log("Called openChatWindow for : ", match);
@@ -107,7 +107,6 @@ export default function Component() {
         return match;
       }),
     );
-    setLastMessageTimestamp(Date.now()); // Force re-render
   }, []);
 
   useEffect(() => {
@@ -115,27 +114,33 @@ export default function Component() {
     const socket = getSocket();
     if (socket) {
       socket.on("new_message", handleNewMessage);
+      const handleMessageReceived = (data: any) => {
+        if (!isChatWindowOpen) {
+          console.log("Message received while chat window is closed");
+          // Effectuer les actions nécessaires pour "message_received" ici
+        }
+      };
+
+      socket.on("message_received", handleMessageReceived);
       return () => {
         socket.off("new_message", handleNewMessage);
+        socket.off("message_received", handleMessageReceived);
       };
     }
-  }, [handleNewMessage]);
+  }, [handleNewMessage, isChatWindowOpen]);
 
   useEffect(() => {
-    console.log(
-      "Matchs or lastMessageTimestamp updated:",
-      lastMessageTimestamp,
-    );
     if (selectedMatch) {
       const updatedMatch = matchs.find((m) => m.id === selectedMatch.id);
       if (updatedMatch && updatedMatch !== selectedMatch) {
         setSelectedMatch(updatedMatch);
       }
     }
-  }, [matchs, lastMessageTimestamp]);
+  }, [matchs]);
 
   const sendMessage = (text: string) => {
     console.log("Called sendMessage with : ", text);
+    const socket = getSocket();
     if (!text) {
       return;
     }
@@ -151,6 +156,13 @@ export default function Component() {
     };
 
     sendMessagetoAPI(newMessage);
+    if (socket) {
+      socket.emit("send_message", {
+        sender_id: selectedMatch!.useruuid,
+        receiver_id: selectedMatch!.matchedUseruuid,
+        message: text,
+      });
+    }
 
     const updatedMatchs = matchs.map((m) =>
       m.id === selectedMatch!.id
@@ -223,10 +235,12 @@ export default function Component() {
   }, [isLoggedIn]);
 
   useEffect(() => {
-    console.log("useEffect Selected match changed:", selectedMatch);
-    scrollToBottom();
-    if (messageInputRef.current) {
-      messageInputRef.current.focus();
+    if (isChatWindowOpen) {
+      // console.log("useEffect Selected match changed:", selectedMatch);
+      scrollToBottom();
+      if (messageInputRef.current) {
+        messageInputRef.current.focus();
+      }
     }
   }, [selectedMatch?.messages]);
 

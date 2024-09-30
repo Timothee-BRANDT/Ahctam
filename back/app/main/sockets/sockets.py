@@ -1,5 +1,5 @@
 from typing import cast
-
+from logger import logger
 import jwt
 from flask import current_app, request
 from flask_socketio import emit
@@ -79,6 +79,25 @@ def handle_disconnect():
     except Exception as e:
         print(f'An error occurred: {str(e)}')
         return False
+
+
+@socketio.on('send_message')
+def handle_message_sent(data):
+    socketio = current_app.extensions['socketio']
+    receiver_id = data['receiver_id']
+    logger.info(f"Receiver ID from message_sent: {receiver_id}")
+    redis_client = current_app.extensions['redis']
+    redis_receiver_key: str = f"socket:{receiver_id}"
+    receiver_sid = redis_client.get(redis_receiver_key).decode('utf-8')
+    if receiver_sid is not None:
+        socketio.emit(
+            'message_received',
+            {
+                'message': 'You have a new message 󰍦',
+                'sender_id': data['sender_id'],
+            },
+            room=receiver_sid
+        )
 
 
 @socketio.on('hello')
