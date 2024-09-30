@@ -90,7 +90,7 @@ export default function Component() {
         console.log("data.match_id:", data.match_id);
         if (match.id === data.match_id) {
           const newMessage: Message = {
-            id: match.messages.length + 1,
+            id: Date.now(),
             text: data.text,
             isMe: false,
             timestamp: new Date(data.timestamp).toLocaleTimeString("en-US", {
@@ -145,7 +145,7 @@ export default function Component() {
       return;
     }
     const newMessage: Message = {
-      id: selectedMatch!.messages.length + 1,
+      id: Date.now(),
       text,
       isMe: true,
       timestamp: new Date().toLocaleTimeString("en-US", {
