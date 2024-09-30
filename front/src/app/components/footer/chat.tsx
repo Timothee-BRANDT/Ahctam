@@ -15,6 +15,7 @@ interface Match {
   id: number;
   useruuid: number;
   matchedUseruuid: number;
+  matchedUserStatus: string;
   name: string;
   avatar: string;
   messages: Message[];
@@ -273,6 +274,14 @@ export default function Component() {
                           </div>
                         </div>
                       </Button>
+                      <img
+                        src={
+                          match.matchedUserStatus === "online"
+                            ? "/online.svg"
+                            : "/offline.svg"
+                        }
+                        style={{ width: "16px", height: "16px" }}
+                      />
                     </div>
                   ))}
                 </div>

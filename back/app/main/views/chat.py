@@ -56,6 +56,7 @@ def get_user_matches():
     matches_query = """
 SELECT
     u.id,
+    u.status,
     m.id AS match_id
 FROM users u
 JOIN matches m ON u.id = m.user1 OR u.id = m.user2
@@ -91,6 +92,7 @@ ORDER BY sent_at
                     "id": match_id,
                     "useruuid": user_id,
                     "matchedUseruuid": user_match_id,
+                    "matchedUserStatus": user_match['status'],
                     "name": user_match['firstname'],
                     "avatar": user_match['photos'][0],
                     "messages": [
