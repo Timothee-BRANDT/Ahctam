@@ -35,7 +35,7 @@ def browse() -> Tuple[Response, int]:
         response: List
         status_code: int
         total_number_of_users: int
-        response, total_number_of_user, status_code = perform_browsing(
+        response, total_number_of_users, status_code = perform_browsing(
             filters=filters,
             user_id=user_id,
             age=age,
@@ -46,7 +46,7 @@ def browse() -> Tuple[Response, int]:
             limit=limit,
         )
         response_with_total: Dict = {
-            "total": total_number_of_user,
+            "total": total_number_of_users,
             "users": response
         }
         return jsonify(response_with_total), status_code
