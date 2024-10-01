@@ -7,6 +7,7 @@ from psycopg2.extras import RealDictCursor
 
 from app import socketio
 from app.database import get_db_connection
+from app.main.services.match import _get_firstname_from_user_id
 
 
 def update_status_and_connection_time(user_id: int, status: str):
@@ -93,7 +94,8 @@ def handle_message_sent(data):
         socketio.emit(
             'message_received',
             {
-                'message': 'You have a new message 󰍦',
+                'message': 'You have a new message 📧',
+                'match_id': data['match_id'],
                 'sender_id': data['sender_id'],
             },
             room=receiver_sid
@@ -112,13 +114,3 @@ def default_error_handler(e):
     print(f"An error occurred for sockets: {str(e)}")
     print(f"Socket error type: {type(e).__name__}")
     print(f"Socket error args: {e.args}")
-
-# TODO: - get the token from the client
-#       - decode the token (make a function)
-#       - get the arguments given with the socket call
-#       - link the id with the session id in redis
-#       - update the status of the user in the database
-#       - send back a message to the client
-#       - create a function to handle the disconnection, remove from redis
-#       - implement the chat, that connects 2 sessions
-#

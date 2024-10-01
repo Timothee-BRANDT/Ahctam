@@ -9,6 +9,7 @@ from app.authentication.views.decorators import jwt_required
 from app.database import get_db_connection
 from app.main import main
 from app.main.services.messages import send_message, store_message
+from app.main.views.notifications import send_notification, store_notification
 from logger import logger
 
 
@@ -110,6 +111,57 @@ ORDER BY sent_at
 
     except Exception as e:
         return jsonify({'error': str(e)}), 400
+
+
+@main.route('/sendNotifMessage', methods=['POST'])
+@jwt_required
+def send_notif_message():
+    conn = get_db_connection()
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+    sender_receiver_from_match_query = """
+SELECT
+    user1,
+    user2
+FROM matches
+WHERE id = %s
+    """
+    try:
+        data = request.get_json()
+        logger.info(f"Data: {data}")
+        match_id: int = data['match_id']
+        message: str = data['message']
+        user = jwt.decode(
+            request.headers.get('Authorization', '').split(' ')[1],
+            current_app.config['SECRET_KEY'],
+            algorithms=['HS256']
+        )
+        user_id: int = int(user['id'])
+
+        cursor.execute(sender_receiver_from_match_query, (match_id,))
+        result: Dict = dict(cursor.fetchone())
+        sender_id: int = result['user1'] if result['user1'] != user_id else result['user2']
+        receiver_id: int = result['user1'] if result['user1'] == user_id else result['user2']
+
+        send_notification(
+            sender_id=sender_id,
+            receiver_id=receiver_id,
+            message=message,
+            notification_type='message'
+        )
+        store_notification(
+            cursor=cursor,
+            sender_id=sender_id,
+            receiver_id=receiver_id,
+            message=message,
+            notification_type='message'
+        )
+
+        logger.info(f"Notification message sent: {message}")
+        return jsonify({'message': 'Notif message sent'}), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
 
 # What front expects:
 # interface Match {

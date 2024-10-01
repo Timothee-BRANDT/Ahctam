@@ -47,6 +47,7 @@ export default function Component() {
   const matchListWindowRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messageInputRef = useRef<HTMLTextAreaElement>(null);
+  const [notifMessage, setNotifMessage] = useState<string | null>(null);
 
   const [matchs, setMatchs] = useState<Match[]>([]);
   // const [lastMessageTimestamp, setLastMessageTimestamp] = useState<number>(0);
@@ -112,13 +113,26 @@ export default function Component() {
   useEffect(() => {
     console.log("Setting up message socket listener");
     const socket = getSocket();
+    const token = getCookie("jwt_token");
     if (socket) {
       socket.on("new_message", handleNewMessage);
       const handleMessageReceived = (data: any) => {
-        if (!isChatWindowOpen) {
-          console.log("Message received while chat window is closed");
-          // Effectuer les actions nécessaires pour "message_received" ici
-        }
+        if (
+          !isChatWindowOpen ||
+          data.sender_id !== selectedMatch?.matchedUseruuid
+        )
+          fetch(`http://${serverIP}:5000/sendNotifMessage`, {
+            method: "POST",
+            credentials: "include",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${token}`,
+            },
+            body: JSON.stringify({
+              match_id: data.match_id,
+              message: data.message,
+            }),
+          });
       };
 
       socket.on("message_received", handleMessageReceived);
@@ -160,6 +174,7 @@ export default function Component() {
       socket.emit("send_message", {
         sender_id: selectedMatch!.useruuid,
         receiver_id: selectedMatch!.matchedUseruuid,
+        match_id: selectedMatch!.id,
         message: text,
       });
     }
