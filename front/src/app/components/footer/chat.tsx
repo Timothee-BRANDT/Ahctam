@@ -211,7 +211,18 @@ export default function Component() {
       },
     });
     const data = await response.json();
-    console.log("getConversations data:", data);
+    for (let i = 0; i < data.length; i++) {
+      for (let j = 0; j < data[i].messages.length; j++) {
+        data[i].messages[j].timestamp = new Date(
+          data[i].messages[j].timestamp,
+        ).toLocaleTimeString("en-US", {
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        });
+      }
+    }
+    // console.log("getConversations data:", data);
     if (response.ok) {
       setMatchs(data);
     }
