@@ -47,10 +47,8 @@ export default function Component() {
   const matchListWindowRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messageInputRef = useRef<HTMLTextAreaElement>(null);
-  const [notifMessage, setNotifMessage] = useState<string | null>(null);
 
   const [matchs, setMatchs] = useState<Match[]>([]);
-  // const [lastMessageTimestamp, setLastMessageTimestamp] = useState<number>(0);
 
   const openChatWindow = (match: Match) => {
     console.log("Called openChatWindow for : ", match);
@@ -237,7 +235,6 @@ export default function Component() {
         });
       }
     }
-    // console.log("getConversations data:", data);
     if (response.ok) {
       setMatchs(data);
     }
@@ -262,7 +259,6 @@ export default function Component() {
 
   useEffect(() => {
     if (isChatWindowOpen) {
-      // console.log("useEffect Selected match changed:", selectedMatch);
       scrollToBottom();
       if (messageInputRef.current) {
         messageInputRef.current.focus();

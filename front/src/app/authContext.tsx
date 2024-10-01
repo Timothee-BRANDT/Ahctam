@@ -24,7 +24,7 @@ const initialPig: User = {
   town: "",
   fame_rating: 0,
   is_active: false,
-  is_connected: false,
+  status: "",
   last_connexion: new Date(),
   gender: "",
   sexual_preferences: "",
@@ -49,11 +49,11 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType>({
   user: initialPig,
-  login: (token: string) => {},
-  logout: () => {},
-  setUser: () => {},
-  setCookie: (name: string, value: string, days?: number) => {},
-  deleteCookie: (name: string) => {},
+  login: (token: string) => { },
+  logout: () => { },
+  setUser: () => { },
+  setCookie: (name: string, value: string, days?: number) => { },
+  deleteCookie: (name: string) => { },
   getCookie: (name: string) => "",
   isJwtInCookie: () => false,
 });
