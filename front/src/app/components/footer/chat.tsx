@@ -114,32 +114,66 @@ export default function Component() {
     const token = getCookie("jwt_token");
     if (socket) {
       socket.on("new_message", handleNewMessage);
-      const handleMessageReceived = (data: any) => {
-        if (
-          !isChatWindowOpen ||
-          data.sender_id !== selectedMatch?.matchedUseruuid
-        )
-          fetch(`http://${serverIP}:5000/sendNotifMessage`, {
-            method: "POST",
-            credentials: "include",
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
-            },
-            body: JSON.stringify({
-              match_id: data.match_id,
-              message: data.message,
-            }),
-          });
-      };
+      // const handleMessageReceived = (data: any) => {
+      //   if (
+      //     !isChatWindowOpen ||
+      //     data.sender_id !== selectedMatch?.matchedUseruuid
+      //   )
+      //     fetch(`http://${serverIP}:5000/sendNotifMessage`, {
+      //       method: "POST",
+      //       credentials: "include",
+      //       headers: {
+      //         "Content-Type": "application/json",
+      //         Authorization: `Bearer ${token}`,
+      //       },
+      //       body: JSON.stringify({
+      //         match_id: data.match_id,
+      //         message: data.message,
+      //       }),
+      //     });
+      // };
 
-      socket.on("message_received", handleMessageReceived);
+      // socket.on("message_received", handleMessageReceived);
       return () => {
         socket.off("new_message", handleNewMessage);
-        socket.off("message_received", handleMessageReceived);
+        // socket.off("message_received", handleMessageReceived);
       };
     }
   }, [handleNewMessage, isChatWindowOpen]);
+
+  const handleMessageReceived = (data: any) => {
+    console.log("CALLING HANDLE MESSAGE RECEIVED");
+    console.log("data.sender_id in HANDLE:", data.sender_id);
+    console.log(
+      "selectedMatch?.matchedUseruuid in HANDLE:",
+      selectedMatch?.matchedUseruuid,
+    );
+    const token = getCookie("jwt_token");
+    if (!isChatWindowOpen || data.sender_id !== selectedMatch?.matchedUseruuid)
+      fetch(`http://${serverIP}:5000/sendNotifMessage`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          match_id: data.match_id,
+          message: data.message,
+        }),
+      });
+  };
+
+  useEffect(() => {
+    console.log("Socket listener for messageReceived");
+    const socket = getSocket();
+    if (socket) {
+      socket.on("message_received", handleMessageReceived);
+    }
+    return () => {
+      socket?.off("message_received", handleMessageReceived);
+    };
+  }, [selectedMatch]);
 
   useEffect(() => {
     if (selectedMatch) {
