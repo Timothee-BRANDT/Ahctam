@@ -106,7 +106,7 @@ const LoginPage: React.FC = () => {
                 autoComplete="new-password"
               />
             </div>
-            <Button type="submit" onClick={() => {}}>
+            <Button type="submit" onClick={() => { }}>
               Log in
             </Button>
             <div className={`${CLASSNAME}__helper`}>
@@ -127,6 +127,19 @@ const LoginPage: React.FC = () => {
               <Link className={`${CLASSNAME}__helper-link`} href="/register">
                 Register!
               </Link>
+            </div>
+            <div className={`${CLASSNAME}__helper`}>
+              <p className={`${CLASSNAME}__helper-question`}>
+                Or you can login with:
+              </p>
+              <img
+                className={`${CLASSNAME}__google-icon`}
+                src="/google.svg"
+                alt="logo"
+                onClick={() => {
+                  window.location.href = `http://${serverIP}:5000/auth/google/login`;
+                }}
+              />
             </div>
           </form>
         </div>

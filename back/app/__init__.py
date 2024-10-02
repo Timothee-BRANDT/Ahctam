@@ -19,6 +19,7 @@ from app.authentication import auth as auth_blueprint
 
 
 socketio = SocketIO()
+oauth = OAuth()
 
 
 def create_app(test_config=False, production=False):
@@ -53,19 +54,26 @@ def create_app(test_config=False, production=False):
     redis_client = FlaskRedis(app)
     redis_client.init_app(app)
 
-    oauth = OAuth()
     oauth.init_app(app)
 
+    print(app.config['GOOGLE_CLIENT_ID'])
+    print(app.config['GOOGLE_CLIENT_SECRET'])
     oauth.register(
         name='google',
         client_id=app.config['GOOGLE_CLIENT_ID'],
         client_secret=app.config['GOOGLE_CLIENT_SECRET'],
-        authorize_url='https://accounts.google.com/o/oauth2/auth',
-        access_token_url='https://accounts.google.com/o/oauth2/token',
-        access_token_params=None,
-        refresh_token_url='https://accounts.google.com/o/oauth2/token',
-        redirect_uri='http://localhost:5000/auth/google/callback',
-        client_kwargs={'scope': 'openid profile email'},
+        # authorize_url='https://accounts.google.com/o/oauth2/auth',
+        # access_token_url='https://accounts.google.com/o/oauth2/token',
+        # access_token_params=None,
+        # refresh_token_url='https://accounts.google.com/o/oauth2/token',
+        # redirect_uri='http://localhost:5000/auth/google/callback',
+        server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
+        client_kwargs={
+            'scope': 'openid profile email',
+            'prompt': 'select_account',
+            # 'token_endpoint_auth_method': 'client_secret_basic',
+            # 'token_placement': 'header',
+        },
     )
 
     socketio.init_app(app, cors_allowed_origins="*")

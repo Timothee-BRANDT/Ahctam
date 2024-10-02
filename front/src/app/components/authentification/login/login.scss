@@ -1,4 +1,4 @@
-@import '../../../styles/variables';
+@import "../../../styles/variables";
 
 .login {
     &__form-container {
@@ -31,6 +31,13 @@
         text-align: center;
         font-weight: bold;
         color: var(--primary-color);
+    }
+
+    &__google-icon {
+        width: 24px;
+        height: 24px;
+        display: inline-block;
+        cursor: pointer;
     }
 }
 

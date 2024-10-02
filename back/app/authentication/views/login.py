@@ -22,6 +22,9 @@ from .utils import (
 )
 
 
+global_nonce = ''
+
+
 @auth.route('/login', methods=['POST'])
 def login():
     data = request.get_json()
@@ -216,19 +219,40 @@ AND expiration_date > %s
 
 @auth.route('/google/login')
 def google_login():
-    google = current_app.extensions['oauth']['google']
+    print('google login')
+    from app import oauth
+    global_nonce = generate_nonce()
+    google = oauth.google
+    if not google:
+        return redirect('http://localhost:3000')
     redirect_uri = url_for('auth.google_callback', _external=True)
 
-    return google.authorize_redirect(redirect_uri)
+    return google.authorize_redirect(
+        redirect_uri,
+        nonce=global_nonce
+    )
+
+
+def generate_nonce():
+    import random
+    import string
+    return ''.join(random.choices(string.ascii_letters + string.digits, k=16))
 
 
 @auth.route('/google/callback')
 def google_callback():
-    google = current_app.extensions['oauth']['google']
-    token = google.authorize_access_token()
-    user_info = google.get('userinfo').json()
-    print('-' * 50)
-    print(user_info)
-    print('-' * 50)
+    from app import oauth
+    google = oauth.google
+    print('google callback')
+    if google:
+        token = google.authorize_access_token()
+        user_info = google.parse_id_token(
+            token,
+            nonce=global_nonce
+            # nonce=session.get('nonce')
+        )
+        print('-' * 50)
+        print(user_info)
+        print('-' * 50)
 
     return redirect('http://localhost:3000')
