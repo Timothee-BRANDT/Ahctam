@@ -11,7 +11,7 @@ export interface User {
     fame_rating: number;
     is_active: boolean;
     is_connected?: boolean;
-    last_connexion: Date | string;
+    last_connexion: Date;
     gender: string;
     sexual_preferences: string;
     biography: string;

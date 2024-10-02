@@ -42,29 +42,30 @@ const Header: React.FC = () => {
     }
 
     const fetchNotifications = async () => {
-        // const token = getCookie("jwt_token");
-        // const response = await fetch(`http://${serverIP}:5000/api/getMyNotifs`, {
-        //     method: "GET",
-        //     headers: {
-        //         "Content-Type": "application/json",
-        //         Authorization: `Bearer ${token}`,
-        //     },
-        // });
-        // const data_response = await response.json();
+        const token = getCookie("jwt_token");
+        const response = await fetch(`http://${serverIP}:5000/api/getMyNotifs`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        const data_response = await response.json();
         // MOCK
-        setNotifications([{
-            image: "final1.svg",
-            message: "Lolmapoule",
-        }, {
-            image: "final1.svg",
-            message: "Ceci est une notification",
-        }])
-        // if (response.ok) {
-        // }
-        // const navLinks = document.querySelector('.navLinks');
-        // if (navLinks) {
-        //     navLinks.classList.toggle('show');
-        // }
+        // setNotifications([{
+        //     image: "final1.svg",
+        //     message: "Lolmapoule",
+        // }, {
+        //     image: "final1.svg",
+        //     message: "Ceci est une notification",
+        // }])
+        if (data_response.length) {
+            setNotifications(data_response);
+        }
+        const navLinks = document.querySelector('.navLinks');
+        if (navLinks) {
+            navLinks.classList.toggle('show');
+        }
     }
 
     const handleBellClick = () => {
