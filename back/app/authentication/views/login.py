@@ -8,6 +8,8 @@ from logger import logger
 from flask import (
     current_app,
     request,
+    redirect,
+    url_for,
     jsonify,
 )
 from psycopg2.extras import DictCursor
@@ -163,14 +165,6 @@ AND token = %s
     return jsonify({'message': 'Logout successful'}), 200
 
 
-@auth.route('/protected', methods=['GET'])
-@jwt_required
-def test_protected():
-    return jsonify({
-        'message': 'Hello protected route'
-    }), 200
-
-
 @auth.route('/refresh', methods=['POST'])
 def refresh():
     """
@@ -218,3 +212,23 @@ AND expiration_date > %s
     return jsonify({
         'jwt_token': new_jwt_token
     }), 200
+
+
+@auth.route('/google/login')
+def google_login():
+    google = current_app.extensions['oauth']['google']
+    redirect_uri = url_for('auth.google_callback', _external=True)
+
+    return google.authorize_redirect(redirect_uri)
+
+
+@auth.route('/google/callback')
+def google_callback():
+    google = current_app.extensions['oauth']['google']
+    token = google.authorize_access_token()
+    user_info = google.get('userinfo').json()
+    print('-' * 50)
+    print(user_info)
+    print('-' * 50)
+
+    return redirect('http://localhost:3000')

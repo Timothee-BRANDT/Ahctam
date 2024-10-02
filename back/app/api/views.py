@@ -280,3 +280,31 @@ AND user_blocked = %s
     finally:
         cur.close()
         conn.close()
+
+
+@api.route('getMyNotifs', methods=['GET'])
+@jwt_required
+def get_notifications():
+    conn = get_db_connection()
+    cursor = conn.cursor(cursor_factory=RealDictCursor)
+    notifications_query = """
+SELECT *
+FROM notifications
+WHERE receiver = %s
+ORDER BY date DESC
+    """
+    try:
+        token: str = request.headers.get('Authorization', '').split(' ')[1]
+        user_id: int = jwt.decode(
+            token,
+            current_app.config['SECRET_KEY'],
+            algorithms=['HS256']
+        )['id']
+        cursor.execute(notifications_query, (user_id,))
+        notifications_list: List[Dict] = [
+            notification for notification in cursor.fetchall()]
+
+        return jsonify(notifications_list), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400

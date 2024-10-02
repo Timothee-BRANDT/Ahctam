@@ -21,6 +21,8 @@ class Config:
     MAIL_DEFAULT_SENDER = os.getenv('SMTP_USER')
     ENV = os.getenv('FLASK_ENV')
     OPENCAGE_API_KEY = os.getenv('OPENCAGE_API_KEY')
+    GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
+    GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
 
 
 class DevelopmentConfig(Config):

@@ -249,6 +249,9 @@ export default function Component() {
   const getConversations = async () => {
     console.log("Called getConversations");
     const token = getCookie("jwt_token");
+    if (!token) {
+      return;
+    }
     const response = await fetch(`http://${serverIP}:5000/getMyConversations`, {
       method: "GET",
       credentials: "include",
@@ -271,14 +274,16 @@ export default function Component() {
     }
     if (response.ok) {
       setMatchs(data);
+    } else {
+      console.error("Error fetching conversations");
     }
   };
 
   useEffect(() => {
     console.log("useEffect openMatchList");
-    if (!isJwtInCookie()) {
-      router.push("/login");
-    }
+    // if (!isJwtInCookie()) {
+    //   router.push("/login");
+    // }
     getConversations();
   }, [isMatchsListOpen, isChatWindowOpen]);
 
