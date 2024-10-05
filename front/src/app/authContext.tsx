@@ -51,11 +51,11 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType>({
   user: initialPig,
-  login: (token: string) => { },
-  logout: () => { },
-  setUser: () => { },
-  setCookie: (name: string, value: string, days?: number) => { },
-  deleteCookie: (name: string) => { },
+  login: (token: string) => {},
+  logout: () => {},
+  setUser: () => {},
+  setCookie: (name: string, value: string, days?: number) => {},
+  deleteCookie: (name: string) => {},
   getCookie: (name: string) => "",
   isJwtInCookie: () => false,
 });
@@ -115,13 +115,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
 
     fetchUserProfile();
-
-    // Clean up lors du démontage du composant
-    return () => {
-      if (socket) {
-        socket.disconnect();
-      }
-    };
   }, []);
 
   const setupSocketListeners = (socket: any) => {

@@ -5,9 +5,12 @@ from flask import current_app, jsonify, request
 from psycopg2.extras import RealDictCursor
 
 from app.api import api
-from app.api.services.user_services import (get_user_info,
-                                            get_users_who_like_user,
-                                            get_views_history)
+from app.api.services.user_services import (
+    get_user_info,
+    get_users_who_like_user,
+    get_views_history,
+    get_profile_picture_from_id
+)
 from app.authentication.views.decorators import jwt_required
 from app.database import get_db_connection
 from logger import logger
@@ -303,6 +306,11 @@ ORDER BY date DESC
         cursor.execute(notifications_query, (user_id,))
         notifications_list: List[Dict] = [
             notification for notification in cursor.fetchall()]
+
+        for notification in notifications_list:
+            notification['image'] = get_profile_picture_from_id(
+                int(notification['sender'])
+            )
 
         return jsonify(notifications_list), 200
 

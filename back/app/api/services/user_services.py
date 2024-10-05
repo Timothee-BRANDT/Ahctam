@@ -154,3 +154,24 @@ ORDER BY date DESC
     finally:
         cur.close()
         conn.close()
+
+
+def get_profile_picture_from_id(user_id: int) -> str:
+    profile_picture_query = """
+SELECT url
+FROM Pictures
+WHERE owner = %s
+AND is_profile_picture = TRUE
+    """
+    conn = get_db_connection()
+    cur = conn.cursor()
+    try:
+        cur.execute(profile_picture_query, (user_id,))
+        profile_picture: str = cur.fetchone()[0]
+        return profile_picture
+
+    except Exception as e:
+        raise e
+    finally:
+        cur.close()
+        conn.close()
