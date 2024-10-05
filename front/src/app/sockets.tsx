@@ -22,9 +22,7 @@ const setupSocketListeners = (): void => {
     socket.on("notification", (data) => {
       console.log("New notif!!");
       console.log(data.message);
-      // data will have : - senderId, senderFirstname, receiverId, receiverFirstname, message
       // We can use a snackbar or a modal to display the notification
-      // When we click on it it redirects to the profile of the sender
       // import { handleNotification } from "notification_file";
       // handeNotification(data);
     });

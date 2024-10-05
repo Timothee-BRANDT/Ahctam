@@ -6,6 +6,43 @@
     background-color: #fff;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
 
+    &__image-container {
+        position: relative;
+    }
+
+    &__status-info {
+        margin-top: 10px;
+        text-align: center;
+    }
+
+    &__online-status {
+        display: flex;
+        color: green;
+        border-radius: 5px;
+        font-size: 12px;
+        font-weight: bold;
+        margin-left: 8px;
+        margin-bottom: -12px;
+    }
+
+    &__status-online {
+        width: 10px;
+        height: 10px;
+        background-color: green;
+        border-radius: 50%;
+        margin-right: 5px;
+        margin-top: 4px;
+        display: inline-block;
+    }
+
+    &__last-connection {
+        margin-bottom: -12px;
+        border-radius: 5px;
+        color: green;
+        font-size: 12px;
+        text-align: center;
+    }
+
     &__photo {
         border-radius: 8px;
         height: 150px;
@@ -14,6 +51,8 @@
     }
 
     &__informations {
+        margin-top: 10px;
+        /* Add some spacing between the last-connection and the informations */
         background-color: white;
         padding: 8px;
     }

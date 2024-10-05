@@ -11,6 +11,8 @@ import { initializeSocket } from "@/app/sockets";
 import { useRouter } from "next/navigation";
 import { getSocket, disconnectSocket } from "./sockets";
 import { serverIP } from "@/app/constants";
+import { Snackbar, Alert } from "@mui/material";
+import ReactDOM from "react-dom";
 
 const initialPig: User = {
   id: 1,
@@ -69,6 +71,9 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User>(initialPig);
   const router = useRouter();
+  const [notification, setNotification] = useState<string | null>(null);
+  const [open, setOpen] = useState(false);
+  const [socket, setSocket] = useState<any>(null);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -96,7 +101,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               router.push("/first-login");
             }
             if (token) {
-              const socket = initializeSocket(token);
+              const newSocket = initializeSocket(token);
+              setSocket(newSocket);
+              setupSocketListeners(newSocket);
             }
           } else {
             console.log(data_response.error);
@@ -108,7 +115,31 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     };
 
     fetchUserProfile();
+
+    // Clean up lors du démontage du composant
+    return () => {
+      if (socket) {
+        socket.disconnect();
+      }
+    };
   }, []);
+
+  const setupSocketListeners = (socket: any) => {
+    if (socket) {
+      socket.on("notification", (data: any) => {
+        console.log("New notification:", data.message);
+        setNotification(data.message);
+        setOpen(true);
+      });
+    }
+  };
+
+  const handleClose = (event: React.SyntheticEvent | Event, reason?: string) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setOpen(false);
+  };
 
   const setCookie = (name: string, value: string, days?: number) => {
     let expires = "";
@@ -194,6 +225,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       }}
     >
       {children}
+
+      {/* Utilisation de ReactDOM.createPortal pour rendre la Snackbar */}
+      {typeof window !== "undefined" &&
+        ReactDOM.createPortal(
+          <Snackbar anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} open={open} autoHideDuration={6000} onClose={handleClose}>
+            <Alert onClose={handleClose} icon={false} severity="success" sx={{ width: "100%" }}>
+              {notification}
+            </Alert>
+          </Snackbar>,
+          document.body // On rend le composant directement dans le body
+        )}
     </AuthContext.Provider>
   );
 };

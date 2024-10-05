@@ -7,40 +7,65 @@ import "./header.scss";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { serverIP } from '@/app/constants';
+
+export interface Notification {
+    image: string;
+    message: string;
+}
 
 const Header: React.FC = () => {
-  const router = useRouter();
-  const { logout, user, isJwtInCookie } = useAuth();
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const redirectHome = () => {
-    router.push("/");
-  };
-  const redirectProfile = () => {
-    router.push("/profile/update");
-  };
-  const redirectBrowse = () => {
-    router.push("/browse");
-  };
-  const redirectSearch = () => {
-    router.push("/search");
-  };
-  const redirectFavorites = () => {
-    router.push("/fans");
-  };
-  const redirectHistory = () => {
-    router.push("/history");
-  };
-  function toggleMenu() {
-    const navLinks = document.querySelector(".navLinks");
-    if (navLinks) {
-      navLinks.classList.toggle("show");
+    const router = useRouter();
+    const { logout, user, isJwtInCookie, getCookie } = useAuth();
+    const [isOpen, setIsOpen] = useState(false);
+    const [isLoggedIn, setIsLoggedIn] = useState(false);
+    const [notifications, setNotifications] = useState<Notification[]>([]);
+    const redirectHome = () => {
+        router.push('/');
+    }
+    const redirectProfile = () => {
+        router.push('/profile/update');
+    }
+    const redirectSearch = () => {
+        router.push('/browse');
+    }
+    const redirectFavorites = () => {
+        router.push('/fans');
+    }
+    const redirectHistory = () => {
+        router.push('/history');
+    }
+
+    const fetchNotifications = async () => {
+        const token = getCookie("jwt_token");
+        const response = await fetch(`http://${serverIP}:5000/api/getMyNotifs`, {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+            },
+        });
+        const data_response = await response.json();
+        // MOCK
+        // setNotifications([{
+        //     image: "final1.svg",
+        //     message: "Lolmapoule",
+        // }, {
+        //     image: "final1.svg",
+        //     message: "Ceci est une notification",
+        // }])
+        if (data_response.length) {
+            setNotifications(data_response);
+        }
+        const navLinks = document.querySelector('.navLinks');
+        if (navLinks) {
+            navLinks.classList.toggle('show');
+        }
     }
   }
 

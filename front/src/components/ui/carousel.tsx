@@ -193,6 +193,56 @@ const UserCard: React.FC<UserCardProps> = ({ user, redirect }) => {
                 src={isOnline ? "/online.svg" : "/offline.svg"}
                 alt={isOnline ? "online" : "offline"}
               />
+const formatDate = (date: Date) => {
+        const options: Intl.DateTimeFormatOptions = {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+        };
+        return new Date(date).toLocaleDateString(undefined, options);
+    };
+
+return (
+        <div className={CLASSNAME}>
+            <div className={`${CLASSNAME}__image-container`}>
+                <img
+                    onClick={redirect}
+                    src={user?.photos[0]}
+                    alt={`${user.username}'s profile`}
+                    className={`${CLASSNAME}__photo`}
+                />
+            </div>
+
+            <div className={`${CLASSNAME}__status-info`}>
+                {user.is_connected ? (
+                     <div className={`${CLASSNAME}__online-status`}>
+                        <span className={`${CLASSNAME}__status-online`} /> Online
+                    </div> 
+                 ) : (
+                    <div className={`${CLASSNAME}__last-connection`}>
+                        {formatDate(user.last_connexion)}
+                    </div>
+                )}
+            </div>
+
+            <div className={`${CLASSNAME}__informations`}>
+                <div className={`${CLASSNAME}__redirect`} onClick={redirect}>
+                    <p className={`${CLASSNAME}__informations-firstname`}>
+                        {user.firstname}, {user.age} years
+                    </p>
+                    <div className={`${CLASSNAME}__informations-location`}>
+                        <img
+                            className={`${CLASSNAME}__informations-location-icon`}
+                            src="/alternate-map-marker.svg"
+                            alt=""
+                        />
+                        <p className={`${CLASSNAME}__informations-location-text`}>
+                            {user.town}
+                        </p>
+                    </div>
+                </div>
             </div>
           </div>
         </div>
