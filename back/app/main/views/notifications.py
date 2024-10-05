@@ -1,7 +1,10 @@
 from flask import current_app, jsonify, request
 
-from app.authentication.views.decorators import (jwt_required,
-                                                 sender_not_blocked)
+from app.authentication.views.decorators import (
+    jwt_required,
+    sender_not_blocked
+)
+from app.database import get_db_connection
 from logger import logger
 
 from .. import main
@@ -73,3 +76,23 @@ def send_notification(
 
     except Exception as e:
         raise e
+
+
+@main.route('deleteNotif/<int:notif_id>', methods=['DELETE'])
+def delete_notification(notif_id: int):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    query = """
+DELETE FROM notifications
+WHERE id = %s
+    """
+    try:
+        cursor.execute(query, (notif_id,))
+        conn.commit()
+        return jsonify({'message': 'Notification deleted'}), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+    finally:
+        cursor.close()
+        conn.close()

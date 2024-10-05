@@ -6,7 +6,7 @@ import React, {
   useState,
   useEffect,
 } from "react";
-import { User } from "./types";
+import { User, Notification } from "./types";
 import { initializeSocket } from "@/app/sockets";
 import { useRouter } from "next/navigation";
 import { getSocket, disconnectSocket } from "./sockets";
@@ -71,7 +71,7 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User>(initialPig);
   const router = useRouter();
-  const [notification, setNotification] = useState<string | null>(null);
+  const [notification, setNotification] = useState<Notification | null>(null);
   const [open, setOpen] = useState(false);
   const [socket, setSocket] = useState<any>(null);
 
@@ -121,7 +121,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     if (socket) {
       socket.on("notification", (data: any) => {
         console.log("New notification:", data.message);
-        setNotification(data.message);
+        setNotification(data);
         setOpen(true);
       });
     }
@@ -239,8 +239,16 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               icon={false}
               severity="success"
               sx={{ width: "100%" }}
+              onClick={() => {
+                router.push(`/profile/${notification?.sender_id}`);
+              }}
+              style={{
+                cursor: "pointer",
+                backgroundColor: "lightcoral",
+                color: "white",
+              }}
             >
-              {notification}
+              <p>{notification?.message}</p>
             </Alert>
           </Snackbar>,
           document.body, // On rend le composant directement dans le body

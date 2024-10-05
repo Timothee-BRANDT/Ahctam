@@ -13,11 +13,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { serverIP } from "@/app/constants";
-
-export interface Notification {
-  image: string;
-  message: string;
-}
+import { Notification } from "@/app/types";
 
 const Header: React.FC = () => {
   const router = useRouter();
@@ -51,14 +47,6 @@ const Header: React.FC = () => {
       },
     });
     const data_response = await response.json();
-    // MOCK
-    // setNotifications([{
-    //     image: "final1.svg",
-    //     message: "Lolmapoule",
-    // }, {
-    //     image: "final1.svg",
-    //     message: "Ceci est une notification",
-    // }])
     if (data_response.length) {
       setNotifications(data_response);
     }
@@ -73,6 +61,26 @@ const Header: React.FC = () => {
       fetchNotifications();
     }
     setIsOpen(!isOpen);
+  };
+
+  const callAPIdeleteNotif = async (notifId: number) => {
+    const token = getCookie("jwt_token");
+    const response = await fetch(
+      `http://${serverIP}:5000/deleteNotif/${notifId}`,
+      {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      },
+    );
+    const data_response = await response.json();
+    if (response.ok) {
+      setNotifications(notifications.filter((notif) => notif.id !== notifId));
+    } else {
+      console.error(data_response.error);
+    }
   };
 
   useEffect(() => {
@@ -92,7 +100,7 @@ const Header: React.FC = () => {
                     <img className="bell" src="/bell.jpg" alt="Bell Icon" />
                   </div>
                 </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-64 bg-white shadow-lg rounded-lg p-4">
+                <DropdownMenuContent className="w-86 bg-white shadow-lg rounded-lg p-4">
                   <div className="text-lg font-semibold mb-2">
                     Notifications
                   </div>
@@ -107,9 +115,15 @@ const Header: React.FC = () => {
                           alt="Avatar"
                           className="w-10 h-10 rounded-full mr-3"
                         />
-                        <div className="text-sm">
-                          <p>{notif.message}</p>
+                        <div className="text-sm flex-grow truncate">
+                          <p className="whitespace-nowrap">{notif.message}</p>
                         </div>
+                        <button
+                          onClick={() => callAPIdeleteNotif(notif.id)}
+                          className="bg-red-500 text-white py-1 px-3 rounded ml-3"
+                        >
+                          Ok
+                        </button>
                       </div>
                     ))
                   ) : (

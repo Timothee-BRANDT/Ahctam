@@ -21,6 +21,14 @@ export interface User {
   firstTimeLogged: boolean;
 }
 
+export interface Notification {
+  id: number;
+  image: string;
+  message: string;
+  sender_id: number;
+  reveiver_id: number;
+}
+
 export enum State {
   initial = "initial",
   loading = "loading",

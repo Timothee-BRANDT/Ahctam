@@ -6,7 +6,11 @@ from psycopg2.extras import RealDictCursor
 
 from app.authentication.views.decorators import jwt_required
 from app.database import get_db_connection
-from app.main.services.match import create_match_if_mutual_like, delete_match
+from app.main.services.match import (
+    create_match_if_mutual_like,
+    delete_match,
+    _get_firstname_from_user_id
+)
 from app.main.views.notifications import send_notification, store_notification
 from logger import logger
 
@@ -41,8 +45,10 @@ WHERE id = %s
             current_app.config['SECRET_KEY'],
             algorithms=['HS256'])
         user_id: int = int(user['id'])
-        print('user_id in viewUser', user_id)
-        user_username: str = user['username']
+        user_firstname: str = _get_firstname_from_user_id(
+            cursor=cursor,
+            user_id=user_id
+        )
 
         cursor.execute(view_user_query, (user_id, user_viewed_id))
         cursor.execute(fame_query, (user_viewed_id,))
@@ -50,19 +56,19 @@ WHERE id = %s
         send_notification(
             sender_id=user_id,
             receiver_id=user_viewed_id,
-            message=f'{user_username} viewed your profile 👀',
+            message=f'{user_firstname} viewed your profile 👀',
             notification_type='view'
         )
         store_notification(
             cursor=cursor,
             sender_id=user_id,
             receiver_id=user_viewed_id,
-            message=f'{user_username} viewed your profile 👀',
+            message=f'{user_firstname} viewed your profile 👀',
             notification_type='view'
         )
 
         conn.commit()
-        return jsonify({'message': f'User {user_username} viewed'}), 200
+        return jsonify({'message': f'User {user_firstname} viewed'}), 200
 
     except Exception as e:
         conn.rollback()
@@ -96,7 +102,10 @@ WHERE id = %s
         data = request.get_json()
 
         user_id: int = int(user['id'])
-        user_username: str = user['username']
+        user_firstname: str = _get_firstname_from_user_id(
+            cursor=cursor,
+            user_id=user_id
+        )
         user_liked_id: int = int(data.get('user_liked_id', ''))
         if not user_liked_id:
             raise ValueError('user_liked_id is required')
@@ -107,14 +116,14 @@ WHERE id = %s
         send_notification(
             sender_id=user_id,
             receiver_id=user_liked_id,
-            message=f'{user_username} liked you 😍',
+            message=f'{user_firstname} liked you 😍',
             notification_type='like'
         )
         store_notification(
             cursor=cursor,
             sender_id=user_id,
             receiver_id=user_liked_id,
-            message=f'{user_username} liked you 😍',
+            message=f'{user_firstname} liked you 😍',
             notification_type='like'
         )
         create_match_if_mutual_like(
@@ -158,7 +167,10 @@ WHERE id = %s
     try:
         data = request.get_json()
         user_id: int = int(user['id'])
-        user_username: str = user['username']
+        user_firstname: str = _get_firstname_from_user_id(
+            cursor=cursor,
+            user_id=user_id
+        )
         user_unliked_id: int = int(data.get('user_disliked_id', ''))
         if not user_unliked_id:
             raise ValueError('user_unliked_id is required')
@@ -170,14 +182,14 @@ WHERE id = %s
             send_notification(
                 sender_id=user_id,
                 receiver_id=user_unliked_id,
-                message=f'{user_username} unliked you 🤕',
+                message=f'{user_firstname} unliked you 🤕',
                 notification_type='unlike'
             )
             store_notification(
                 cursor=cursor,
                 sender_id=user_id,
                 receiver_id=user_unliked_id,
-                message=f'{user_username} unliked you 🤕',
+                message=f'{user_firstname} unliked you 🤕',
                 notification_type='unlike'
             )
             delete_match(
