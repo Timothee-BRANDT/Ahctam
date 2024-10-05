@@ -143,7 +143,7 @@ const Header: React.FC = () => {
                 History
               </Button>
               <Button size="sm" onClick={redirectFavorites}>
-                Fans
+                Matches
               </Button>
               <Button size="sm" onClick={redirectProfile}>
                 Profile

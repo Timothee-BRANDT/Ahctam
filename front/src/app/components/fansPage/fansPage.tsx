@@ -28,7 +28,7 @@ const fansPage: React.FC = () => {
     }
     getProfiles();
     setIsLoggedIn(isJwtInCookie());
-  }, [profiles]);
+  }, []);
 
   const getProfiles = async () => {
     const token = getCookie("jwt_token");
