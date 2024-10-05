@@ -217,8 +217,6 @@ const ProfilePage: React.FC = () => {
       }),
     });
     if (response.ok) {
-      const token = getCookie("jwt_token");
-      const socket = initializeSocket(token);
       router.push("/");
     }
   };
@@ -441,19 +439,19 @@ const ProfilePage: React.FC = () => {
                       />
                       {!photo && (
                         <div
-                          className={`upload-text ${index === 0
+                          className={`upload-text ${
+                            index === 0
                               ? `${CLASSNAME}__profile-picture-uploader`
                               : ""
-                            }`}
-                        >
-                        </div>
+                          }`}
+                        ></div>
                       )}
                     </div>
                   ))}
                 </div>
               </div>
             </div>
-            <Button className="button-info" type="submit" onClick={() => { }}>
+            <Button className="button-info" type="submit" onClick={() => {}}>
               Save
             </Button>
           </form>

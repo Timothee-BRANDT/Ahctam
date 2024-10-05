@@ -169,8 +169,6 @@ const ProfilePage: React.FC = () => {
       },
     );
     if (response.ok) {
-      const token = getCookie("jwt_token");
-      const socket = initializeSocket(token);
       router.push("/");
     }
   };

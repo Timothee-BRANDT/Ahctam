@@ -12,6 +12,8 @@ const setupSocketListeners = (): void => {
     });
 
     socket.on("disconnect", () => {
+      socket?.disconnect();
+      socket = null;
       console.log("Disconnected from socket server");
     });
 

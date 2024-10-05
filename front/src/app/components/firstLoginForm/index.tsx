@@ -166,8 +166,6 @@ const FirstLoginPage: React.FC = () => {
       }),
     });
     if (response.ok) {
-      const token = getCookie("jwt_token");
-      const socket = initializeSocket(token);
       router.push("/");
     } else {
       console.log("Error while sending the formular");
@@ -212,7 +210,7 @@ const FirstLoginPage: React.FC = () => {
                     className={`${CLASSNAME}__update-input`}
                     type="age"
                     name="age"
-                    value={user.age === 0 ? '' : user.age}
+                    value={user.age === 0 ? "" : user.age}
                     onChange={handleUserChange}
                     required
                     autoComplete="new-password"
@@ -350,10 +348,11 @@ const FirstLoginPage: React.FC = () => {
                       />
                       {!photo && (
                         <div
-                          className={`upload-text ${index === 0
+                          className={`upload-text ${
+                            index === 0
                               ? `${CLASSNAME}__profile-picture-uploader`
                               : ""
-                            }`}
+                          }`}
                         >
                           {index === 0
                             ? "Upload a profile picture"
@@ -369,7 +368,7 @@ const FirstLoginPage: React.FC = () => {
               className="button-info"
               type="submit"
               disabled={loadingLocation}
-              onClick={() => { }}
+              onClick={() => {}}
             >
               Save
             </Button>

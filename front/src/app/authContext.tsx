@@ -101,9 +101,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               router.push("/first-login");
             }
             if (token) {
-              const newSocket = initializeSocket(token);
-              setSocket(newSocket);
-              setupSocketListeners(newSocket);
+              login(token);
             }
           } else {
             console.log(data_response.error);

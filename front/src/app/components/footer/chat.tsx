@@ -114,29 +114,8 @@ export default function Component() {
     const token = getCookie("jwt_token");
     if (socket) {
       socket.on("new_message", handleNewMessage);
-      // const handleMessageReceived = (data: any) => {
-      //   if (
-      //     !isChatWindowOpen ||
-      //     data.sender_id !== selectedMatch?.matchedUseruuid
-      //   )
-      //     fetch(`http://${serverIP}:5000/sendNotifMessage`, {
-      //       method: "POST",
-      //       credentials: "include",
-      //       headers: {
-      //         "Content-Type": "application/json",
-      //         Authorization: `Bearer ${token}`,
-      //       },
-      //       body: JSON.stringify({
-      //         match_id: data.match_id,
-      //         message: data.message,
-      //       }),
-      //     });
-      // };
-
-      // socket.on("message_received", handleMessageReceived);
       return () => {
         socket.off("new_message", handleNewMessage);
-        // socket.off("message_received", handleMessageReceived);
       };
     }
   }, [handleNewMessage, isChatWindowOpen]);
@@ -149,7 +128,12 @@ export default function Component() {
       selectedMatch?.matchedUseruuid,
     );
     const token = getCookie("jwt_token");
-    if (!isChatWindowOpen || data.sender_id !== selectedMatch?.matchedUseruuid)
+    if (
+      !isChatWindowOpen ||
+      data.sender_id !== selectedMatch?.matchedUseruuid
+    ) {
+      console.log("conditions verified");
+      console.log("isChatWindowOpen", isChatWindowOpen);
       fetch(`http://${serverIP}:5000/sendNotifMessage`, {
         method: "POST",
         credentials: "include",
@@ -162,6 +146,7 @@ export default function Component() {
           message: data.message,
         }),
       });
+    }
   };
 
   useEffect(() => {
@@ -170,9 +155,9 @@ export default function Component() {
     if (socket) {
       socket.on("message_received", handleMessageReceived);
     }
-    // return () => {
-    //   socket?.off("message_received", handleMessageReceived);
-    // };
+    return () => {
+      socket?.off("message_received", handleMessageReceived);
+    };
   }, [selectedMatch]);
 
   useEffect(() => {
