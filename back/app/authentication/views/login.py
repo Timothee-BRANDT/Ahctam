@@ -1,19 +1,23 @@
+from typing import Dict, Any
 from .. import auth
 from ..forms import (
     LoginForm,
-    InformationsForm,
+    FirstLoginForm,
 )
+from logger import logger
 from flask import (
     current_app,
-    render_template,
     request,
     jsonify,
 )
+from psycopg2.extras import DictCursor
 import jwt
 from datetime import datetime, timedelta
 from ...database import get_db_connection
 from .decorators import jwt_required
-from .utils import store_profile_informations
+from .utils import (
+    store_first_login_informations,
+)
 
 
 @auth.route('/login', methods=['POST'])
@@ -34,19 +38,22 @@ def login():
         cur.execute('SELECT id FROM users WHERE username = %s',
                     (data['username'],))
         user_id = cur.fetchone()[0]
+
     except Exception as e:
         return jsonify({'error': str(e)}), 400
     else:
+        # WARNING: 30 days of token for tests, change to 1 hour in production
         jwt_token = jwt.encode({
             'id': user_id,
             'username': data['username'],
-            'exp': datetime.utcnow() + timedelta(hours=1)
+            'exp': datetime.utcnow() + timedelta(days=30)
         }, current_app.config['SECRET_KEY'], algorithm='HS256')
         refresh_token = jwt.encode({
             'id': user_id,
             'username': data['username'],
             'exp': datetime.utcnow() + timedelta(days=30)
         }, current_app.config['SECRET_KEY'], algorithm='HS256')
+
         query = """
 INSERT INTO refresh_tokens (token, user_id, expiration_date)
 VALUES (%s, %s, %s)
@@ -54,9 +61,10 @@ VALUES (%s, %s, %s)
         cur.execute(query, (refresh_token, user_id,
                     datetime.utcnow() + timedelta(days=30)))
         conn.commit()
-
+        # We use gender to check if the user has already completed his profile
         cur.execute('SELECT gender FROM users WHERE id = %s',
                     (user_id,))
+
         gender = cur.fetchone()[0]
         if not gender:
             return jsonify({
@@ -65,55 +73,67 @@ VALUES (%s, %s, %s)
                 'refresh_token': refresh_token,
                 'user_id': user_id
             }), 200
+
+        update_last_connexion_query = """
+UPDATE users
+SET last_connexion = %s
+WHERE id = %s
+        """
+        cur.execute(update_last_connexion_query, (datetime.utcnow(), user_id))
+        conn.commit()
+
+        return jsonify({
+            'message': 'Login successful',
+            'jwt_token': jwt_token,
+            'refresh_token': refresh_token,
+            'user_id': user_id
+        }), 200
     finally:
         cur.close()
         conn.close()
-    return jsonify({
-        'message': 'Login successful',
-        'jwt_token': jwt_token,
-        'refresh_token': refresh_token
-    }), 200
-
-
-@auth.route('/login', methods=['GET'])
-def login_page():
-    context = {
-        'form': LoginForm()
-    }
-    return render_template('login.html', **context), 200
 
 
 @auth.route('/first-login', methods=['POST'])
 def first_login():
-    conn = get_db_connection()
-    cur = conn.cursor()
+    # NOTE:  Put jwt_required
+    logger.info(request.headers)
+    connector = get_db_connection()
+    cursor = connector.cursor(cursor_factory=DictCursor)
     try:
         data = request.get_json()
-        profile = data.get('payload', {})
-        user_id = data.get('id')
-        print('The Id is:', user_id)
-        form = InformationsForm(data=profile)
+        payload: Dict = data.get('payload', {})
+        token = payload.get('token', '')
+        if token == '':
+            raise Exception('No token provided')
+        user: Dict[str, Any] = jwt.decode(
+            token,
+            current_app.config['SECRET_KEY'],
+            algorithms=['HS256']
+        )
+        user_id = user['id']
+        user_ip = request.remote_addr
+        logger.info(f'{user_ip=}')
+        logger.info(f'{type(user_ip)=}')
+        form: FirstLoginForm = FirstLoginForm(data=payload)
         form.validate()
-        print('Profile form Validated!!!')
+
+        store_first_login_informations(
+            connector,
+            cursor,
+            form,
+            user_id,
+            user_ip
+        )
+        return jsonify({'message': 'First login successful'}), 200
+
     except Exception as e:
         return jsonify({'error': str(e)}), 400
-    else:
-        store_profile_informations(conn, cur, form, user_id)
     finally:
-        cur.close()
-        conn.close()
-    return jsonify({'message': 'First login successful'}), 200
+        cursor.close()
+        connector.close()
 
 
-@auth.route('/first-login', methods=['GET'])
-def first_login_page():
-    context = {
-        'form': InformationsForm()
-    }
-    return render_template('first-login.html', **context), 200
-
-
-@auth.route('/logout', methods=['GET'])
+@auth.route('/logout', methods=['POST'])
 @jwt_required
 def logout():
     conn = get_db_connection()
@@ -153,6 +173,9 @@ def test_protected():
 
 @auth.route('/refresh', methods=['POST'])
 def refresh():
+    """
+    If 401, we must logout the user
+    """
     data = request.get_json()
     refresh_token = data.get('refresh_token')
     conn = get_db_connection()

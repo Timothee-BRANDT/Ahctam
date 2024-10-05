@@ -9,39 +9,79 @@ yarn install
 yarn dev
 ```
 
+or
+
+```
+npm install
+npm run dev
+```
+
 ## Flask
 
 ### Requirements
 
-Having at least python3.10 available.
-Install postgresql.
+- Having at least python3.10 available
+- Install docker engine
 
-#### On debian based/Ubuntu:
-
-```
-sudo apt install postgresql postgresql-contrib libpq-dev
-sudo apt install python3-dev build-essential
-```
-
-To test it
+### 1) Run docker
 
 ```
-sudo -u postgres psql
+docker compose up --build
 ```
 
-To install and start the venv
+### Reset DB volumes
+docker compose down -v
+
+### 2) Create / activate your virtual environment
+
+If it's the first time:
 
 ```
-source init.sh
+python3.10 -m venv venv
 ```
 
-To desactivate it
+Then:
+
+```
+source venv/bin/activate
+```
+
+If you want to to deactivate it
 
 ```
 deactivate
 ```
 
-### QuickStart
+### 3) Install the dependencies in the venv
+
+```
+pip install -r requirements.txt
+```
+
+### 4) Create and populate your database
+
+With the venv activated and the docker compose running, please run:
+
+```
+python create_db.py
+```
+
+### 5) Have fun with your hamsters
+
+You can now run your backend with your venv activated:
+
+```
+python app.py
+```
+
+And in another terminal, run your frontend, making sure npm is updated:
+
+```
+npm install
+npm run dev
+```
+
+### Tips - Cheatsheet
 
 <app_name> is the name of your .py file, without extension
 
@@ -65,8 +105,6 @@ For debug and live-server behavior:
 flask --app hello run --debug
 ```
 
-### Tips - Cheatsheet
-
 Use escape() to prevent injections. It renders input as text
 
 ```python
@@ -74,7 +112,3 @@ from markupsafe import escape
 def hello(name):
     return f"Hello, {escape(name)}"
 ```
-
-1. Create app.py file
-2. Create structure
-2. Make everything modular

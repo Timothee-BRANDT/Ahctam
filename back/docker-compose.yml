@@ -2,13 +2,11 @@ services:
   db:
     image: postgres:13
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - matcha_pg_data:/var/lib/postgresql/data
-    environment:
-      POSTGRES_DB: matcha_db
-      POSTGRES_USER: matcha_user
-      POSTGRES_PASSWORD: msp
+    env_file:
+      - .env
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U matcha_user -d matcha_db"]
       interval: 2s
@@ -23,5 +21,18 @@ services:
       db:
         condition: service_healthy
 
+  redis:
+    image: redis:alpine
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      timeout: 2s
+      retries: 10
+
 volumes:
   matcha_pg_data:
+  redis_data:

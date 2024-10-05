@@ -2,4 +2,10 @@ from flask import Blueprint
 
 main = Blueprint('main', __name__)
 
-from .views.views import main
+from .views import (
+    social,
+    views,
+    browse,
+    update_profile,
+    notifications,
+)

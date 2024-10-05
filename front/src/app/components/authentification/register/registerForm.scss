@@ -1,17 +1,16 @@
 @import '../../../styles/variables';
 
 .form-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  // margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
-  
+
 .form {
-  width: 300px;
-  padding: 20px;
+    width: 300px;
+    padding: 20px;
 }
-  
+
 .form input {
     width: 100%;
     background-color: transparent;
@@ -19,59 +18,58 @@
     padding: 6px;
     border: 1px solid var(--secondary-color);
     border-radius: 4px;
-    color: var(--primary-color);
     outline: none;
 }
 
 .form label {
-  color: var(--primary-color);
-  font-weight: bold;
+    color: var(--primary-color);
+    font-weight: bold;
 }
 
 .form button {
-  width: 100%;
+    width: 100%;
 }
 
 body .button-logout {
-  position: fixed;
-  top: 16px;
-  right: 16px;
+    position: fixed;
+    top: 16px;
+    right: 16px;
 }
 
 .new_member {
-  display: block;
-  width: 100%;
-  padding: 10px;
-  text-align: center;
-  text-decoration: none;
-  margin-top: 8px;
+    display: block;
+    width: 100%;
+    padding: 10px;
+    text-align: center;
+    text-decoration: none;
+    margin-top: 8px;
 }
 
 .new_member-question {
-  color: var(--secondary-color);
+    color: var(--secondary-color);
 }
 
 .new_member-creation {
-  color: var(--primary-color);
-  font-weight: bold;
-  text-decoration: underline;
+    font-weight: bold;
+    text-decoration: underline;
+    color: var(--primary-color);
 }
 
 .bad-credentials {
-  position: fixed;
-  top: 160px;
-  margin-left: 630px;
-  color: red;
+    position: fixed;
+    top: 160px;
+    margin-left: 630px;
+    color: red;
 }
 
 .user-card {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
 }
 
 .profile-picture {
-  border-radius: 40px;
-  margin-top: 18px;
+    border-radius: 40px;
+    margin-top: 18px;
 }

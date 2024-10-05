@@ -9,3 +9,11 @@ Flask-SocketIO==5.3.6
 itsdangerous==2.2.0
 Flask-Mail2==1.0.2
 Flask-Cors==4.0.1
+Faker==25.8.0
+numpy==2.0.0
+flask-redis==0.4.0
+scikit-learn==1.5.0
+requests==2.32.3
+colorlog==6.8.2
+geopy==2.4.1
+types-Flask-SocketIO==5.3.0.20240617

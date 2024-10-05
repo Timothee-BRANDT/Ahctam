@@ -8,6 +8,6 @@ def get_db_connection():
         'user': current_app.config['POSTGRES_USER'],
         'password': current_app.config['POSTGRES_PASSWORD'],
         'host': 'localhost',
-        'port': '5432'
+        'port': '5433'
     }
     return psycopg2.connect(**config)

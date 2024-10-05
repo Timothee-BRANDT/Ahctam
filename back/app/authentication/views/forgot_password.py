@@ -15,22 +15,21 @@ from werkzeug.security import generate_password_hash
 from ...database import get_db_connection
 from .utils import send_reset_password_email
 
-
 @auth.route('/forgot_password', methods=['POST'])
 def forgot_password():
     try:
         data = request.get_json()
         conn = get_db_connection()
         cur = conn.cursor()
-        cur.execute('SELECT username FROM users WHERE email = %s',
-                    (data['email'],))
-        user = cur.fetchone()
-        if not user:
+        cur.execute('SELECT email FROM users WHERE username = %s',
+                    (data,))
+        email = cur.fetchone()
+        if not email:
             raise ValueError('Email does not exist')
     except Exception as e:
         return jsonify({'error': str(e)}), 400
     else:
-        send_reset_password_email(data['email'])
+        send_reset_password_email(email)
     finally:
         cur.close()
         conn.close()

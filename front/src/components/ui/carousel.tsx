@@ -1,52 +1,52 @@
-"use client"
+"use client";
 
-import * as React from "react"
+import * as React from "react";
 import useEmblaCarousel, {
     type UseEmblaCarouselType,
-} from "embla-carousel-react"
-import { ArrowLeft, ArrowRight } from "lucide-react"
+} from "embla-carousel-react";
+import { ArrowLeft, ArrowRight } from "lucide-react";
 
-import { cn } from "@/lib/utils"
-import { Button } from "@/components/ui/button"
-import { User } from "@/app/types"
-import './carousel.scss';
-import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react"
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
+import { User } from "@/app/types";
+import "./carousel.scss";
+import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react";
 
-import { ButtonProps, buttonVariants } from "@/components/ui/button"
+import { ButtonProps, buttonVariants } from "@/components/ui/button";
 
-const CLASSNAME = 'card';
+const CLASSNAME = "card";
 
-type CarouselApi = UseEmblaCarouselType[1]
-type UseCarouselParameters = Parameters<typeof useEmblaCarousel>
-type CarouselOptions = UseCarouselParameters[0]
-type CarouselPlugin = UseCarouselParameters[1]
+type CarouselApi = UseEmblaCarouselType[1];
+type UseCarouselParameters = Parameters<typeof useEmblaCarousel>;
+type CarouselOptions = UseCarouselParameters[0];
+type CarouselPlugin = UseCarouselParameters[1];
 
 type CarouselProps = {
-    opts?: CarouselOptions
-    plugins?: CarouselPlugin
-    orientation?: "horizontal" | "vertical"
-    setApi?: (api: CarouselApi) => void
-}
+    opts?: CarouselOptions;
+    plugins?: CarouselPlugin;
+    orientation?: "horizontal" | "vertical";
+    setApi?: (api: CarouselApi) => void;
+};
 
 type CarouselContextProps = {
-    carouselRef: ReturnType<typeof useEmblaCarousel>[0]
-    api: ReturnType<typeof useEmblaCarousel>[1]
-    scrollPrev: () => void
-    scrollNext: () => void
-    canScrollPrev: boolean
-    canScrollNext: boolean
-} & CarouselProps
+    carouselRef: ReturnType<typeof useEmblaCarousel>[0];
+    api: ReturnType<typeof useEmblaCarousel>[1];
+    scrollPrev: () => void;
+    scrollNext: () => void;
+    canScrollPrev: boolean;
+    canScrollNext: boolean;
+} & CarouselProps;
 
-const CarouselContext = React.createContext<CarouselContextProps | null>(null)
+const CarouselContext = React.createContext<CarouselContextProps | null>(null);
 
 function useCarousel() {
-    const context = React.useContext(CarouselContext)
+    const context = React.useContext(CarouselContext);
 
     if (!context) {
-        throw new Error("useCarousel must be used within a <Carousel />")
+        throw new Error("useCarousel must be used within a <Carousel />");
     }
 
-    return context
+    return context;
 }
 
 const Carousel = React.forwardRef<
@@ -63,69 +63,69 @@ const Carousel = React.forwardRef<
             children,
             ...props
         },
-        ref
+        ref,
     ) => {
         const [carouselRef, api] = useEmblaCarousel(
             {
                 ...opts,
                 axis: orientation === "horizontal" ? "x" : "y",
             },
-            plugins
-        )
-        const [canScrollPrev, setCanScrollPrev] = React.useState(false)
-        const [canScrollNext, setCanScrollNext] = React.useState(false)
+            plugins,
+        );
+        const [canScrollPrev, setCanScrollPrev] = React.useState(false);
+        const [canScrollNext, setCanScrollNext] = React.useState(false);
 
         const onSelect = React.useCallback((api: CarouselApi) => {
             if (!api) {
-                return
+                return;
             }
 
-            setCanScrollPrev(api.canScrollPrev())
-            setCanScrollNext(api.canScrollNext())
-        }, [])
+            setCanScrollPrev(api.canScrollPrev());
+            setCanScrollNext(api.canScrollNext());
+        }, []);
 
         const scrollPrev = React.useCallback(() => {
-            api?.scrollPrev()
-        }, [api])
+            api?.scrollPrev();
+        }, [api]);
 
         const scrollNext = React.useCallback(() => {
-            api?.scrollNext()
-        }, [api])
+            api?.scrollNext();
+        }, [api]);
 
         const handleKeyDown = React.useCallback(
             (event: React.KeyboardEvent<HTMLDivElement>) => {
                 if (event.key === "ArrowLeft") {
-                    event.preventDefault()
-                    scrollPrev()
+                    event.preventDefault();
+                    scrollPrev();
                 } else if (event.key === "ArrowRight") {
-                    event.preventDefault()
-                    scrollNext()
+                    event.preventDefault();
+                    scrollNext();
                 }
             },
-            [scrollPrev, scrollNext]
-        )
+            [scrollPrev, scrollNext],
+        );
 
         React.useEffect(() => {
             if (!api || !setApi) {
-                return
+                return;
             }
 
-            setApi(api)
-        }, [api, setApi])
+            setApi(api);
+        }, [api, setApi]);
 
         React.useEffect(() => {
             if (!api) {
-                return
+                return;
             }
 
-            onSelect(api)
-            api.on("reInit", onSelect)
-            api.on("select", onSelect)
+            onSelect(api);
+            api.on("reInit", onSelect);
+            api.on("select", onSelect);
 
             return () => {
-                api?.off("select", onSelect)
-            }
-        }, [api, onSelect])
+                api?.off("select", onSelect);
+            };
+        }, [api, onSelect]);
 
         return (
             <CarouselContext.Provider
@@ -152,48 +152,78 @@ const Carousel = React.forwardRef<
                     {children}
                 </div>
             </CarouselContext.Provider>
-        )
-    }
-)
-Carousel.displayName = "Carousel"
+        );
+    },
+);
+Carousel.displayName = "Carousel";
 
 interface UserCardProps {
-    user: User,
-    className?: string,
+    user: User;
+    className?: string;
     redirect: () => void;
 }
 
-
 const UserCard: React.FC<UserCardProps> = ({ user, redirect }) => {
+const formatDate = (date: Date) => {
+        const options: Intl.DateTimeFormatOptions = {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            hour: 'numeric',
+            minute: 'numeric',
+        };
+        return new Date(date).toLocaleDateString(undefined, options);
+    };
 
-    return (
+return (
         <div className={CLASSNAME}>
-            <img onClick={redirect} src={user?.photos[0]} alt={`${user.username}'s profile`}
-                className={`${CLASSNAME}__photo`} />
+            <div className={`${CLASSNAME}__image-container`}>
+                <img
+                    onClick={redirect}
+                    src={user?.photos[0]}
+                    alt={`${user.username}'s profile`}
+                    className={`${CLASSNAME}__photo`}
+                />
+            </div>
+
+            <div className={`${CLASSNAME}__status-info`}>
+                {user.is_connected ? (
+                     <div className={`${CLASSNAME}__online-status`}>
+                        <span className={`${CLASSNAME}__status-online`} /> Online
+                    </div> 
+                 ) : (
+                    <div className={`${CLASSNAME}__last-connection`}>
+                        {formatDate(user.last_connexion)}
+                    </div>
+                )}
+            </div>
+
             <div className={`${CLASSNAME}__informations`}>
                 <div className={`${CLASSNAME}__redirect`} onClick={redirect}>
-                    <p className={`${CLASSNAME}__informations-username`}>{user.username}, {user.age}</p>
+                    <p className={`${CLASSNAME}__informations-firstname`}>
+                        {user.firstname}, {user.age} years
+                    </p>
                     <div className={`${CLASSNAME}__informations-location`}>
-                        <img className={`${CLASSNAME}__informations-location-icon`} src='/alternate-map-marker.svg' alt='' />
-                        <p className={`${CLASSNAME}__informations-location-text`}>{user.town}</p>
+                        <img
+                            className={`${CLASSNAME}__informations-location-icon`}
+                            src="/alternate-map-marker.svg"
+                            alt=""
+                        />
+                        <p className={`${CLASSNAME}__informations-location-text`}>
+                            {user.town}
+                        </p>
                     </div>
-                    <p className={`${CLASSNAME}__informations-bio`}>{user.biography}</p>
-                </div>
-                <div className={`${CLASSNAME}__interests`}>
-                    {user.interests.map((interest, index) => (
-                        <span key={index} className={`${CLASSNAME}__tag`}>{interest}</span>
-                    ))}
                 </div>
             </div>
         </div>
     );
-}
+};
 
 const CarouselContent = React.forwardRef<
     HTMLDivElement,
     React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => {
-    const { carouselRef, orientation } = useCarousel()
+    const { carouselRef, orientation } = useCarousel();
 
     return (
         <div ref={carouselRef} className="overflow-hidden">
@@ -202,20 +232,20 @@ const CarouselContent = React.forwardRef<
                 className={cn(
                     "flex",
                     orientation === "horizontal" ? "-ml-4" : "-mt-4 flex-col",
-                    className
+                    className,
                 )}
                 {...props}
             />
         </div>
-    )
-})
-CarouselContent.displayName = "CarouselContent"
+    );
+});
+CarouselContent.displayName = "CarouselContent";
 
 const CarouselItem = React.forwardRef<
     HTMLDivElement,
     React.HTMLAttributes<HTMLDivElement>
 >(({ className, ...props }, ref) => {
-    const { orientation } = useCarousel()
+    const { orientation } = useCarousel();
 
     return (
         <div
@@ -225,19 +255,19 @@ const CarouselItem = React.forwardRef<
             className={cn(
                 "min-w-0 shrink-0 grow-0 basis-full",
                 orientation === "horizontal" ? "pl-4" : "pt-4",
-                className
+                className,
             )}
             {...props}
         />
-    )
-})
-CarouselItem.displayName = "CarouselItem"
+    );
+});
+CarouselItem.displayName = "CarouselItem";
 
 const CarouselPrevious = React.forwardRef<
     HTMLButtonElement,
     React.ComponentProps<typeof Button>
 >(({ className, variant = "outline", size = "icon", ...props }, ref) => {
-    const { orientation, scrollPrev, canScrollPrev } = useCarousel()
+    const { orientation, scrollPrev, canScrollPrev } = useCarousel();
 
     return (
         <Button
@@ -249,7 +279,7 @@ const CarouselPrevious = React.forwardRef<
                 orientation === "horizontal"
                     ? "-left-12 top-1/2 -translate-y-1/2"
                     : "-top-12 left-1/2 -translate-x-1/2 rotate-90",
-                className
+                className,
             )}
             disabled={!canScrollPrev}
             onClick={scrollPrev}
@@ -258,15 +288,15 @@ const CarouselPrevious = React.forwardRef<
             <ArrowLeft className="h-4 w-4" />
             <span className="sr-only">Previous slide</span>
         </Button>
-    )
-})
-CarouselPrevious.displayName = "CarouselPrevious"
+    );
+});
+CarouselPrevious.displayName = "CarouselPrevious";
 
 const CarouselNext = React.forwardRef<
     HTMLButtonElement,
     React.ComponentProps<typeof Button>
 >(({ className, variant = "outline", size = "icon", ...props }, ref) => {
-    const { orientation, scrollNext, canScrollNext } = useCarousel()
+    const { orientation, scrollNext, canScrollNext } = useCarousel();
 
     return (
         <Button
@@ -278,7 +308,7 @@ const CarouselNext = React.forwardRef<
                 orientation === "horizontal"
                     ? "-right-12 top-1/2 -translate-y-1/2"
                     : "-bottom-12 left-1/2 -translate-x-1/2 rotate-90",
-                className
+                className,
             )}
             disabled={!canScrollNext}
             onClick={scrollNext}
@@ -287,11 +317,9 @@ const CarouselNext = React.forwardRef<
             <ArrowRight className="h-4 w-4" />
             <span className="sr-only">Next slide</span>
         </Button>
-    )
-})
-CarouselNext.displayName = "CarouselNext"
-
-
+    );
+});
+CarouselNext.displayName = "CarouselNext";
 
 const Pagination = ({ className, ...props }: React.ComponentProps<"nav">) => (
     <nav
@@ -300,8 +328,8 @@ const Pagination = ({ className, ...props }: React.ComponentProps<"nav">) => (
         className={cn("mx-auto flex w-full justify-center", className)}
         {...props}
     />
-)
-Pagination.displayName = "Pagination"
+);
+Pagination.displayName = "Pagination";
 
 const PaginationContent = React.forwardRef<
     HTMLUListElement,
@@ -312,21 +340,21 @@ const PaginationContent = React.forwardRef<
         className={cn("flex flex-row items-center gap-1", className)}
         {...props}
     />
-))
-PaginationContent.displayName = "PaginationContent"
+));
+PaginationContent.displayName = "PaginationContent";
 
 const PaginationItem = React.forwardRef<
     HTMLLIElement,
     React.ComponentProps<"li">
 >(({ className, ...props }, ref) => (
     <li ref={ref} className={cn("", className)} {...props} />
-))
-PaginationItem.displayName = "PaginationItem"
+));
+PaginationItem.displayName = "PaginationItem";
 
 type PaginationLinkProps = {
-    isActive?: boolean
+    isActive?: boolean;
 } & Pick<ButtonProps, "size"> &
-    React.ComponentProps<"a">
+    React.ComponentProps<"a">;
 
 const PaginationLink = ({
     className,
@@ -341,12 +369,12 @@ const PaginationLink = ({
                 variant: isActive ? "outline" : "ghost",
                 size,
             }),
-            className
+            className,
         )}
         {...props}
     />
-)
-PaginationLink.displayName = "PaginationLink"
+);
+PaginationLink.displayName = "PaginationLink";
 
 const PaginationPrevious = ({
     className,
@@ -363,9 +391,9 @@ const PaginationPrevious = ({
             <ChevronLeft className="h-4 w-4" />
             <span onClick={scrollPrev}>Previous</span>
         </PaginationLink>
-    )
-}
-PaginationPrevious.displayName = "PaginationPrevious"
+    );
+};
+PaginationPrevious.displayName = "PaginationPrevious";
 
 const PaginationNext = ({
     className,
@@ -382,9 +410,9 @@ const PaginationNext = ({
             <span onClick={scrollNext}>Next</span>
             <ChevronRight className="h-4 w-4" />
         </PaginationLink>
-    )
-}
-PaginationNext.displayName = "PaginationNext"
+    );
+};
+PaginationNext.displayName = "PaginationNext";
 
 const PaginationEllipsis = ({
     className,
@@ -398,8 +426,8 @@ const PaginationEllipsis = ({
         <MoreHorizontal className="h-4 w-4" />
         <span className="sr-only">More pages</span>
     </span>
-)
-PaginationEllipsis.displayName = "PaginationEllipsis"
+);
+PaginationEllipsis.displayName = "PaginationEllipsis";
 
 export {
     type CarouselApi,
@@ -416,4 +444,4 @@ export {
     PaginationLink,
     PaginationNext,
     PaginationPrevious,
-}
+};

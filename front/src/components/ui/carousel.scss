@@ -1,27 +1,66 @@
 .card {
     border-radius: 10px;
     padding: 6px;
-    max-width: 250px;
+    max-width: 200px;
     height: 100%;
-    margin-bottom: 20px;
     background-color: #fff;
     box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
 
+    &__image-container {
+        position: relative;
+    }
+
+    &__status-info {
+        margin-top: 10px;
+        text-align: center;
+    }
+
+    &__online-status {
+        display: flex;
+        color: green;
+        border-radius: 5px;
+        font-size: 12px;
+        font-weight: bold;
+        margin-left: 8px;
+        margin-bottom: -12px;
+    }
+
+    &__status-online {
+        width: 10px;
+        height: 10px;
+        background-color: green;
+        border-radius: 50%;
+        margin-right: 5px;
+        margin-top: 4px;
+        display: inline-block;
+    }
+
+    &__last-connection {
+        margin-bottom: -12px;
+        border-radius: 5px;
+        color: green;
+        font-size: 12px;
+        text-align: center;
+    }
+
     &__photo {
         border-radius: 8px;
-        height: 250px;
+        height: 150px;
         object-fit: cover;
         cursor: pointer;
     }
 
     &__informations {
+        margin-top: 10px;
+        /* Add some spacing between the last-connection and the informations */
         background-color: white;
         padding: 8px;
     }
 
-    &__informations-username {
-        font-size: 18px;
+    &__informations-firstname {
+        font-size: 12px;
         font-weight: bold;
+        margin-bottom: 4px;
     }
 
     &__informations-location {
@@ -45,9 +84,8 @@
         -webkit-box-orient: vertical;
         overflow: hidden;
         text-overflow: ellipsis;
-        font-size: 14px;
+        font-size: 12px;
     }
-
 
     &__informations-bio {
         color: #5d5d5d;
@@ -65,7 +103,6 @@
     &__redirect {
         cursor: pointer;
     }
-
 
     &__interests {
         display: grid;
@@ -87,25 +124,4 @@
         text-align: center;
         align-items: center;
     }
-
-    // &__swipe {
-    //     display: flex;
-    //     justify-content: space-between;
-    //     margin-top: 16px;
-    //     margin-left: 30px;
-    //     margin-right: 30px;
-    //     margin-bottom: -10px;
-    // }
-
-    // &__swipe-heart {
-    //     cursor: pointer;
-    //     width: 32px;
-    //     height: 32px;
-    // }
-
-    // &__swipe-cross {
-    //     cursor: pointer;
-    //     width: 30px;
-    //     height: 30px;
-    // }
 }

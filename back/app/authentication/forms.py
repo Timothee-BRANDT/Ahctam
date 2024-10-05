@@ -3,6 +3,8 @@ from flask_wtf import FlaskForm
 from wtforms import (
     Form,
     StringField,
+    IntegerField,
+    FloatField,
     FieldList,
     SubmitField,
     PasswordField,
@@ -122,7 +124,7 @@ class LoginForm(FlaskForm):
             raise ValueError(f"An error occurred: {e}")
         else:
             if not user:
-                raise ValueError('Invalid username')
+                raise ValueError('Invalid credentials')
         finally:
             cur.close()
             conn.close()
@@ -138,10 +140,51 @@ class LoginForm(FlaskForm):
             raise ValueError(f"An error occurred: {e}")
         else:
             if not check_password_hash(user[0], field.data):
-                raise ValueError('Invalid password')
+                raise ValueError('Invalid credentials')
         finally:
             cur.close()
             conn.close()
+
+
+class FirstLoginForm(Form):
+    age = StringField('Age')
+    gender = StringField('Gender')
+    sexual_preferences = StringField('Sexual Preferences')
+    biography = TextAreaField('Biography')
+    photos = FieldList(StringField('Pictures'))
+    interests = FieldList(StringField('Interests'))
+    location = FieldList(FloatField('Location'))
+
+    def validate_age(self, field):
+        if not field.data:
+            raise ValueError('Please provide your age')
+        if not field.data.isdigit():
+            raise ValueError('Age must be a number')
+        if int(field.data) < 18:
+            raise ValueError('You must be at least 18 years old')
+
+    def validate_gender(self, field):
+        if not field.data:
+            raise ValueError("""
+Please select a gender
+            """)
+
+    def validate_sexual_preferences(self, field):
+        if not field.data:
+            raise ValueError("""
+Please select at least one sexual preference
+            """)
+
+    def validate_pictures(self, field):
+        if len(field.data) > 6 or len(field.data) < 1:
+            raise ValueError('You can upload 1 to 6 pictures')
+
+    def validate_location(self, field):
+        if len(field.data) != 2:
+            raise ValueError('Invalid location (latitude, longitude)')
+        if not isinstance(field.data[0], (int, float))\
+                or not isinstance(field.data[1], (int, float)):
+            raise ValueError('Invalid location')
 
 
 class ResetPasswordForm(FlaskForm):
@@ -161,18 +204,26 @@ one digit and one special character
             raise ValueError('Passwords do not match')
 
 
-class InformationsForm(Form):
-    age = StringField('Age')
+class ProfileForm(Form):
+    age = IntegerField('Age')
     firstname = StringField('First Name')
     lastname = StringField('Last Name')
     email = EmailField('Email')
     gender = StringField('Gender')
-    sexualPreference = StringField('Sexual Preferences')
+    sexual_preferences = StringField('Sexual Preferences')
     biography = TextAreaField('Biography')
     photos = FieldList(StringField('Pictures'))
     interests = FieldList(StringField('Interests'))
-    location = StringField('Can we use your location?')
+    location = FieldList(FloatField('Location'))
+    address = StringField('Address')
+    town = StringField('Town')
     submit = StringField('Submit')
+
+    def validate_age(self, field):
+        if not field.data:
+            raise ValueError('Please provide your age')
+        if int(field.data) < 18:
+            raise ValueError('You must be at least 18 years old')
 
     def validate_gender(self, field):
         if not field.data:
@@ -187,8 +238,8 @@ Please select at least one sexual preference
             """)
 
     def validate_pictures(self, field):
-        if len(field.data) > 6:
-            raise ValueError('You can upload up to 6 pictures')
+        if len(field.data) > 6 or len(field.data) < 1:
+            raise ValueError('You can upload 1 to 6 pictures')
 
     def validate_email(self, field):
         if field.data == self.email.data:

@@ -39,12 +39,14 @@ UPDATE users SET is_active = TRUE WHERE email = %s
     try:
         cur.execute(sql, (email,))
         conn.commit()
-        return jsonify({'message': 'Email confirmed'}), 200
+
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     finally:
         cur.close()
         conn.close()
+
+    return jsonify({'message': 'Email confirmed'}), 200
 
 
 @auth.route('/register', methods=['POST'])
@@ -77,18 +79,20 @@ VALUES (%s, %s, %s, %s, %s)
     conn = get_db_connection()
     cur = conn.cursor()
     try:
+        send_confirmation_email(email, token)
         cur.execute(
             sql,
             (username, hashed_password,
              email, firstname, lastname)
         )
         conn.commit()
-        send_confirmation_email(email, token)
+
     except Exception as e:
         return jsonify({'error': str(e)}), 500
     finally:
         cur.close()
         conn.close()
+
     return jsonify({'message': 'Registration successful'}), 200
 
 
