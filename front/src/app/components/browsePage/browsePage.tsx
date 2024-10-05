@@ -29,6 +29,7 @@ const browsePage: React.FC = () => {
   const [isFetched, setIsFetched] = useState(false);
   const [offset, setOffset] = useState(0);
   const [totalProfiles, setTotalProfiles] = useState(0);
+  const [putFilters, setPutFilters] = useState(false);
   const limit = 8;
 
   const router = useRouter();
@@ -44,7 +45,8 @@ const browsePage: React.FC = () => {
     }
     getProfiles();
     setIsLoggedIn(isJwtInCookie());
-  }, [offset]);
+  }, [offset, putFilters]);
+
   // WARNING: only 1 display "[]" because infinite loop with [profiles]
   // I replaced it with offset to rerender every pagination changes
 
@@ -78,6 +80,7 @@ const browsePage: React.FC = () => {
       console.log("From browse:", data_response);
       setProfiles(data_response.users);
       setTotalProfiles(data_response.total);
+      setPutFilters(false);
     }
   };
 
@@ -164,7 +167,13 @@ const browsePage: React.FC = () => {
             </div>
           )}
           {responsiveFilterButton && (
-            <Button onClick={() => setOffset(0)} className="btn">
+            <Button
+              onClick={() => {
+                setPutFilters(true);
+                setOffset(0);
+              }}
+              className="btn"
+            >
               Apply filters
             </Button>
           )}

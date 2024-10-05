@@ -24,7 +24,7 @@ const initialPig: User = {
   location: [],
   address: "",
   town: "",
-  fame_rating: 0,
+  fame: 0,
   is_active: false,
   status: "",
   last_connexion: new Date(),
@@ -35,6 +35,8 @@ const initialPig: User = {
   photos: [],
   created_at: new Date(),
   firstTimeLogged: true,
+  distance: 0,
+  nb_common_tags: 0,
 };
 
 interface AuthContextType {

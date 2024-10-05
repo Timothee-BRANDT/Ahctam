@@ -33,9 +33,9 @@ const initialProfileViewed: User = {
   location: [],
   address: "",
   town: "",
-  fame_rating: 0,
+  fame: 0,
   is_active: false,
-  is_connected: false,
+  status: "",
   last_connexion: "",
   gender: "",
   sexual_preferences: "",
@@ -44,6 +44,8 @@ const initialProfileViewed: User = {
   photos: [],
   created_at: "",
   firstTimeLogged: false,
+  distance: 0,
+  nb_common_tags: 0,
 };
 
 const CLASSNAME = "profile2";
@@ -274,7 +276,7 @@ const ProfileView: React.FC<ProfileViewProps> = (idProps) => {
                 {profileViewed.town}
               </p>
             </div>
-            <StarRating rate={profileViewed.fame_rating} />
+            <StarRating rate={profileViewed.fame} />
             <p className={`${CLASSNAME}__informations-bio`}>
               {profileViewed.biography}
             </p>

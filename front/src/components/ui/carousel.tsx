@@ -4,8 +4,10 @@ import * as React from "react";
 import useEmblaCarousel, {
   type UseEmblaCarouselType,
 } from "embla-carousel-react";
+
 import { ArrowLeft, ArrowRight } from "lucide-react";
 
+import StarRating from "@/app/components/core/rate/rate";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { User } from "@/app/types";
@@ -187,13 +189,15 @@ const UserCard: React.FC<UserCardProps> = ({ user, redirect }) => {
             <p className={`${CLASSNAME}__informations-location-text`}>
               {user.town}
             </p>
-            <div className={`${CLASSNAME}__is-online`}>
-              <img
-                className={`${CLASSNAME}__is-online-icon`}
-                src={isOnline ? "/online.svg" : "/offline.svg"}
-                alt={isOnline ? "online" : "offline"}
-              />
-            </div>
+            <p className="truncate font-bold text-[coral] text-xs">
+              {user.distance} km away
+            </p>
+          </div>
+          <div>
+            <p className="text-xs">{user.nb_common_tags} common interests</p>
+          </div>
+          <div>
+            <StarRating rate={user.fame} />
           </div>
         </div>
       </div>

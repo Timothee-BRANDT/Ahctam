@@ -1,4 +1,5 @@
 import json
+import numpy as np
 from typing import Any, Dict, List, Tuple
 
 # from app.authentication.views.decorators import jwt_required
@@ -100,11 +101,14 @@ def _get_matching_users(
                 user_data["interests"].split(", "),
                 matching_user["interests"].split(", ")
             )
-            matching_user["distance"] = haversine(
-                float(user_data["latitude"]),
-                float(user_data["longitude"]),
-                matching_user["latitude"],
-                matching_user["longitude"]
+            matching_user["distance"] = np.round(
+                haversine(
+                    float(user_data["latitude"]),
+                    float(user_data["longitude"]),
+                    matching_user["latitude"],
+                    matching_user["longitude"]
+                ),
+                2
             )
 
         matching_users: List = sorted(

@@ -8,7 +8,7 @@ export interface User {
   location: number[];
   address: string;
   town: string;
-  fame_rating: number;
+  fame: number;
   is_active: boolean;
   status: string;
   last_connexion: Date | string;
@@ -19,6 +19,8 @@ export interface User {
   photos: string[];
   created_at: Date | string;
   firstTimeLogged: boolean;
+  distance: number;
+  nb_common_tags: number;
 }
 
 export interface Notification {
