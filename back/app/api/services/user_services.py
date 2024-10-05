@@ -131,11 +131,13 @@ WHERE user_liked = %s
 
 def get_views_history(user_id: int) -> Tuple[List[Dict], int]:
     viewers_id_query = """
-SELECT user_viewed
+SELECT user_viewed, MAX(date) AS date
 FROM Views
 WHERE viewer = %s
-ORDER BY date DESC
+GROUP BY user_viewed
+ORDER BY date DESC;
     """
+
     conn = get_db_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
     users: List[Dict] = []
