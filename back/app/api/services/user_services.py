@@ -26,7 +26,7 @@ SELECT
     last_connexion,\
     status,\
     created_at,\
-    fame AS fame_rating
+    fame
 FROM Users
 WHERE id = %s
     """
@@ -61,9 +61,9 @@ ORDER BY is_profile_picture DESC
         result = cursor.fetchone()
         user_info: Dict = dict(result)
         user_info['firstTimeLogged'] = False
-        user_info['fame_rating'] = scale_fame_into_percentiles(
+        user_info['fame'] = scale_fame_into_percentiles(
             cursor=cursor,
-            fame=user_info['fame_rating']
+            fame=user_info['fame']
         )
 
         # Location

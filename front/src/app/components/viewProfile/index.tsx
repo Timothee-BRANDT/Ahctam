@@ -273,8 +273,35 @@ const ProfileView: React.FC<ProfileViewProps> = (idProps) => {
                 alt=""
               />
               <p className={`${CLASSNAME}__informations-location-text`}>
-                {profileViewed.town}
+                {profileViewed.town} -
               </p>
+              <div className="flex items-center">
+                {profileViewed.status === "online" ? (
+                  <>
+                    <img
+                      src="/online.svg"
+                      alt="Online"
+                      width="16"
+                      height="16"
+                    />
+                    <p className={"ml-2 font-bold text-green-500"}>Online</p>
+                  </>
+                ) : (
+                  <>
+                    <img
+                      src="/offline.svg"
+                      alt="Online"
+                      width="16"
+                      height="16"
+                    />
+                    <p
+                      className={`${CLASSNAME}__informations-location-text text-[red] ml-2`}
+                    >
+                      {profileViewed.last_connexion}
+                    </p>
+                  </>
+                )}
+              </div>
             </div>
             <StarRating rate={profileViewed.fame} />
             <p className={`${CLASSNAME}__informations-bio`}>
