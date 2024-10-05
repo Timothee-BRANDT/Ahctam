@@ -158,7 +158,7 @@ export default function Component() {
     return () => {
       socket?.off("message_received", handleMessageReceived);
     };
-  }, [selectedMatch]);
+  }, [selectedMatch, user]);
 
   useEffect(() => {
     if (selectedMatch) {
