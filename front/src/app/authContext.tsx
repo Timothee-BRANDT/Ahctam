@@ -134,7 +134,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
-  const handleClose = (event: React.SyntheticEvent | Event, reason?: string) => {
+  const handleClose = (
+    event: React.SyntheticEvent | Event,
+    reason?: string,
+  ) => {
     if (reason === "clickaway") {
       return;
     }
@@ -156,7 +159,10 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const deleteCookie = (name: string) => {
-    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/; SameSite=None`;
+    const sameSiteSecure =
+      window.location.protocol === "https:" ? "; SameSite=None; Secure" : "";
+
+    document.cookie = `${name}=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/${sameSiteSecure}`;
   };
 
   const isJwtInCookie = () => {
@@ -229,12 +235,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       {/* Utilisation de ReactDOM.createPortal pour rendre la Snackbar */}
       {typeof window !== "undefined" &&
         ReactDOM.createPortal(
-          <Snackbar anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} open={open} autoHideDuration={6000} onClose={handleClose}>
-            <Alert onClose={handleClose} icon={false} severity="success" sx={{ width: "100%" }}>
+          <Snackbar
+            anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+            open={open}
+            autoHideDuration={6000}
+            onClose={handleClose}
+          >
+            <Alert
+              onClose={handleClose}
+              icon={false}
+              severity="success"
+              sx={{ width: "100%" }}
+            >
               {notification}
             </Alert>
           </Snackbar>,
-          document.body // On rend le composant directement dans le body
+          document.body, // On rend le composant directement dans le body
         )}
     </AuthContext.Provider>
   );

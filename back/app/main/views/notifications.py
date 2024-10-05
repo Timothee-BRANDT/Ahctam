@@ -9,7 +9,7 @@ from .. import main
 # from app.main.sockets.sockets import
 
 
-# @sender_not_blocked
+@sender_not_blocked
 def store_notification(
     cursor,
     sender_id: int,
@@ -42,7 +42,7 @@ def store_notification(
         raise e
 
 
-# @sender_not_blocked
+@sender_not_blocked
 def send_notification(
     sender_id: int,
     receiver_id: int,

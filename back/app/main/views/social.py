@@ -35,11 +35,13 @@ WHERE id = %s
     cursor = conn.cursor(cursor_factory=RealDictCursor)
     try:
         token = request.headers.get('Authorization', '').split(' ')[1]
+        print('token in viewUser', token)
         user = jwt.decode(
             token,
             current_app.config['SECRET_KEY'],
             algorithms=['HS256'])
         user_id: int = int(user['id'])
+        print('user_id in viewUser', user_id)
         user_username: str = user['username']
 
         cursor.execute(view_user_query, (user_id, user_viewed_id))
