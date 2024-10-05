@@ -19,14 +19,6 @@ const setupSocketListeners = (): void => {
       console.log("Socket connection error:", err);
     });
 
-    socket.on("notification", (data) => {
-      console.log("New notif!!");
-      console.log(data.message);
-      // We can use a snackbar or a modal to display the notification
-      // import { handleNotification } from "notification_file";
-      // handeNotification(data);
-    });
-
     // socket.on("new_message", (data) => {
     //   console.log("New message!!");
     //   console.log(data.text);

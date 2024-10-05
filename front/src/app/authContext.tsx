@@ -186,6 +186,9 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const login = (token: string) => {
     setCookie("jwt_token", token, 7);
+    const newSocket = initializeSocket(token);
+    setSocket(newSocket);
+    setupSocketListeners(newSocket);
   };
 
   const logout = () => {
@@ -239,16 +242,19 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               icon={false}
               severity="success"
               sx={{ width: "100%" }}
-              onClick={() => {
-                router.push(`/profile/${notification?.sender_id}`);
-              }}
               style={{
                 cursor: "pointer",
                 backgroundColor: "lightcoral",
                 color: "white",
               }}
             >
-              <p>{notification?.message}</p>
+              <p
+                onClick={() =>
+                  router.push(`/profile/${notification?.sender_id}`)
+                }
+              >
+                {notification?.message}
+              </p>
             </Alert>
           </Snackbar>,
           document.body, // On rend le composant directement dans le body

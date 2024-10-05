@@ -67,7 +67,7 @@ const LoginPage: React.FC = () => {
       if (data.message === "First login") {
         router.push("/first-login");
       } else {
-        const socket = initializeSocket(data.jwt_token);
+        // const socket = initializeSocket(data.jwt_token);
         router.push("/");
       }
     } catch (e) {
@@ -106,7 +106,7 @@ const LoginPage: React.FC = () => {
                 autoComplete="new-password"
               />
             </div>
-            <Button type="submit" onClick={() => { }}>
+            <Button type="submit" onClick={() => {}}>
               Log in
             </Button>
             <div className={`${CLASSNAME}__helper`}>
