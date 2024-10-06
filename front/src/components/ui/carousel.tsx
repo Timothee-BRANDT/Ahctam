@@ -189,12 +189,16 @@ const UserCard: React.FC<UserCardProps> = ({ user, redirect }) => {
             <p className={`${CLASSNAME}__informations-location-text`}>
               {user.town}
             </p>
-            <p className="truncate font-bold text-[coral] text-xs">
-              {user.distance} km away
-            </p>
+            {user.distance && (
+              <p className="truncate font-bold text-[coral] text-xs">
+                {user.distance} km away
+              </p>
+            )}
           </div>
           <div>
-            <p className="text-xs">{user.nb_common_tags} common interests</p>
+            {user.distance && (
+              <p className="text-xs">{user.nb_common_tags} common interests</p>
+            )}
           </div>
           <div>
             <StarRating rate={user.fame} />

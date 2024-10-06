@@ -35,8 +35,8 @@ const initialPig: User = {
   photos: [],
   created_at: new Date(),
   firstTimeLogged: true,
-  distance: 0,
-  nb_common_tags: 0,
+  distance: -1,
+  nb_common_tags: -1,
 };
 
 interface AuthContextType {
@@ -53,11 +53,11 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType>({
   user: initialPig,
-  login: (token: string) => {},
-  logout: () => {},
-  setUser: () => {},
-  setCookie: (name: string, value: string, days?: number) => {},
-  deleteCookie: (name: string) => {},
+  login: (token: string) => { },
+  logout: () => { },
+  setUser: () => { },
+  setCookie: (name: string, value: string, days?: number) => { },
+  deleteCookie: (name: string) => { },
   getCookie: (name: string) => "",
   isJwtInCookie: () => false,
 });

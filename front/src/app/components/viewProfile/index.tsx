@@ -44,8 +44,8 @@ const initialProfileViewed: User = {
   photos: [],
   created_at: "",
   firstTimeLogged: false,
-  distance: 0,
-  nb_common_tags: 0,
+  distance: -1,
+  nb_common_tags: -1,
 };
 
 const CLASSNAME = "profile2";
