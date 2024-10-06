@@ -40,10 +40,15 @@ def _get_matching_users(
     LEFT JOIN user_interests ui ON u.id = ui.user_id
     LEFT JOIN interests i ON ui.interest_id = i.id
     WHERE u.id != %s
-      AND (
+        AND (
             (%s = 'both' AND (u.sexual_preferences = 'both' OR u.sexual_preferences = %s))
             OR (u.gender = %s AND (u.sexual_preferences = 'both' OR u.sexual_preferences = %s))
           )
+        AND u.id NOT IN (
+        SELECT user_blocked
+        FROM blocks
+        WHERE blocker = %s
+    )
     GROUP BY
         u.id,
         u.firstname,
@@ -65,6 +70,7 @@ def _get_matching_users(
         user_data["gender"],
         user_data["sexual_preferences"],
         user_data["gender"],
+        user_data["id"],
     )
 
     location_query = """
@@ -248,7 +254,7 @@ GROUP BY
                 user_data=user_data,
                 cursor=cur,
             )
-            redis_client.set(redis_key, json.dumps(matching_users), ex=3600)
+            redis_client.set(redis_key, json.dumps(matching_users), ex=180)
         else:
             logger.info("something in redis")
             matching_users = json.loads(

@@ -1,5 +1,5 @@
 from typing import Dict
-
+import json
 import jwt
 from flask import current_app, jsonify, request
 from psycopg2.extras import RealDictCursor
@@ -246,6 +246,10 @@ WHERE liker = %s AND user_liked = %s
             user_id=user_id,
             user_unliked_id=blocked_user_id
         )
+        _delete_user_from_redis(
+            request_user_id=user_id,
+            targer_user_id=blocked_user_id
+        )
 
         conn.commit()
         return jsonify({'message': f'User {user_username} blocked'}), 200
@@ -301,3 +305,28 @@ WHERE id = %s
     finally:
         cursor.close()
         conn.close()
+
+
+def _delete_user_from_redis(request_user_id: int, targer_user_id: int):
+    """
+    Delete the user from redis
+    """
+    try:
+        redis_client = current_app.extensions['redis']
+        request_redis_key: str = f'matching:{request_user_id}'
+        maching_users = json.loads(
+            redis_client.get(request_redis_key).decode('utf-8')
+        )
+
+        updated_matching_users = [
+            user for user in maching_users if user['id'] != targer_user_id
+        ]
+        if len(updated_matching_users) != len(maching_users):
+            redis_client.set(
+                request_redis_key,
+                json.dumps(updated_matching_users),
+                ex=180
+            )
+
+    except Exception as e:
+        raise e

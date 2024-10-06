@@ -228,7 +228,7 @@ const ProfileView: React.FC<ProfileViewProps> = (idProps) => {
         }
         const data = await response.json();
         console.log("Server response:", data);
-        router.push("/home");
+        router.push("/browse");
       }
     } catch (e) {
       console.log(e);
@@ -253,7 +253,7 @@ const ProfileView: React.FC<ProfileViewProps> = (idProps) => {
         }
         const data = await response.json();
         console.log("Server response:", data);
-        router.push("/home");
+        router.push("/browse");
       }
     } catch (e) {
       console.log(e);
