@@ -43,12 +43,26 @@ def _get_matching_users(
         AND (
             (%s = 'both' AND (u.sexual_preferences = 'both' OR u.sexual_preferences = %s))
             OR (u.gender = %s AND (u.sexual_preferences = 'both' OR u.sexual_preferences = %s))
-          )
+        )
         AND u.id NOT IN (
-        SELECT user_blocked
-        FROM blocks
-        WHERE blocker = %s
-    )
+            SELECT user_blocked
+            FROM blocks
+            WHERE blocker = %s
+        )
+        AND u.id NOT IN (
+            SELECT user_reported
+            FROM reports
+            WHERE reporter = %s
+        )
+        AND u.id NOT IN (
+            SELECT user1 
+            FROM matches
+            WHERE user2 = %s
+            UNION
+            SELECT user2 
+            FROM matches
+            WHERE user1 = %s
+        )
     GROUP BY
         u.id,
         u.firstname,
@@ -70,6 +84,9 @@ def _get_matching_users(
         user_data["gender"],
         user_data["sexual_preferences"],
         user_data["gender"],
+        user_data["id"],
+        user_data["id"],
+        user_data["id"],
         user_data["id"],
     )
 

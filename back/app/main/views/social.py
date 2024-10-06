@@ -282,6 +282,8 @@ WHERE id = %s
     """
     try:
         token = request.headers.get('Authorization', '').split(' ')[1]
+        if not token:
+            raise ValueError('Token is required')
         user = jwt.decode(
             token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
 
@@ -295,6 +297,10 @@ WHERE id = %s
             user_id=user_id,
             user_unliked_id=user_reported_id
         )
+        _delete_user_from_redis(
+            request_user_id=user_id,
+            targer_user_id=user_reported_id
+        )
 
         conn.commit()
         return jsonify({'message': f'User {user_username} reported'}), 200
@@ -307,13 +313,18 @@ WHERE id = %s
         conn.close()
 
 
-def _delete_user_from_redis(request_user_id: int, targer_user_id: int):
+def _delete_user_from_redis(
+    request_user_id: int,
+    targer_user_id: int
+) -> None:
     """
     Delete the user from redis
+    Use it in a try/except block
     """
     try:
         redis_client = current_app.extensions['redis']
         request_redis_key: str = f'matching:{request_user_id}'
+        logger.info(f'Deleting {targer_user_id} from {request_redis_key}')
         maching_users = json.loads(
             redis_client.get(request_redis_key).decode('utf-8')
         )

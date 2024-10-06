@@ -111,6 +111,15 @@ ON CONFLICT DO NOTHING
             message=f'Match with {user_firstname}! 💕',
             notification_type='match'
         )
+        from app.main.views.social import _delete_user_from_redis
+        _delete_user_from_redis(
+            request_user_id=user_id,
+            targer_user_id=user_liked_id
+        )
+        _delete_user_from_redis(
+            request_user_id=user_liked_id,
+            targer_user_id=user_id
+        )
 
     except Exception as e:
         raise e
