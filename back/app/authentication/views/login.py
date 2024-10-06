@@ -4,6 +4,7 @@ from ..forms import (
     LoginForm,
     FirstLoginForm,
 )
+from datetime import datetime, timedelta
 from logger import logger
 from flask import (
     current_app,
@@ -12,7 +13,7 @@ from flask import (
     url_for,
     jsonify,
 )
-from psycopg2.extras import DictCursor
+from psycopg2.extras import RealDictCursor
 import jwt
 from datetime import datetime, timedelta
 from ...database import get_db_connection
@@ -103,7 +104,7 @@ def first_login():
     # NOTE:  Put jwt_required
     logger.info(request.headers)
     connector = get_db_connection()
-    cursor = connector.cursor(cursor_factory=DictCursor)
+    cursor = connector.cursor(cursor_factory=RealDictCursor)
     try:
         data = request.get_json()
         payload: Dict = data.get('payload', {})
@@ -243,16 +244,92 @@ def generate_nonce():
 def google_callback():
     from app import oauth
     google = oauth.google
+    is_user_registered_query = """
+SELECT *
+FROM users 
+WHERE username = %s
+"""
+    conn = get_db_connection()
+    cur = conn.cursor(cursor_factory=RealDictCursor)
     print('google callback')
-    if google:
-        token = google.authorize_access_token()
-        user_info = google.parse_id_token(
-            token,
-            nonce=global_nonce
-            # nonce=session.get('nonce')
-        )
-        print('-' * 50)
-        print(user_info)
-        print('-' * 50)
+    try:
+        if google:
+            token = google.authorize_access_token()
+            print(type(token))
+            print(token)
+            print('-' * 80)
+            user_info: Dict = google.parse_id_token(
+                token,
+                nonce=global_nonce
+                # nonce=session.get('nonce')
+            )
+            username: str = str(user_info.get('sub', ''))
+            cur.execute(is_user_registered_query, (username,))
+            is_user_registered = cur.fetchone()
+            if is_user_registered is None:
+                user_id: int = _register_google_user(user_info)
+                token = jwt.encode(
+                    {
+                        'id': user_id,
+                        'username': username,
+                        'exp': datetime.utcnow() + timedelta(days=30)
+                    },
+                    current_app.config['SECRET_KEY'],
+                    algorithm='HS256'
+                )
+                redirect(f'http://localhost:3000/first-login?token={token}')
+            elif not is_user_registered['gender']:
+                pass
+                # first_login()
+            else:
+                pass
+                # login()
 
-    return redirect('http://localhost:3000')
+            firstname: str = user_info.get('given_name', '')
+            lastname: str = user_info.get('family_name', '')
+            email: str = user_info.get('email', '')
+
+        return redirect('http://localhost:3000')
+
+    except Exception as e:
+        print(e)
+        return redirect('http://localhost:3000')
+
+
+def _register_google_user(user_info: Dict) -> int:
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        sql = """
+INSERT INTO users (username, email, firstname, lastname, is_active)
+VALUES (%s, %s, %s, %s, TRUE)
+RETURNING id
+"""
+        cursor.execute(sql, (
+            user_info['sub'],
+            user_info['email'],
+            user_info['given_name'],
+            user_info['family_name']
+        ))
+        user_id = cursor.fetchone()[0]
+        conn.commit()
+        return user_id
+
+    except Exception as e:
+        raise e
+    finally:
+        cursor.close()
+        conn.close()
+
+# {'iss': 'https://accounts.google.com',
+#  'azp': '1006836289631-5k943q3f6qng07snp3c28gvflf7ij4q3.apps.googleusercontent.com',
+#  'aud': '1006836289631-5k943q3f6qng07snp3c28gvflf7ij4q3.apps.googleusercontent.com',
+#  'sub': '111281859436736730189',
+#  'email': 'edouard.leleux@gmail.com',
+#  'email_verified': True,
+#  'at_hash': 'lqo-XZykls32mdnMoIW3WA',
+#  'nonce': 'DCsNE8YgGK7dlem6',
+#  'name': 'Edouard Leleux',
+#  'picture': 'https://lh3.googleusercontent.com/a/ACg8ocIKrl9a28Nkw6ktLrhUT4mZPlzUJfBeQVG__LcMPEjRmuouoQ=s96-c',
+#  'given_name': 'Edouard',
+#  'family_name': 'Leleux', 'iat': 1728231036, 'exp': 1728234636}
