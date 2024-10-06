@@ -112,23 +112,6 @@ def create_users_table(cursor):
     """)
 
 
-def create_reports_table(cursor):
-    print('Creating reports table...')
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS reports (
-            id SERIAL PRIMARY KEY,
-            reporter_id INTEGER NOT NULL,
-            reported_id INTEGER NOT NULL,
-            reason TEXT,
-            date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            status VARCHAR(50) DEFAULT 'pending',
-            FOREIGN KEY (reporter_id) REFERENCES users(id) ON DELETE CASCADE,
-            FOREIGN KEY (reported_id) REFERENCES users(id) ON DELETE CASCADE,
-            UNIQUE (reporter_id, reported_id)
-        );
-    """)
-
-
 def create_conversations_table(cursor):
     print('Creating conversations table...')
     cursor.execute("""
@@ -261,6 +244,21 @@ def create_blocks_table(cursor):
             FOREIGN KEY (user_blocked) REFERENCES users(id) ON DELETE CASCADE,
             FOREIGN KEY (blocker) REFERENCES users(id) ON DELETE CASCADE,
             UNIQUE (user_blocked, blocker)
+        );
+    """)
+
+
+def create_reports_table(cursor):
+    print('Creating reports table...')
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS reports (
+            id SERIAL PRIMARY KEY,
+            date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            user_reported INTEGER NOT NULL,
+            reporter INTEGER NOT NULL,
+            FOREIGN KEY (user_reported) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY (reporter) REFERENCES users(id) ON DELETE CASCADE,
+            UNIQUE (user_reported, reporter)
         );
     """)
 

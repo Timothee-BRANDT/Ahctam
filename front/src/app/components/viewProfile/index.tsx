@@ -210,6 +210,56 @@ const ProfileView: React.FC<ProfileViewProps> = (idProps) => {
     setLiked((prev) => !prev);
   };
 
+  const reportUser = async () => {
+    const token = getCookie("jwt_token");
+    try {
+      if (idMatch) {
+        const id = idMatch[1];
+        const url = `http://${serverIP}:5000/reportUser/${id}`;
+        const response = await fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const data = await response.json();
+        console.log("Server response:", data);
+        router.push("/home");
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const blockUser = async () => {
+    const token = getCookie("jwt_token");
+    try {
+      if (idMatch) {
+        const id = idMatch[1];
+        const url = `http://${serverIP}:5000/blockUser/${id}`;
+        const response = await fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const data = await response.json();
+        console.log("Server response:", data);
+        router.push("/home");
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
   return (
     <>
       {isLoggedIn && (
@@ -245,6 +295,7 @@ const ProfileView: React.FC<ProfileViewProps> = (idProps) => {
               </PaginationContent>
             </Pagination>
           </Carousel>
+
           <div className={`${CLASSNAME}__informations`}>
             <div className={`${CLASSNAME}__text-love`}>
               <p className={`${CLASSNAME}__informations-firstname`}>
@@ -313,6 +364,23 @@ const ProfileView: React.FC<ProfileViewProps> = (idProps) => {
                   {interest}
                 </span>
               ))}
+            </div>
+            <div className={`${CLASSNAME}__actions flex justify-between mt-12`}>
+              <button
+                className="w-1/2 bg-red-500 text-white py-2 mr-2 rounded-md border border-black"
+                onClick={blockUser}
+                style={{ cursor: "pointer" }}
+              >
+                Bloquer
+              </button>
+              <button
+                className="w-1/2 bg-orange-500 text-white py-2 ml-2 rounded-md border border-black"
+                onClick={reportUser}
+                style={{ cursor: "pointer" }}
+                title="Ce compte est suspect"
+              >
+                Signaler
+              </button>
             </div>
           </div>
         </div>

@@ -209,9 +209,9 @@ WHERE id = %s
         conn.close()
 
 
-@main.route('/blockUser', methods=['POST'])
+@main.route('/blockUser/<int:blocked_user_id>', methods=['POST'])
 @jwt_required
-def block_a_user():
+def block_a_user(blocked_user_id: int):
     """
     Blocking a user also reduces his fame by 5
     """
@@ -231,22 +231,20 @@ DELETE FROM likes
 WHERE liker = %s AND user_liked = %s
     """
     try:
-        data = request.get_json()
         token = request.headers.get('Authorization', '').split(' ')[1]
         user = jwt.decode(
             token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
 
         user_id: int = int(user['id'])
         user_username: str = user['username']
-        user_blocked = data.get('user_id')
 
-        cursor.execute(block_query, (user_id, user_blocked))
-        cursor.execute(fame_query, (user_blocked,))
-        cursor.execute(remove_like_query, (user_id, user_blocked))
+        cursor.execute(block_query, (user_id, blocked_user_id))
+        cursor.execute(fame_query, (blocked_user_id,))
+        cursor.execute(remove_like_query, (user_id, blocked_user_id))
         delete_match(
             cursor=cursor,
             user_id=user_id,
-            user_unliked_id=user_blocked
+            user_unliked_id=blocked_user_id
         )
 
         conn.commit()
@@ -260,9 +258,9 @@ WHERE liker = %s AND user_liked = %s
         conn.close()
 
 
-@main.route('/reportUser', methods=['POST'])
+@main.route('/reportUser/<int:user_reported_id>', methods=['POST'])
 @jwt_required
-def report_a_user():
+def report_a_user(user_reported_id: int):
     """
     A report decreases the user's fame by 5
     At 5 reports, the user is banned
@@ -270,7 +268,7 @@ def report_a_user():
     conn = get_db_connection()
     cursor = conn.cursor(cursor_factory=RealDictCursor)
     report_query = """
-INSERT INTO reports (blocker, user_blocked)
+INSERT INTO reports (reporter, user_reported)
 VALUES (%s, %s)
     """
     fame_query = """
@@ -279,21 +277,19 @@ SET fame = fame - 5
 WHERE id = %s
     """
     try:
-        data = request.get_json()
         token = request.headers.get('Authorization', '').split(' ')[1]
         user = jwt.decode(
             token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
 
         user_id: int = int(user['id'])
         user_username: str = user['username']
-        user_reported = data.get('user_id')
 
-        cursor.execute(report_query, (user_id, user_reported))
-        cursor.execute(fame_query, (user_reported,))
+        cursor.execute(report_query, (user_id, user_reported_id))
+        cursor.execute(fame_query, (user_reported_id,))
         delete_match(
             cursor=cursor,
             user_id=user_id,
-            user_unliked_id=user_reported
+            user_unliked_id=user_reported_id
         )
 
         conn.commit()
