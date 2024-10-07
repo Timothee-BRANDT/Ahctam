@@ -23,6 +23,7 @@ class Config:
     OPENCAGE_API_KEY = os.getenv('OPENCAGE_API_KEY')
     GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
     GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
+    OAUTH_DEFAULT_PASSWORD = os.getenv('OAUTH_DEFAULT_PASSWORD')
 
 
 class DevelopmentConfig(Config):

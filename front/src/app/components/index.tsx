@@ -9,7 +9,7 @@ import { ProfileInformations } from "@/app/types";
 import { usePathname, useRouter } from "next/navigation";
 
 const CLASSNAME = "profile";
-const MAX_PHOTOS = 6;
+const MAX_PHOTOS = 5;
 
 var localisationjpp: number[] = [];
 var townjpp: string = "";
@@ -362,11 +362,10 @@ const ProfilePage: React.FC = () => {
                       />
                       {!photo && (
                         <div
-                          className={`upload-text ${
-                            index === 0
+                          className={`upload-text ${index === 0
                               ? `${CLASSNAME}__profile-picture-uploader`
                               : ""
-                          }`}
+                            }`}
                         >
                           {index === 0
                             ? "Upload a profile picture"
@@ -378,7 +377,7 @@ const ProfilePage: React.FC = () => {
                 </div>
               </div>
             </div>
-            <Button className="button-info" type="submit" onClick={() => {}}>
+            <Button className="button-info" type="submit" onClick={() => { }}>
               Save
             </Button>
           </form>

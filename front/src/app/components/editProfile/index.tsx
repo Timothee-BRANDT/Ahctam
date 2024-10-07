@@ -11,7 +11,7 @@ import { usePathname, useRouter } from "next/navigation";
 import data from "../../api.json";
 
 const CLASSNAME = "profile";
-const MAX_PHOTOS = 6;
+const MAX_PHOTOS = 5;
 const BAN_URL =
   "https://api-adresse.data.gouv.fr/search/?q=<recherche>&autocomplete=1";
 
@@ -439,11 +439,10 @@ const ProfilePage: React.FC = () => {
                       />
                       {!photo && (
                         <div
-                          className={`upload-text ${
-                            index === 0
+                          className={`upload-text ${index === 0
                               ? `${CLASSNAME}__profile-picture-uploader`
                               : ""
-                          }`}
+                            }`}
                         ></div>
                       )}
                     </div>
@@ -451,7 +450,7 @@ const ProfilePage: React.FC = () => {
                 </div>
               </div>
             </div>
-            <Button className="button-info" type="submit" onClick={() => {}}>
+            <Button className="button-info" type="submit" onClick={() => { }}>
               Save
             </Button>
           </form>

@@ -1,4 +1,4 @@
-from typing import Dict, Any
+from typing import Dict, Any, Tuple
 from .. import auth
 from ..forms import (
     LoginForm,
@@ -7,12 +7,14 @@ from ..forms import (
 from datetime import datetime, timedelta
 from logger import logger
 from flask import (
+    Response,
     current_app,
     request,
     redirect,
     url_for,
     jsonify,
 )
+from werkzeug.security import generate_password_hash
 from psycopg2.extras import RealDictCursor
 import jwt
 from datetime import datetime, timedelta
@@ -27,7 +29,35 @@ global_nonce = ''
 
 
 @auth.route('/login', methods=['POST'])
-def login():
+def login() -> Tuple[Response, int]:
+    """
+    The login route used to authenticate the user.
+
+    Args:
+    -----
+    None
+
+    Request:
+    --------
+    {
+        "username": "username",
+        "password": "password"
+    }
+
+    Returns:
+    --------
+    {
+        "message": "Login successful" or "First login",
+        "jwt_token": "token",
+        "refresh_token": "refresh_token",
+        "user_id": int
+    }, status_code
+
+    Raises:
+    -------
+    ValueError: "Invalid credentials"
+    ValueError: "User is not active"
+    """
     data = request.get_json()
     form = LoginForm(data=data)
     conn = get_db_connection()
@@ -159,14 +189,15 @@ WHERE user_id = %s
 AND token = %s
         """
         cur.execute(query, (user_id, refresh_token))
+
         conn.commit()
+        return jsonify({'message': 'Logout successful'}), 200
+
     except Exception as e:
         return jsonify({'error': str(e)}), 400
     finally:
         cur.close()
         conn.close()
-
-    return jsonify({'message': 'Logout successful'}), 200
 
 
 @auth.route('/refresh', methods=['POST'])
@@ -254,21 +285,24 @@ WHERE username = %s
     print('google callback')
     try:
         if google:
-            token = google.authorize_access_token()
-            print(type(token))
-            print(token)
+            google_token = google.authorize_access_token()
+            print(type(google_token))
+            print(google_token)
             print('-' * 80)
-            user_info: Dict = google.parse_id_token(
-                token,
+            google_user_info: Dict = google.parse_id_token(
+                google_token,
                 nonce=global_nonce
                 # nonce=session.get('nonce')
             )
-            username: str = str(user_info.get('sub', ''))
+            username: str = str(google_user_info.get('sub', ''))
+            print('the sub is:', username)
             cur.execute(is_user_registered_query, (username,))
             is_user_registered = cur.fetchone()
+            print('is_user_registered:', is_user_registered)
             if is_user_registered is None:
-                user_id: int = _register_google_user(user_info)
-                token = jwt.encode(
+                user_id: int = _register_google_user(google_user_info)
+                print('coucou, user_id:', user_id)
+                jwt_token = jwt.encode(
                     {
                         'id': user_id,
                         'username': username,
@@ -277,17 +311,26 @@ WHERE username = %s
                     current_app.config['SECRET_KEY'],
                     algorithm='HS256'
                 )
-                redirect(f'http://localhost:3000/first-login?token={token}')
+                print('coucoucoucou')
+                return redirect(
+                    f'http://localhost:3000/first-login?token={jwt_token}')
             elif not is_user_registered['gender']:
-                pass
-                # first_login()
+                jwt_token = jwt.encode(
+                    {
+                        'id': is_user_registered['id'],
+                        'username': username,
+                        'exp': datetime.utcnow() + timedelta(days=30)
+                    },
+                    current_app.config['SECRET_KEY'],
+                    algorithm='HS256'
+                )
+                print('redirect url:',
+                      f'http://localhost:3000/first-login?token={jwt_token}')
+                return redirect(
+                    f'http://localhost:3000/first-login?token={jwt_token}')
             else:
                 pass
                 # login()
-
-            firstname: str = user_info.get('given_name', '')
-            lastname: str = user_info.get('family_name', '')
-            email: str = user_info.get('email', '')
 
         return redirect('http://localhost:3000')
 
@@ -296,23 +339,30 @@ WHERE username = %s
         return redirect('http://localhost:3000')
 
 
-def _register_google_user(user_info: Dict) -> int:
+def _register_google_user(google_user_info: Dict) -> int:
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
-        sql = """
-INSERT INTO users (username, email, firstname, lastname, is_active)
-VALUES (%s, %s, %s, %s, TRUE)
+        register_query = """
+INSERT INTO users (username, password, email, firstname, lastname, is_active)
+VALUES (%s, %s, %s, %s, %s, TRUE)
 RETURNING id
 """
-        cursor.execute(sql, (
-            user_info['sub'],
-            user_info['email'],
-            user_info['given_name'],
-            user_info['family_name']
-        ))
+        print('coucou register google')
+        cursor.execute(
+            register_query,
+            (
+                google_user_info['sub'],
+                generate_password_hash(
+                    current_app.config['OAUTH_DEFAULT_PASSWORD']),
+                google_user_info['email'],
+                google_user_info['given_name'],
+                google_user_info['family_name']
+            )
+        )
         user_id = cursor.fetchone()[0]
         conn.commit()
+        logger.info(f'User {user_id} registered via google!')
         return user_id
 
     except Exception as e:

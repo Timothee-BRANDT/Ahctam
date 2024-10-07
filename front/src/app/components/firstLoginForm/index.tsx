@@ -9,13 +9,14 @@ import { FirstLoginInformations } from "@/app/types";
 import { usePathname, useRouter } from "next/navigation";
 
 const CLASSNAME = "profile";
-const MAX_PHOTOS = 6;
+const MAX_PHOTOS = 5;
 
 var localisationjpp: number[] = [0, 0];
 var townjpp: string = "";
 
 const FirstLoginPage: React.FC = () => {
-  const { user, setUser, isJwtInCookie, getCookie } = useAuth();
+  const query = new URLSearchParams(location.search);
+  const { user, setUser, isJwtInCookie, getCookie, setCookie } = useAuth();
   const [allowGeolocation, setAllowGeolocation] = useState(false);
   const hasFetchedFormular = useRef(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -76,9 +77,16 @@ const FirstLoginPage: React.FC = () => {
   };
 
   useEffect(() => {
-    if (!isJwtInCookie()) {
+    console.log("useEffect of FirstLoginPage is called");
+    console.log("quwey", query);
+    const token = query.get("token");
+    console.log("token", token);
+    if (!isJwtInCookie() && !token) {
       redirectLogin();
     } else {
+      if (token) {
+        setCookie("jwt_token", token);
+      }
       setIsLoggedIn(true);
       if (!geolocationPermission) {
         askLocationPermission();
@@ -348,11 +356,10 @@ const FirstLoginPage: React.FC = () => {
                       />
                       {!photo && (
                         <div
-                          className={`upload-text ${
-                            index === 0
+                          className={`upload-text ${index === 0
                               ? `${CLASSNAME}__profile-picture-uploader`
                               : ""
-                          }`}
+                            }`}
                         >
                           {index === 0
                             ? "Upload a profile picture"
@@ -368,7 +375,7 @@ const FirstLoginPage: React.FC = () => {
               className="button-info"
               type="submit"
               disabled={loadingLocation}
-              onClick={() => {}}
+              onClick={() => { }}
             >
               Save
             </Button>
