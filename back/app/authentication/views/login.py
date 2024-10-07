@@ -282,6 +282,7 @@ WHERE username = %s
 """
     conn = get_db_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
+    jwt_token = ''
     print('google callback')
     try:
         if google:
@@ -328,11 +329,18 @@ WHERE username = %s
                       f'http://localhost:3000/first-login?token={jwt_token}')
                 return redirect(
                     f'http://localhost:3000/first-login?token={jwt_token}')
-            else:
-                pass
-                # login()
 
-        return redirect('http://localhost:3000')
+            jwt_token = jwt.encode(
+                {
+                    'id': is_user_registered['id'],
+                    'username': username,
+                    'exp': datetime.utcnow() + timedelta(days=30)
+                },
+                current_app.config['SECRET_KEY'],
+                algorithm='HS256'
+            )
+
+        return redirect('http://localhost:3000?token=' + jwt_token)
 
     except Exception as e:
         print(e)
