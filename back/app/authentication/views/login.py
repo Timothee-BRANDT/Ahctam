@@ -38,14 +38,14 @@ def login() -> Tuple[Response, int]:
     -----
     None
 
-    Request:
+    Request: json payload
     --------
     {
         "username": "username",
         "password": "password"
     }
 
-    Returns:
+    Returns: Tuple[Response, int]
     --------
     {
         "message": "Login successful" or "First login",
@@ -132,6 +132,38 @@ WHERE id = %s
 
 @auth.route('/first-login', methods=['POST'])
 def first_login():
+    """
+    The first-login route that completes the profile.
+    It calls a service to store the user's information in the database.
+
+    Args:
+    -----
+    None
+
+    Request: json payload
+    --------
+    {
+        "age": 1,
+        "gender": "gender","
+        "sexual_preferences": "sexual_preferences",
+        "biography": "biography",
+        "photos": ["photo1", "photo2"],
+        "interests": ["interest1", "interest2"],
+        "location": [1.0, 2.0]
+    }
+
+    Returns: Tuple[Response, int]
+    --------
+    {
+        "message": "First login successful",
+    }, status_code
+
+    Raises:
+    -------
+    Exception: "No token provided"
+    Exception: "Invalid or expired refresh token"
+    Exception: "Invalid refresh token"
+    """
     # NOTE:  Put jwt_required
     logger.info(request.headers)
     connector = get_db_connection()

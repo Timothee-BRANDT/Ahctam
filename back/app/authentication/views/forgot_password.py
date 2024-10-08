@@ -1,5 +1,7 @@
 from .. import auth
+from typing import Tuple
 from flask import (
+    Response,
     current_app,
     render_template,
     request,
@@ -17,7 +19,7 @@ from .utils import send_reset_password_email
 
 
 @auth.route('/forgot_password', methods=['POST'])
-def forgot_password():
+def forgot_password() -> Tuple[Response, int]:
     conn = get_db_connection()
     cur = conn.cursor()
     email_query = 'SELECT email FROM users WHERE username = %s'

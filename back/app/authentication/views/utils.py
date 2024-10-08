@@ -28,8 +28,20 @@ def send_confirmation_email(email, token):
         mail.send(msg)
 
 
-def send_reset_password_email(email):
-    logger.info('Sending email to : %s', email)
+def send_reset_password_email(email: str) -> None:
+    """
+    ⚠️ Use it in a try/except block ⚠️ 
+    Send an email to the user with a link to reset the password.
+
+    Args:
+    -----
+    email (str):
+        User's email address
+
+    Returns:
+    --------
+    None
+    """
     with current_app.app_context():
         serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
         token = serializer.dumps(
@@ -42,17 +54,13 @@ def send_reset_password_email(email):
             sender=current_app.config['MAIL_USERNAME'],
             recipients=[email]
         )
-        logger.info('Email created')
         link = f"http://localhost:3000/reset-password?token={token}"
-        logger.info('Link created')
         msg.body = f"""
         To reset your password, visit the following link:
         {link}
         If you did not make this request then simply ignore this email.
         """
-        logger.info('Email body created')
         mail.send(msg)
-        logger.info('Email sent')
 
 
 def store_first_login_informations(
@@ -61,8 +69,31 @@ def store_first_login_informations(
     form: FirstLoginForm,
     user_id: int,
     user_ip: str | None
-):
+) -> None:
     """
+    ⚠️ Use it in a try/except block ⚠️ 
+    Store user's first login informations in the database.
+
+    Args:
+    -----
+    conn (psycopg2.extensions.connection):
+        Connection to the database
+    cur (psycopg2.extensions.cursor):
+        Cursor to the database
+    form (FirstLoginForm):
+        Form containing user's informations
+    user_id (int):
+        New user's id
+    user_ip (str | None):
+        User's ip address, None if location is provided by the browser
+
+    Returns:
+    --------
+    None
+
+    Raises:
+    -------
+    Exception: If any error occurs
     """
     try:
         # User
@@ -112,13 +143,14 @@ SELECT id FROM interests WHERE name = %s
             cur.execute(interests_query, (interest,))
             result = cur.fetchone()
             if result:
-                interest_id = result['id']
+                interest_id = result['id']  # type: ignore
             user_interest_query = """
 INSERT INTO user_interests (user_id, interest_id)
 VALUES (%s, %s)
 ON CONFLICT DO NOTHING
             """
-            cur.execute(user_interest_query, (user_id, interest_id))
+            cur.execute(user_interest_query,
+                        (user_id, interest_id))  # type: ignore
 
         # Location
         location: List = form.location.data
@@ -132,7 +164,8 @@ ON CONFLICT DO NOTHING
         else:
             # NOTE: Implement it after nginx is set up
             logger.info('No location provided, getting location from ip')
-            longitude, latitude, town = _get_location_from_ip(user_ip)
+            longitude, latitude, town = _get_location_from_ip(
+                user_ip)  # type: ignore
             address = town
 
         location_query = """
