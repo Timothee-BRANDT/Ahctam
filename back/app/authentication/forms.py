@@ -189,7 +189,7 @@ Please select at least one sexual preference
 
 class ResetPasswordForm(FlaskForm):
     password = PasswordField('Password')
-    password2 = PasswordField('Confirm Password')
+    confirmPassword = PasswordField('Confirm Password')
     submit = SubmitField('Reset Password')
 
     def validate_password(self, field):
@@ -200,7 +200,7 @@ Password must be between 8 and 20 characters long,
 contain at least one uppercase letter, one lowercase letter,
 one digit and one special character
             """)
-        if field.data != self.password2.data:
+        if field.data != self.confirmPassword.data:
             raise ValueError('Passwords do not match')
 
 

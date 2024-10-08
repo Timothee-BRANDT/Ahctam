@@ -29,23 +29,30 @@ def send_confirmation_email(email, token):
 
 
 def send_reset_password_email(email):
+    logger.info('Sending email to : %s', email)
     with current_app.app_context():
         serializer = URLSafeTimedSerializer(current_app.config['SECRET_KEY'])
         token = serializer.dumps(
-            email, salt=current_app.config['SMTP_SECURITY_SALT'])
+            email,
+            salt=current_app.config['SMTP_SECURITY_SALT']
+        )
         mail = current_app.extensions['mail']
         msg = Message(
             subject='Matcha . Reset your password',
             sender=current_app.config['MAIL_USERNAME'],
-            recipients=[email])
-        link = url_for('auth.reset_password_page', token=token, _external=True)
+            recipients=[email]
+        )
+        logger.info('Email created')
+        link = f"http://localhost:3000/reset-password?token={token}"
+        logger.info('Link created')
         msg.body = f"""
         To reset your password, visit the following link:
         {link}
         If you did not make this request then simply ignore this email.
         """
+        logger.info('Email body created')
         mail.send(msg)
-        print('Email sent')
+        logger.info('Email sent')
 
 
 def store_first_login_informations(
