@@ -4,7 +4,7 @@ from ..forms import (
     LoginForm,
     FirstLoginForm,
 )
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from logger import logger
 from flask import (
     Response,
@@ -15,6 +15,7 @@ from flask import (
     jsonify,
 )
 from werkzeug.security import generate_password_hash
+from werkzeug.wrappers import Response as WerkzeugResponse
 from psycopg2.extras import RealDictCursor
 import jwt
 from datetime import datetime, timedelta
@@ -253,7 +254,7 @@ AND expiration_date > %s
 def google_login():
     print('google login')
     from app import oauth
-    global_nonce = generate_nonce()
+    global_nonce = _generate_nonce()
     google = oauth.google
     if not google:
         return redirect('http://localhost:3000')
@@ -265,16 +266,9 @@ def google_login():
     )
 
 
-def generate_nonce():
-    import random
-    import string
-    return ''.join(random.choices(string.ascii_letters + string.digits, k=16))
-
-
 @auth.route('/google/callback')
-def google_callback():
+def google_callback() -> WerkzeugResponse:
     from app import oauth
-    google = oauth.google
     is_user_registered_query = """
 SELECT *
 FROM users 
@@ -282,69 +276,51 @@ WHERE username = %s
 """
     conn = get_db_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
-    jwt_token = ''
-    print('google callback')
+    jwt_token: str = ''
     try:
-        if google:
-            google_token = google.authorize_access_token()
-            print(type(google_token))
-            print(google_token)
-            print('-' * 80)
-            google_user_info: Dict = google.parse_id_token(
-                google_token,
-                nonce=global_nonce
-                # nonce=session.get('nonce')
-            )
-            username: str = str(google_user_info.get('sub', ''))
-            print('the sub is:', username)
-            cur.execute(is_user_registered_query, (username,))
-            is_user_registered = cur.fetchone()
-            print('is_user_registered:', is_user_registered)
-            if is_user_registered is None:
-                user_id: int = _register_google_user(google_user_info)
-                print('coucou, user_id:', user_id)
-                jwt_token = jwt.encode(
-                    {
-                        'id': user_id,
-                        'username': username,
-                        'exp': datetime.utcnow() + timedelta(days=30)
-                    },
-                    current_app.config['SECRET_KEY'],
-                    algorithm='HS256'
-                )
-                print('coucoucoucou')
-                return redirect(
-                    f'http://localhost:3000/first-login?token={jwt_token}')
-            elif not is_user_registered['gender']:
-                jwt_token = jwt.encode(
-                    {
-                        'id': is_user_registered['id'],
-                        'username': username,
-                        'exp': datetime.utcnow() + timedelta(days=30)
-                    },
-                    current_app.config['SECRET_KEY'],
-                    algorithm='HS256'
-                )
-                print('redirect url:',
-                      f'http://localhost:3000/first-login?token={jwt_token}')
-                return redirect(
-                    f'http://localhost:3000/first-login?token={jwt_token}')
+        google = oauth.google
+        if not google:
+            raise Exception('Google oauth not configured')
 
-            jwt_token = jwt.encode(
-                {
-                    'id': is_user_registered['id'],
-                    'username': username,
-                    'exp': datetime.utcnow() + timedelta(days=30)
-                },
-                current_app.config['SECRET_KEY'],
-                algorithm='HS256'
-            )
+        google_token = google.authorize_access_token()
+        google_user_info: Dict = google.parse_id_token(
+            google_token,
+            nonce=global_nonce
+            # nonce=session.get('nonce')
+        )
+        username: str = str(google_user_info.get('sub', ''))
+
+        cur.execute(is_user_registered_query, (username,))
+        is_user_registered = cur.fetchone()
+
+        id: int = is_user_registered['id'] \
+            if is_user_registered else _register_google_user(google_user_info)
+        jwt_token = jwt.encode(
+            {
+                'id': id,
+                'username': username,
+                'exp': datetime.now(tz=timezone.utc) + timedelta(days=30)
+            },
+            current_app.config['SECRET_KEY'],
+            algorithm='HS256'
+        )
+
+        # If not registered or profile not completed yet
+        if is_user_registered is None or not is_user_registered['gender']:
+            return redirect(
+                f'http://localhost:3000/first-login?token={jwt_token}')
 
         return redirect('http://localhost:3000?token=' + jwt_token)
 
     except Exception as e:
-        print(e)
+        logger.error(e)
         return redirect('http://localhost:3000')
+
+
+def _generate_nonce():
+    import random
+    import string
+    return ''.join(random.choices(string.ascii_letters + string.digits, k=16))
 
 
 def _register_google_user(google_user_info: Dict) -> int:
@@ -378,16 +354,3 @@ RETURNING id
     finally:
         cursor.close()
         conn.close()
-
-# {'iss': 'https://accounts.google.com',
-#  'azp': '1006836289631-5k943q3f6qng07snp3c28gvflf7ij4q3.apps.googleusercontent.com',
-#  'aud': '1006836289631-5k943q3f6qng07snp3c28gvflf7ij4q3.apps.googleusercontent.com',
-#  'sub': '111281859436736730189',
-#  'email': 'edouard.leleux@gmail.com',
-#  'email_verified': True,
-#  'at_hash': 'lqo-XZykls32mdnMoIW3WA',
-#  'nonce': 'DCsNE8YgGK7dlem6',
-#  'name': 'Edouard Leleux',
-#  'picture': 'https://lh3.googleusercontent.com/a/ACg8ocIKrl9a28Nkw6ktLrhUT4mZPlzUJfBeQVG__LcMPEjRmuouoQ=s96-c',
-#  'given_name': 'Edouard',
-#  'family_name': 'Leleux', 'iat': 1728231036, 'exp': 1728234636}
