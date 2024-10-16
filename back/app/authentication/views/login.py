@@ -258,7 +258,7 @@ AND expiration_date > %s
             current_app.config['SECRET_KEY'],
             algorithms=['HS256']
         )
-        print(decoded_refresh_token)
+        print('Hello refresh:', decoded_refresh_token)
         user_id = decoded_refresh_token['id']
         cur.execute(
             refresh_token_query,
@@ -268,14 +268,14 @@ AND expiration_date > %s
                 datetime.now(tz=timezone.utc)
             )
         )
-        token_record = cur.fetchone()
+        token_record = cur.fetchone()[0]
         if not token_record:
             raise Exception('Invalid or expired refresh token')
 
         new_jwt_token = jwt.encode(
             {
                 'id': user_id,
-                'exp': datetime.now(tz=timezone.utc) + timedelta(days=30)
+                'exp': datetime.now(tz=timezone.utc) + timedelta(hours=1)
             },
             current_app.config['SECRET_KEY'],
             algorithm='HS256'

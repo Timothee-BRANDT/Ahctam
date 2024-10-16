@@ -20,7 +20,7 @@ var townjpp: string = "";
 
 const ProfilePage: React.FC = () => {
   const router = useRouter();
-  const { user, setUser, isJwtInCookie, getCookie } = useAuth();
+  const { user, setUser, isJwtInCookie, getCookie, setCookie } = useAuth();
   const hasFetchedProfile = useRef(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
@@ -80,7 +80,27 @@ const ProfilePage: React.FC = () => {
       },
     });
     const data_response = await response.json();
-    if (response.ok) {
+    if (response.status === 401) {
+      const refresh_token = getCookie("refresh_token");
+      console.log("refresh_token", refresh_token);
+      const refresh_url = `http://${serverIP}:5000/auth/refresh`;
+      console.log("refresh_url", refresh_url);
+      const refresh_response = await fetch(refresh_url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          refresh_token,
+        }),
+      });
+      const refresh_data = await refresh_response.json();
+      console.log("refresh_data", refresh_data);
+      if (refresh_response.ok) {
+        setCookie("jwt_token", refresh_data.jwt_token, 7);
+        await getProfile();
+      }
+    } else if (response.ok) {
       setUser(data_response);
       setAllInterests(initializeInterests(initInterests, user.interests));
     }
@@ -439,10 +459,11 @@ const ProfilePage: React.FC = () => {
                       />
                       {!photo && (
                         <div
-                          className={`upload-text ${index === 0
+                          className={`upload-text ${
+                            index === 0
                               ? `${CLASSNAME}__profile-picture-uploader`
                               : ""
-                            }`}
+                          }`}
                         ></div>
                       )}
                     </div>
@@ -450,7 +471,7 @@ const ProfilePage: React.FC = () => {
                 </div>
               </div>
             </div>
-            <Button className="button-info" type="submit" onClick={() => { }}>
+            <Button className="button-info" type="submit" onClick={() => {}}>
               Save
             </Button>
           </form>
