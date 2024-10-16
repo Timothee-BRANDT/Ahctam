@@ -1,4 +1,4 @@
-from typing import Dict, Any, Tuple
+from typing import Any
 from .. import auth
 from ..forms import (
     LoginForm,
@@ -18,7 +18,6 @@ from werkzeug.security import generate_password_hash
 from werkzeug.wrappers import Response as WerkzeugResponse
 from psycopg2.extras import RealDictCursor
 import jwt
-from datetime import datetime, timedelta
 from ...database import get_db_connection
 from .decorators import jwt_required
 from .utils import (
@@ -30,7 +29,7 @@ global_nonce = ''
 
 
 @auth.route('/login', methods=['POST'])
-def login() -> Tuple[Response, int]:
+def login() -> tuple[Response, int]:
     """
     The login route used to authenticate the user.
 
@@ -45,7 +44,7 @@ def login() -> Tuple[Response, int]:
         "password": "password"
     }
 
-    Returns: Tuple[Response, int]
+    Returns: tuple[Response, int]
     --------
     {
         "message": "Login successful" or "First login",
@@ -152,7 +151,7 @@ def first_login():
         "location": [1.0, 2.0]
     }
 
-    Returns: Tuple[Response, int]
+    Returns: tuple[Response, int]
     --------
     {
         "message": "First login successful",
@@ -164,17 +163,17 @@ def first_login():
     Exception: "Invalid or expired refresh token"
     Exception: "Invalid refresh token"
     """
-    # NOTE:  Put jwt_required
+    # TODO:  Put jwt_required
     logger.info(request.headers)
-    connector = get_db_connection()
-    cursor = connector.cursor(cursor_factory=RealDictCursor)
+    connector: object = get_db_connection()
+    cursor: object = connector.cursor(cursor_factory=RealDictCursor)
     try:
         data = request.get_json()
-        payload: Dict = data.get('payload', {})
+        payload: dict = data.get('payload', {})
         token = payload.get('token', '')
         if token == '':
             raise Exception('No token provided')
-        user: Dict[str, Any] = jwt.decode(
+        user: dict[str, Any] = jwt.decode(
             token,
             current_app.config['SECRET_KEY'],
             algorithms=['HS256']
@@ -205,6 +204,7 @@ def first_login():
 @auth.route('/logout', methods=['POST'])
 @jwt_required
 def logout():
+    logger.info('Logout is called')
     conn = get_db_connection()
     cur = conn.cursor()
     try:
@@ -315,7 +315,7 @@ WHERE username = %s
             raise Exception('Google oauth not configured')
 
         google_token = google.authorize_access_token()
-        google_user_info: Dict = google.parse_id_token(
+        google_user_info: dict = google.parse_id_token(
             google_token,
             nonce=global_nonce
             # nonce=session.get('nonce')
@@ -355,7 +355,7 @@ def _generate_nonce():
     return ''.join(random.choices(string.ascii_letters + string.digits, k=16))
 
 
-def _register_google_user(google_user_info: Dict) -> int:
+def _register_google_user(google_user_info: dict) -> int:
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
