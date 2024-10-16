@@ -9,7 +9,7 @@ class Config:
     SMTP_SECURITY_SALT = os.getenv('SMTP_SECURITY_SALT')
     POSTGRES_DB = os.getenv('POSTGRES_DB')
     POSTGRES_USER = os.getenv('POSTGRES_USER')
-    POSTGRES_PASSWORD: str = os.getenv('POSTGRES_PASSWORD', '')
+    POSTGRES_PASSWORD = os.getenv('POSTGRES_PASSWORD')
     DB_HOST = 'localhost'
     DB_PORT = 5433
     MAIL_SERVER = os.getenv('SMTP_HOST')

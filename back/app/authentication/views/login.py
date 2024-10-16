@@ -78,24 +78,29 @@ def login() -> tuple[Response, int]:
     except Exception as e:
         return jsonify({'error': str(e)}), 400
     else:
-        # WARNING: 30 days of token for tests, change to 1 hour in production
         jwt_token = jwt.encode({
             'id': user_id,
             'username': data['username'],
-            'exp': datetime.utcnow() + timedelta(days=30)
+            'exp': datetime.now(tz=timezone.utc) + timedelta(days=30)
         }, current_app.config['SECRET_KEY'], algorithm='HS256')
         refresh_token = jwt.encode({
             'id': user_id,
             'username': data['username'],
-            'exp': datetime.utcnow() + timedelta(days=30)
+            'exp': datetime.now(tz=timezone.utc) + timedelta(days=30)
         }, current_app.config['SECRET_KEY'], algorithm='HS256')
 
         query = """
 INSERT INTO refresh_tokens (token, user_id, expiration_date)
 VALUES (%s, %s, %s)
 """
-        cur.execute(query, (refresh_token, user_id,
-                    datetime.utcnow() + timedelta(days=30)))
+        cur.execute(
+            query,
+            (
+                refresh_token,
+                user_id,
+                datetime.now(tz=timezone.utc) + timedelta(days=30)
+            )
+        )
         conn.commit()
         # We use gender to check if the user has already completed his profile
         cur.execute('SELECT gender FROM users WHERE id = %s',
@@ -163,8 +168,6 @@ def first_login():
     Exception: "Invalid or expired refresh token"
     Exception: "Invalid refresh token"
     """
-    # TODO:  Put jwt_required
-    logger.info(request.headers)
     connector: object = get_db_connection()
     cursor: object = connector.cursor(cursor_factory=RealDictCursor)
     try:
@@ -242,6 +245,12 @@ def refresh():
     refresh_token = data.get('refresh_token')
     conn = get_db_connection()
     cur = conn.cursor()
+    refresh_token_query = """
+SELECT * FROM refresh_tokens
+WHERE user_id = %s
+AND token = %s
+AND expiration_date > %s
+        """
 
     try:
         decoded_refresh_token = jwt.decode(
@@ -251,22 +260,31 @@ def refresh():
         )
         print(decoded_refresh_token)
         user_id = decoded_refresh_token['id']
-        query = """
-SELECT * FROM refresh_tokens
-WHERE user_id = %s
-AND token = %s
-AND expiration_date > %s
-        """
-        cur.execute(query,
-                    (user_id, refresh_token, datetime.utcnow()))
+        cur.execute(
+            refresh_token_query,
+            (
+                user_id,
+                refresh_token,
+                datetime.now(tz=timezone.utc)
+            )
+        )
         token_record = cur.fetchone()
         if not token_record:
             raise Exception('Invalid or expired refresh token')
 
-        new_jwt_token = jwt.encode({
-            'id': user_id,
-            'exp': datetime.utcnow() + timedelta(hours=1)
-        }, current_app.config['SECRET_KEY'], algorithm='HS256')
+        new_jwt_token = jwt.encode(
+            {
+                'id': user_id,
+                'exp': datetime.now(tz=timezone.utc) + timedelta(days=30)
+            },
+            current_app.config['SECRET_KEY'],
+            algorithm='HS256'
+        )
+
+        return jsonify({
+            'jwt_token': new_jwt_token
+        }), 200
+
     except jwt.ExpiredSignatureError:
         return jsonify({'error': 'Refresh token has expired'}), 401
     except jwt.InvalidTokenError:
@@ -276,10 +294,6 @@ AND expiration_date > %s
     finally:
         cur.close()
         conn.close()
-
-    return jsonify({
-        'jwt_token': new_jwt_token
-    }), 200
 
 
 @auth.route('/google/login')
@@ -303,7 +317,7 @@ def google_callback() -> WerkzeugResponse:
     from app import oauth
     is_user_registered_query = """
 SELECT *
-FROM users 
+FROM users
 WHERE username = %s
 """
     conn = get_db_connection()

@@ -16,7 +16,7 @@ const CLASSNAME = "login";
 
 const LoginPage: React.FC = () => {
   const router = useRouter();
-  const { login, isJwtInCookie, user, setUser } = useAuth();
+  const { login, isJwtInCookie, user, setUser, setCookie } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -63,6 +63,7 @@ const LoginPage: React.FC = () => {
         id: data.user_id,
       });
       login(data.jwt_token);
+      setCookie("refresh_token", data.refresh_token, 30);
 
       if (data.message === "First login") {
         router.push("/first-login");
