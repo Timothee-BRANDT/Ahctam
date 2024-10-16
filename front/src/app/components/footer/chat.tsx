@@ -315,6 +315,7 @@ export default function Component() {
                 <div className="max-h-[300px] overflow-y-auto bg-white">
                   {matchs.map((match) => (
                     <div
+                      key={match.id}
                       className="flex items-center gap-3 p-3 hover:bg-gray-200 cursor-pointer"
                       onClick={() => openChatWindow(match)}
                     >
