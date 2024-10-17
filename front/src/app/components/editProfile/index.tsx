@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState, useRef } from "react";
+import ImgurImageImporter from "@/components/ui/imgur-uploader";
 import "./index.scss";
 import { Button } from "@/components/ui/button";
 import { serverIP } from "@/app/constants";
@@ -23,6 +24,7 @@ const ProfilePage: React.FC = () => {
   const { user, setUser, isJwtInCookie, getCookie, setCookie } = useAuth();
   const hasFetchedProfile = useRef(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userImages, setUserImages] = useState<string[]>([]);
 
   const initInterests: Record<string, boolean> = {
     Tunnels: false,
@@ -59,6 +61,14 @@ const ProfilePage: React.FC = () => {
       }
     });
     return updatedState;
+  };
+
+  const handleImgurImageSelect = (selectedImage: string) => {
+    if (userImages.length < MAX_PHOTOS) {
+      setUserImages([...userImages, selectedImage]);
+    } else {
+      alert("Vous ne pouvez ajouter que 5 photos.");
+    }
   };
 
   const filledPhotos = user.photos ? [...user.photos] : [];
@@ -469,6 +479,7 @@ const ProfilePage: React.FC = () => {
                     </div>
                   ))}
                 </div>
+                <ImgurImageImporter />
               </div>
             </div>
             <Button className="button-info" type="submit" onClick={() => {}}>
