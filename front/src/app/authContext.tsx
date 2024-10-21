@@ -35,6 +35,7 @@ const initialPig: User = {
   photos: [],
   created_at: new Date(),
   firstTimeLogged: true,
+  status: '',
 };
 
 interface AuthContextType {

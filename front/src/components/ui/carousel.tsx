@@ -187,7 +187,7 @@ return (
             </div>
 
             <div className={`${CLASSNAME}__status-info`}>
-                {user.is_connected ? (
+                {user.status === 'online' ? (
                      <div className={`${CLASSNAME}__online-status`}>
                         <span className={`${CLASSNAME}__status-online`} /> Online
                     </div> 

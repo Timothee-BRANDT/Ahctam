@@ -19,6 +19,7 @@ export interface User {
     photos: string[];
     created_at: Date | string;
     firstTimeLogged: boolean;
+    status: string;
 }
 
 export enum State {
