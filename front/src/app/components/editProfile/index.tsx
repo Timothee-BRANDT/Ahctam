@@ -1,5 +1,6 @@
 "use client";
 import React, { useEffect, useState, useRef } from "react";
+import { FaTimes, FaCamera, FaFolderOpen } from "react-icons/fa";
 import ImgurImageImporter from "@/components/ui/imgur-uploader";
 import "./index.scss";
 import { Button } from "@/components/ui/button";
@@ -25,6 +26,9 @@ const ProfilePage: React.FC = () => {
   const hasFetchedProfile = useRef(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userImages, setUserImages] = useState<string[]>([]);
+  const [isImgurImporterVisible, setIsImgurImporterVisible] = useState<
+    number | null
+  >(null);
 
   const initInterests: Record<string, boolean> = {
     Tunnels: false,
@@ -63,12 +67,8 @@ const ProfilePage: React.FC = () => {
     return updatedState;
   };
 
-  const handleImgurImageSelect = (selectedImage: string) => {
-    if (userImages.length < MAX_PHOTOS) {
-      setUserImages([...userImages, selectedImage]);
-    } else {
-      alert("Vous ne pouvez ajouter que 5 photos.");
-    }
+  const openImgurImporter = (index: number) => {
+    setIsImgurImporterVisible(index);
   };
 
   const filledPhotos = user.photos ? [...user.photos] : [];
@@ -208,6 +208,15 @@ const ProfilePage: React.FC = () => {
     if (file) {
       reader.readAsDataURL(file);
     }
+  };
+
+  const handleImageDelete = (index: number) => {
+    const newPhotos = user.photos ? [...user.photos] : [];
+    newPhotos[index] = "";
+    setUser({
+      ...user,
+      photos: newPhotos,
+    });
   };
 
   const handleSubmit = async (e: any) => {
@@ -445,41 +454,98 @@ const ProfilePage: React.FC = () => {
                     ),
                   )}
                 </div>
-                <p className={`${CLASSNAME}__title`}>My Pictures</p>
-                <div className="photo-upload-container">
-                  {filledPhotos.map((photo: string, index: number) => (
-                    <div
-                      onClick={() =>
-                        document
-                          .getElementsByName(`photoUpload${index}`)[0]
-                          .click()
-                      }
-                      key={index}
-                      className="photo-placeholder"
-                      style={{
-                        backgroundImage: photo ? `url(${photo})` : "none",
+                <div>
+                  <p className={`${CLASSNAME}__title`}>My Pictures</p>
+                  <div className="photo-upload-container">
+                    {filledPhotos.map((photo: string, index: number) => (
+                      <div
+                        key={index}
+                        className="photo-placeholder"
+                        style={{
+                          backgroundImage: photo ? `url(${photo})` : "none",
+                          position: "relative", // Position relative pour gérer les icônes
+                        }}
+                      >
+                        {photo && (
+                          <>
+                            {/* Delete */}
+                            <FaTimes
+                              className="delete-icon"
+                              onClick={() => handleImageDelete(index)}
+                              style={{
+                                position: "absolute",
+                                top: "5px",
+                                right: "5px",
+                                cursor: "pointer",
+                                color: "red",
+                              }}
+                            />
+
+                            {/* Imgur */}
+                            <FaCamera
+                              className="imgur-import-icon"
+                              onClick={() => openImgurImporter(index)}
+                              style={{
+                                position: "absolute",
+                                top: "5px",
+                                left: "5px",
+                                cursor: "pointer",
+                                color: "blue",
+                              }}
+                            />
+                          </>
+                        )}
+
+                        {!photo && (
+                          <FaFolderOpen
+                            onClick={() =>
+                              document
+                                .getElementsByName(`photoUpload${index}`)[0]
+                                .click()
+                            }
+                            style={{
+                              fontSize: "50px",
+                              color: "gray",
+                              cursor: "pointer",
+                              position: "absolute",
+                              top: "50%",
+                              left: "50%",
+                              transform: "translate(-50%, -50%)",
+                            }}
+                          />
+                        )}
+
+                        <input
+                          type="file"
+                          name={`photoUpload${index}`}
+                          accept="image/*"
+                          onChange={(e) => handleImageChange(index, e)}
+                          style={{ display: "none" }}
+                        />
+
+                        {!photo && (
+                          <div
+                            className={`upload-text ${
+                              index === 0
+                                ? `${CLASSNAME}__profile-picture-uploader`
+                                : ""
+                            }`}
+                          ></div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                  {isImgurImporterVisible !== null && (
+                    <ImgurImageImporter
+                      onImageSelect={(imageUrl: string) => {
+                        const newPhotos = [...user.photos];
+                        newPhotos[isImgurImporterVisible] = imageUrl;
+                        setUser({ ...user, photos: newPhotos });
+                        setIsImgurImporterVisible(null); // Cacher l'importer après sélection
                       }}
-                    >
-                      <input
-                        type="file"
-                        name={`photoUpload${index}`}
-                        accept="image/*"
-                        onChange={(e) => handleImageChange(index, e)}
-                        style={{ display: "none" }}
-                      />
-                      {!photo && (
-                        <div
-                          className={`upload-text ${
-                            index === 0
-                              ? `${CLASSNAME}__profile-picture-uploader`
-                              : ""
-                          }`}
-                        ></div>
-                      )}
-                    </div>
-                  ))}
+                    />
+                  )}
                 </div>
-                <ImgurImageImporter />
               </div>
             </div>
             <Button className="button-info" type="submit" onClick={() => {}}>
