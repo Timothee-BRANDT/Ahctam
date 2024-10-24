@@ -24,6 +24,7 @@ class Config:
     GOOGLE_CLIENT_ID = os.getenv('GOOGLE_CLIENT_ID')
     GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET')
     OAUTH_DEFAULT_PASSWORD = os.getenv('OAUTH_DEFAULT_PASSWORD')
+    IMGUR_CLIENT_ID = os.getenv('IMGUR_CLIENT_ID')
 
 
 class DevelopmentConfig(Config):

@@ -9,4 +9,5 @@ from .views import (
     update_profile,
     notifications,
     chat,
+    imgur,
 )

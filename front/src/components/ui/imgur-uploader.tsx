@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { serverIP } from "@/app/constants";
+import { useAuth } from "@/app/authContext";
 
 interface ImgurImage {
   id: string;
@@ -6,16 +8,19 @@ interface ImgurImage {
   link: string;
 }
 
-const ImgurImageImporter: React.FC = () => {
+const ImgurImageImporter: React.FC<{
+  onImageSelect: (imageUrl: string) => void;
+}> = ({ onImageSelect }) => {
   const [searchTerm, setSearchTerm] = useState<string>("");
   const [images, setImages] = useState<ImgurImage[]>([]);
   const [selectedImage, setSelectedImage] = useState<ImgurImage | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+  const { user, setUser, isJwtInCookie, getCookie, setCookie } = useAuth();
 
   const handleSearch = async () => {
     if (!searchTerm.trim()) {
-      setError("Veuillez entrer un terme de recherche");
+      setError("Please enter a search term");
       return;
     }
 
@@ -23,18 +28,21 @@ const ImgurImageImporter: React.FC = () => {
     setError(null);
 
     try {
-      const response = await fetch(`https://api.imgur.com/3/credits`, {
-        headers: {
-          Authorization: "Client-ID 05c6f9f028dbffb",
+      const token = getCookie("jwt_token");
+      const response = await fetch(
+        `http://${serverIP}:5000/imgur?search_term=${searchTerm}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            ContentType: "application/json",
+          },
         },
-      });
-
-      // if (!response.ok) {
-      //   throw new Error(`HTTP error! status: ${response.status}`);
-      // }
-
+      );
+      if (!response.ok) {
+        throw new Error("Error fetching images");
+      }
       const data = await response.json();
-      console.log("THE DATA:", data);
+      // console.log("THE DATA:", data);
       const filteredImages = data.data
         .filter(
           (item: any) =>
@@ -48,9 +56,9 @@ const ImgurImageImporter: React.FC = () => {
 
       setImages(filteredImages);
     } catch (error) {
-      console.error("Erreur lors de la recherche:", error);
+      console.error("Error searching:", error);
       setError(
-        "Une erreur est survenue lors de la recherche. Veuillez réessayer.",
+        "An error occurred while fetching images. Please try again later.",
       );
     } finally {
       setIsLoading(false);
@@ -59,6 +67,7 @@ const ImgurImageImporter: React.FC = () => {
 
   const handleImageSelect = (image: ImgurImage) => {
     setSelectedImage(image);
+    onImageSelect(image.link);
   };
 
   return (
@@ -98,19 +107,6 @@ const ImgurImageImporter: React.FC = () => {
           />
         ))}
       </div>
-
-      {selectedImage && (
-        <div style={{ marginTop: "20px" }}>
-          <h3>Image sélectionnée :</h3>
-          <img
-            src={selectedImage.link}
-            alt={selectedImage.title}
-            style={{ maxWidth: "300px" }}
-          />
-          <p>Titre : {selectedImage.title}</p>
-          <p>Lien : {selectedImage.link}</p>
-        </div>
-      )}
     </div>
   );
 };

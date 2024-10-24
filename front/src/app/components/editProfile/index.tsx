@@ -466,22 +466,9 @@ const ProfilePage: React.FC = () => {
                           position: "relative", // Position relative pour gérer les icônes
                         }}
                       >
-                        {photo && (
-                          <>
-                            {/* Delete */}
-                            <FaTimes
-                              className="delete-icon"
-                              onClick={() => handleImageDelete(index)}
-                              style={{
-                                position: "absolute",
-                                top: "5px",
-                                right: "5px",
-                                cursor: "pointer",
-                                color: "red",
-                              }}
-                            />
-
-                            {/* Imgur */}
+                        {/* Remplacer la section existante par celle-ci */}
+                        {!photo ? (
+                          <div>
                             <FaCamera
                               className="imgur-import-icon"
                               onClick={() => openImgurImporter(index)}
@@ -493,28 +480,38 @@ const ProfilePage: React.FC = () => {
                                 color: "blue",
                               }}
                             />
+                            <FaFolderOpen
+                              onClick={() =>
+                                document
+                                  .getElementsByName(`photoUpload${index}`)[0]
+                                  .click()
+                              }
+                              style={{
+                                fontSize: "50px",
+                                color: "gray",
+                                cursor: "pointer",
+                                position: "absolute",
+                                top: "50%",
+                                left: "50%",
+                                transform: "translate(-50%, -50%)",
+                              }}
+                            />
+                          </div>
+                        ) : (
+                          <>
+                            <FaTimes
+                              className="delete-icon"
+                              onClick={() => handleImageDelete(index)}
+                              style={{
+                                position: "absolute",
+                                top: "5px",
+                                right: "5px",
+                                cursor: "pointer",
+                                color: "red",
+                              }}
+                            />
                           </>
                         )}
-
-                        {!photo && (
-                          <FaFolderOpen
-                            onClick={() =>
-                              document
-                                .getElementsByName(`photoUpload${index}`)[0]
-                                .click()
-                            }
-                            style={{
-                              fontSize: "50px",
-                              color: "gray",
-                              cursor: "pointer",
-                              position: "absolute",
-                              top: "50%",
-                              left: "50%",
-                              transform: "translate(-50%, -50%)",
-                            }}
-                          />
-                        )}
-
                         <input
                           type="file"
                           name={`photoUpload${index}`}
@@ -541,7 +538,7 @@ const ProfilePage: React.FC = () => {
                         const newPhotos = [...user.photos];
                         newPhotos[isImgurImporterVisible] = imageUrl;
                         setUser({ ...user, photos: newPhotos });
-                        setIsImgurImporterVisible(null); // Cacher l'importer après sélection
+                        setIsImgurImporterVisible(null);
                       }}
                     />
                   )}
