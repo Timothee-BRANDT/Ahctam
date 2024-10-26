@@ -5,7 +5,7 @@ import ImgurImageImporter from "@/components/ui/imgur-uploader";
 import "./index.scss";
 import { Button } from "@/components/ui/button";
 import { serverIP } from "@/app/constants";
-import refreshToken from "@/app/constants";
+import createRefreshClosure from "@/app/constants";
 import { useAuth } from "@/app/authContext";
 import { initializeSocket } from "@/app/sockets";
 import { ProfileInformations } from "@/app/types";
@@ -23,7 +23,8 @@ var townjpp: string = "";
 
 const ProfilePage: React.FC = () => {
   const router = useRouter();
-  const { user, setUser, isJwtInCookie, getCookie, setCookie } = useAuth();
+  const { user, setUser, isJwtInCookie, getCookie, setCookie, deleteCookie } =
+    useAuth();
   const hasFetchedProfile = useRef(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [userImages, setUserImages] = useState<string[]>([]);
@@ -82,21 +83,21 @@ const ProfilePage: React.FC = () => {
   );
 
   const getProfile = async () => {
-    const token = getCookie("jwt_token");
-    const response = await fetch(`http://${serverIP}:5000/api/getUserInfo`, {
+    const refreshClosure = createRefreshClosure();
+    const userInfoUrl = `http://${serverIP}:5000/api/getUserInfo`;
+    const userInfoOptions = {
       method: "GET",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
       },
-    });
-    const data_response = await response.json();
-    if (response.status === 401) {
-      await refreshToken(serverIP);
-      await getProfile();
-    } else if (response.ok) {
+    };
+    const response = await refreshClosure(userInfoUrl, userInfoOptions);
+    if (response.ok) {
+      const data_response = await response.json();
       setUser(data_response);
-      setAllInterests(initializeInterests(initInterests, user.interests));
+      setAllInterests(
+        initializeInterests(initInterests, data_response.interests),
+      );
     }
   };
 
@@ -144,7 +145,6 @@ const ProfilePage: React.FC = () => {
       .then((result) => {
         if (result && result.features[0]) {
           localisationjpp = result.features[0].geometry.coordinates;
-          console.log("localisationjpp", localisationjpp);
         }
         if (
           result &&
@@ -153,7 +153,6 @@ const ProfilePage: React.FC = () => {
           result.query.parsed.city
         ) {
           townjpp = capitalizeFirstLetter(result.query.parsed.city);
-          console.log("townjpp", townjpp);
         }
       })
       .catch((error) => console.log("error", error));
@@ -170,7 +169,6 @@ const ProfilePage: React.FC = () => {
   };
 
   const handleAddressChange = (address: string) => {
-    console.log("handleAddressChange is called");
     setUser({
       ...user,
       address: address,
@@ -178,7 +176,6 @@ const ProfilePage: React.FC = () => {
   };
 
   const handleImageChange = (index: any, e: any) => {
-    console.log("handleImageChange is called");
     const file = e.target.files[0];
     const reader = new FileReader();
     reader.onloadend = () => {
@@ -205,7 +202,6 @@ const ProfilePage: React.FC = () => {
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-    console.log("we clicked on the Save button");
     if (user.address !== "Location not provided") {
       await convertAdressIntoCoordonates();
     }
@@ -222,30 +218,29 @@ const ProfilePage: React.FC = () => {
       photos: user.photos,
       address: user.address,
     };
-    console.log("payload we send:", payload);
     if (!payload.sexual_preferences) {
       payload.sexual_preferences = "both";
     }
-    const cookie = getCookie("jwt_token");
-    console.log("cookie", cookie);
-    const response = await fetch(`http://${serverIP}:5000/update-profile`, {
+    const refreshClosure = createRefreshClosure();
+    const updateProfileUrl = `http://${serverIP}:5000/update-profile`;
+    const updateProfileOptions = {
       method: "POST",
-      credentials: "include",
+      credentials: "include" as RequestCredentials,
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${cookie}`,
       },
-      body: JSON.stringify({
-        payload,
-      }),
-    });
+      body: JSON.stringify({ payload }),
+    };
+    const response = await refreshClosure(
+      updateProfileUrl,
+      updateProfileOptions,
+    );
     if (response.ok) {
       router.push("/");
     }
   };
 
   const getInterestsIndices = (record: Record<string, boolean>) => {
-    console.log("getInterestsIndices is called");
     return Object.entries(record).reduce(
       (acc: string[], [key, value], index) => {
         if (value) {
@@ -258,7 +253,6 @@ const ProfilePage: React.FC = () => {
   };
 
   const selectInterest = (interest: string) => {
-    console.log("selectInterest is called");
     const newInterests = { ...allInterests };
     newInterests[interest] = !newInterests[interest];
     setAllInterests(newInterests);

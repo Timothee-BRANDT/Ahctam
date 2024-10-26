@@ -8,6 +8,7 @@ import { useAuth } from "@/app/authContext";
 import { useRouter } from "next/navigation";
 import { Truck } from "lucide-react";
 import { AppBuildManifestPlugin } from "next/dist/build/webpack/plugins/app-build-manifest-plugin";
+import createRefreshClosure from "@/app/constants";
 import { serverIP } from "@/app/constants";
 import { getSocket } from "@/app/sockets";
 
@@ -59,13 +60,13 @@ export default function Component() {
   };
 
   const sendMessagetoAPI = async (newMessage: Message) => {
-    const token = getCookie("jwt_token");
-    const response = await fetch(`http://${serverIP}:5000/sendMessage`, {
+    const refreshClosure = createRefreshClosure();
+    const sendMessageUrl = `http://${serverIP}:5000/sendMessage`;
+    const sendMessageOptions = {
       method: "POST",
-      credentials: "include",
+      credentials: "include" as RequestCredentials,
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({
         conversationId: selectedMatch!.id,
@@ -73,12 +74,9 @@ export default function Component() {
         matchedUseruuid: selectedMatch!.matchedUseruuid,
         message: newMessage.text,
       }),
-    });
-    const data = await response.json();
-    console.log("sendMessagetoAPI data:", data);
-    if (response.ok) {
-      console.log("Message sent successfully");
-    }
+    };
+    const response = await refreshClosure(sendMessageUrl, sendMessageOptions);
+    return response;
   };
 
   const handleNewMessage = useCallback((data: any) => {
@@ -120,32 +118,31 @@ export default function Component() {
     }
   }, [handleNewMessage, isChatWindowOpen]);
 
-  const handleMessageReceived = (data: any) => {
-    console.log("CALLING HANDLE MESSAGE RECEIVED");
-    console.log("data.sender_id in HANDLE:", data.sender_id);
-    console.log(
-      "selectedMatch?.matchedUseruuid in HANDLE:",
-      selectedMatch?.matchedUseruuid,
-    );
-    const token = getCookie("jwt_token");
+  const handleMessageReceived = async (data: any) => {
     if (
       !isChatWindowOpen ||
       data.sender_id !== selectedMatch?.matchedUseruuid
     ) {
-      console.log("conditions verified");
-      console.log("isChatWindowOpen", isChatWindowOpen);
-      fetch(`http://${serverIP}:5000/sendNotifMessage`, {
+      const refreshClosure = createRefreshClosure();
+      const notifMessageUrl = `http://${serverIP}:5000/sendNotifMessage`;
+      const notifMessageOptions = {
         method: "POST",
-        credentials: "include",
+        credentials: "include" as RequestCredentials,
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
         body: JSON.stringify({
           match_id: data.match_id,
           message: data.message,
         }),
-      });
+      };
+      const response = await refreshClosure(
+        notifMessageUrl,
+        notifMessageOptions,
+      );
+      if (response.ok) {
+        console.log("Notif message sent");
+      }
     }
   };
 
@@ -233,18 +230,16 @@ export default function Component() {
 
   const getConversations = async () => {
     console.log("Called getConversations");
-    const token = getCookie("jwt_token");
-    if (!token) {
-      return;
-    }
-    const response = await fetch(`http://${serverIP}:5000/getMyConversations`, {
+    const refreshClosure = createRefreshClosure();
+    const conversationUrl = `http://${serverIP}:5000/getMyConversations`;
+    const conversationOptions = {
       method: "GET",
-      credentials: "include",
+      credentials: "include" as RequestCredentials,
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
       },
-    });
+    };
+    const response = await refreshClosure(conversationUrl, conversationOptions);
     const data = await response.json();
     for (let i = 0; i < data.length; i++) {
       for (let j = 0; j < data[i].messages.length; j++) {
@@ -266,9 +261,6 @@ export default function Component() {
 
   useEffect(() => {
     console.log("useEffect openMatchList");
-    // if (!isJwtInCookie()) {
-    //   router.push("/login");
-    // }
     getConversations();
   }, [isMatchsListOpen, isChatWindowOpen]);
 
@@ -351,11 +343,10 @@ export default function Component() {
           )}
           {isChatWindowOpen && (
             <div
-              className={`fixed inset-0 z-20 flex items-end justify-end bg-black/50 transition-opacity duration-300 ${
-                isChatWindowOpen
+              className={`fixed inset-0 z-20 flex items-end justify-end bg-black/50 transition-opacity duration-300 ${isChatWindowOpen
                   ? "opacity-100"
                   : "pointer-events-none opacity-0"
-              }`}
+                }`}
             >
               <div
                 ref={chatWindowRef}
@@ -390,11 +381,10 @@ export default function Component() {
                       className={`mb-2 flex items-end gap-2 ${message.isMe ? "justify-end" : "justify-start"}`}
                     >
                       <div
-                        className={`max-w-[70%] break-words rounded-lg px-4 py-2 ${
-                          message.isMe
+                        className={`max-w-[70%] break-words rounded-lg px-4 py-2 ${message.isMe
                             ? "bg-black text-primary-foreground"
                             : "bg-muted text-black"
-                        }`}
+                          }`}
                       >
                         <div>{message.text}</div>
                         <div

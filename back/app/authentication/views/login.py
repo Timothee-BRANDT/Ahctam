@@ -83,7 +83,7 @@ def login() -> tuple[Response, int]:
             payload={
                 'id': user_id,
                 'username': data['username'],
-                'exp': datetime.now(tz=timezone.utc) + timedelta(minutes=15)
+                'exp': datetime.now(tz=timezone.utc) + timedelta(minutes=1)
             },
             key=current_app.config['SECRET_KEY'],
             algorithm='HS256'
@@ -326,7 +326,7 @@ AND expiration_date > %s
         new_jwt_token = jwt.encode(
             {
                 'id': user_id,
-                'exp': datetime.now(tz=timezone.utc) + timedelta(hours=1)
+                'exp': datetime.now(tz=timezone.utc) + timedelta(minutes=1)
             },
             current_app.config['SECRET_KEY'],
             algorithm='HS256'

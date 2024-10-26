@@ -1,5 +1,17 @@
 export const serverIP = "localhost";
 
+const getCookie = (name: string): string | undefined => {
+  const value = `; ${document.cookie}`;
+  const parts = value.split(`; ${name}=`);
+  if (parts.length === 2) {
+    const cookie = parts.pop();
+    if (cookie !== undefined) {
+      return cookie.split(";").shift();
+    }
+  }
+  return undefined;
+};
+
 const setCookie = (name: string, value: string, days?: number) => {
   let expires = "";
   if (days) {
@@ -13,30 +25,61 @@ const setCookie = (name: string, value: string, days?: number) => {
   document.cookie = `${name}=${value}${expires}; path=/${sameSiteSecure}`;
 };
 
-async function refreshToken(serverIP) {
+const refreshToken = async (serverIP: string): Promise<string | null> => {
   try {
-    const refresh_url = `http://${serverIP}:5000/auth/refresh`;
-
-    const refresh_response = await fetch(refresh_url, {
+    const response = await fetch(`http://${serverIP}:5000/auth/refresh`, {
       method: "POST",
       credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
     });
-
-    if (refresh_response.ok) {
-      const refresh_data = await refresh_response.json();
-      setCookie("jwt_token", refresh_data.jwt_token, 7);
-      return true;
-    } else {
-      console.error("Error refreshing:", await refresh_response.json());
-      return false;
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
-  } catch (error) {
-    console.error("Network error: ", error);
-    return false;
-  }
-}
 
-export default refreshToken;
+    const data = await response.json();
+    const newToken = data.jwt_token;
+    setCookie("jwt_token", newToken);
+
+    return newToken;
+  } catch (error) {
+    console.error("Error refreshing token:", error);
+    return null;
+  }
+};
+
+const createRefreshClosure = () => {
+  const client = async (url: string, options: RequestInit = {}) => {
+    try {
+      const token = getCookie("jwt_token");
+      const response = await fetch(url, {
+        ...options,
+        headers: {
+          ...options.headers,
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (response.status === 401) {
+        const newToken = await refreshToken(serverIP);
+        if (newToken) {
+          return fetch(url, {
+            ...options,
+            headers: {
+              ...options.headers,
+              Authorization: `Bearer ${newToken}`,
+            },
+          });
+        }
+        window.location.href = "/login";
+      }
+
+      return response;
+    } catch (error) {
+      console.error("API call failed:", error);
+      throw error;
+    }
+  };
+
+  return client;
+};
+
+export default createRefreshClosure;
