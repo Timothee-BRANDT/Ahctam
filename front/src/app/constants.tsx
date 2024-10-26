@@ -46,35 +46,51 @@ const refreshToken = async (serverIP: string): Promise<string | null> => {
   }
 };
 
+const isTokenExpired = (token: string): boolean => {
+  try {
+    const payload = JSON.parse(atob(token.split(".")[1]));
+    return payload.exp < Date.now() / 1000;
+  } catch (error) {
+    return true;
+  }
+};
+
 const createRefreshClosure = () => {
   const client = async (url: string, options: RequestInit = {}) => {
     try {
-      const token = getCookie("jwt_token");
+      const initialToken = getCookie("jwt_token");
+      if (!initialToken || isTokenExpired(initialToken)) {
+        const newToken = await refreshToken(serverIP);
+        if (!newToken) {
+          throw new Error("Token expired and could not be refreshed");
+        }
+      }
+
+      const currentToken = getCookie("jwt_token");
       const response = await fetch(url, {
         ...options,
         headers: {
           ...options.headers,
-          Authorization: `Bearer ${token}`,
+          Authorization: `Bearer ${currentToken}`,
         },
       });
-
       if (response.status === 401) {
         const newToken = await refreshToken(serverIP);
-        if (newToken) {
-          return fetch(url, {
-            ...options,
-            headers: {
-              ...options.headers,
-              Authorization: `Bearer ${newToken}`,
-            },
-          });
+        if (!newToken) {
+          throw new Error("Token expired and could not be refreshed");
         }
-        window.location.href = "/login";
+        return fetch(url, {
+          ...options,
+          headers: {
+            ...options.headers,
+            Authorization: `Bearer ${newToken}`,
+          },
+        });
       }
 
       return response;
     } catch (error) {
-      console.error("API call failed:", error);
+      window.location.href = "/login";
       throw error;
     }
   };
