@@ -261,9 +261,22 @@ WHERE user_id = %s
 AND token = %s
         """
         cur.execute(query, (user_id, refresh_token))
-
         conn.commit()
-        return jsonify({'message': 'Logout successful'}), 200
+
+        logout_response = make_response(
+            jsonify({'message': 'Logout successful'})
+        )
+        logout_response.set_cookie(
+            key='refresh_token',
+            value='',
+            expires=0,
+            max_age=0,
+            httponly=True,
+            samesite='Lax',  # TODO: change to None when nginx is configured
+            secure=False  # TODO: change to True when nginx is configured
+        )
+
+        return logout_response, 200
 
     except Exception as e:
         return jsonify({'error': str(e)}), 400

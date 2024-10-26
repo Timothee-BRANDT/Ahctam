@@ -197,6 +197,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // Server is waiting for request.get_json()
     //
     try {
+      console.log("Front logout!!!");
       const response = fetch(`http://${serverIP}:5000/auth/logout`, {
         method: "POST",
         credentials: "include",
@@ -207,6 +208,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       });
       setUser(initialPig);
       deleteCookie("jwt_token");
+      deleteCookie("refresh_token");
       disconnectSocket();
       router.push("/login");
     } catch (e) {
