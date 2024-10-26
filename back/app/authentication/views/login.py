@@ -8,6 +8,7 @@ from datetime import datetime, timedelta, timezone
 from logger import logger
 from flask import (
     Response,
+    make_response,
     current_app,
     request,
     redirect,
@@ -78,16 +79,24 @@ def login() -> tuple[Response, int]:
     except Exception as e:
         return jsonify({'error': str(e)}), 400
     else:
-        jwt_token = jwt.encode({
-            'id': user_id,
-            'username': data['username'],
-            'exp': datetime.now(tz=timezone.utc) + timedelta(days=30)
-        }, current_app.config['SECRET_KEY'], algorithm='HS256')
-        refresh_token = jwt.encode({
-            'id': user_id,
-            'username': data['username'],
-            'exp': datetime.now(tz=timezone.utc) + timedelta(days=30)
-        }, current_app.config['SECRET_KEY'], algorithm='HS256')
+        jwt_token: str = jwt.encode(
+            payload={
+                'id': user_id,
+                'username': data['username'],
+                'exp': datetime.now(tz=timezone.utc) + timedelta(minutes=15)
+            },
+            key=current_app.config['SECRET_KEY'],
+            algorithm='HS256'
+        )
+
+        refresh_token: str = jwt.encode(
+            payload={
+                'id': user_id,
+                'exp': datetime.now(tz=timezone.utc) + timedelta(days=30)
+            },
+            key=current_app.config['SECRET_KEY'],
+            algorithm='HS256'
+        )
 
         query = """
 INSERT INTO refresh_tokens (token, user_id, expiration_date)
@@ -106,14 +115,25 @@ VALUES (%s, %s, %s)
         cur.execute('SELECT gender FROM users WHERE id = %s',
                     (user_id,))
 
-        gender = cur.fetchone()[0]
-        if not gender:
-            return jsonify({
+        first_login_response = make_response(
+            jsonify({
                 'message': 'First login',
                 'jwt_token': jwt_token,
-                'refresh_token': refresh_token,
                 'user_id': user_id
-            }), 200
+            })
+        )
+        # TODO: samesite and secure to change when nginx is configured
+        first_login_response.set_cookie(
+            key='refresh_token',
+            value=refresh_token,
+            httponly=True,
+            samesite='None',
+            secure=False
+        )
+
+        gender = cur.fetchone()[0]
+        if not gender:
+            return first_login_response, 200
 
         update_last_connexion_query = """
 UPDATE users
@@ -123,12 +143,29 @@ WHERE id = %s
         cur.execute(update_last_connexion_query, (datetime.utcnow(), user_id))
         conn.commit()
 
-        return jsonify({
-            'message': 'Login successful',
-            'jwt_token': jwt_token,
-            'refresh_token': refresh_token,
-            'user_id': user_id
-        }), 200
+        login_response = make_response(
+            jsonify({
+                'message': 'Login successful',
+                'jwt_token': jwt_token,
+                'user_id': user_id
+            })
+        )
+        # TODO: samesite and secure to change when nginx is configured
+        login_response.set_cookie(
+            'refresh_token',
+            refresh_token,
+            httponly=True,
+            samesite='None',
+            secure=False
+        )
+
+        return login_response, 200
+        # jsonify({
+        #     'message': 'Login successful',
+        #     'jwt_token': jwt_token,
+        #     'refresh_token': refresh_token,
+        #     'user_id': user_id
+        # }), 200
     finally:
         cur.close()
         conn.close()
@@ -183,17 +220,17 @@ def first_login():
         )
         user_id = user['id']
         user_ip = request.remote_addr
-        logger.info(f'{user_ip=}')
-        logger.info(f'{type(user_ip)=}')
+        # logger.info(f'{user_ip=}')
+        # logger.info(f'{type(user_ip)=}')
         form: FirstLoginForm = FirstLoginForm(data=payload)
         form.validate()
 
         store_first_login_informations(
-            connector,
-            cursor,
-            form,
-            user_id,
-            user_ip
+            conn=connector,
+            cur=cursor,
+            form=form,
+            user_id=user_id,
+            user_ip=user_ip
         )
         return jsonify({'message': 'First login successful'}), 200
 
@@ -242,7 +279,10 @@ def refresh():
     If 401, we must logout the user
     """
     data = request.get_json()
-    refresh_token = data.get('refresh_token')
+    refresh_token = request.cookies.get('refresh_token')
+    if not refresh_token:
+        return jsonify({'error': 'No refresh token provided'}), 400
+
     conn = get_db_connection()
     cur = conn.cursor()
     refresh_token_query = """
@@ -254,8 +294,8 @@ AND expiration_date > %s
 
     try:
         decoded_refresh_token = jwt.decode(
-            refresh_token,
-            current_app.config['SECRET_KEY'],
+            jwt=refresh_token,
+            key=current_app.config['SECRET_KEY'],
             algorithms=['HS256']
         )
         print('Hello refresh:', decoded_refresh_token)
