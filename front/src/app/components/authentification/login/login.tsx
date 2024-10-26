@@ -39,6 +39,7 @@ const LoginPage: React.FC = () => {
     try {
       const response = await fetch(`http://${serverIP}:5000/auth/login`, {
         method: "POST",
+        credentials: "include",
         headers: {
           "Content-Type": "application/json",
         },
@@ -107,7 +108,7 @@ const LoginPage: React.FC = () => {
                 autoComplete="new-password"
               />
             </div>
-            <Button type="submit" onClick={() => {}}>
+            <Button type="submit" onClick={() => { }}>
               Log in
             </Button>
             <div className={`${CLASSNAME}__helper`}>

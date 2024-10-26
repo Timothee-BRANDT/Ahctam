@@ -196,21 +196,22 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     // to the server to invalidate it, in a JSON payload
     // Server is waiting for request.get_json()
     //
-    // try {
-    //   const response = fetch(`http://${serverIP}:5000/auth/logout`, {
-    //     method: "POST",
-    //     headers: {
-    //       "Content-Type": "application/json",
-    //       Authorization: `Bearer ${getCookie("jwt_token")}`,
-    //     },
-    //   });
-    // } catch (e) {
-    //   console.log(e);
-    // }
-    setUser(initialPig);
-    deleteCookie("jwt_token");
-    disconnectSocket();
-    router.push("/login");
+    try {
+      const response = fetch(`http://${serverIP}:5000/auth/logout`, {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${getCookie("jwt_token")}`,
+        },
+      });
+      setUser(initialPig);
+      deleteCookie("jwt_token");
+      disconnectSocket();
+      router.push("/login");
+    } catch (e) {
+      console.log(e);
+    }
   };
 
   return (

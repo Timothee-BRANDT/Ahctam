@@ -5,6 +5,7 @@ import ImgurImageImporter from "@/components/ui/imgur-uploader";
 import "./index.scss";
 import { Button } from "@/components/ui/button";
 import { serverIP } from "@/app/constants";
+import refreshToken from "@/app/constants";
 import { useAuth } from "@/app/authContext";
 import { initializeSocket } from "@/app/sockets";
 import { ProfileInformations } from "@/app/types";
@@ -91,25 +92,8 @@ const ProfilePage: React.FC = () => {
     });
     const data_response = await response.json();
     if (response.status === 401) {
-      const refresh_token = getCookie("refresh_token");
-      console.log("refresh_token", refresh_token);
-      const refresh_url = `http://${serverIP}:5000/auth/refresh`;
-      console.log("refresh_url", refresh_url);
-      const refresh_response = await fetch(refresh_url, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          refresh_token,
-        }),
-      });
-      const refresh_data = await refresh_response.json();
-      console.log("refresh_data", refresh_data);
-      if (refresh_response.ok) {
-        setCookie("jwt_token", refresh_data.jwt_token, 7);
-        await getProfile();
-      }
+      await refreshToken(serverIP);
+      await getProfile();
     } else if (response.ok) {
       setUser(data_response);
       setAllInterests(initializeInterests(initInterests, user.interests));
@@ -522,11 +506,10 @@ const ProfilePage: React.FC = () => {
 
                         {!photo && (
                           <div
-                            className={`upload-text ${
-                              index === 0
+                            className={`upload-text ${index === 0
                                 ? `${CLASSNAME}__profile-picture-uploader`
                                 : ""
-                            }`}
+                              }`}
                           ></div>
                         )}
                       </div>
@@ -545,7 +528,7 @@ const ProfilePage: React.FC = () => {
                 </div>
               </div>
             </div>
-            <Button className="button-info" type="submit" onClick={() => {}}>
+            <Button className="button-info" type="submit" onClick={() => { }}>
               Save
             </Button>
           </form>

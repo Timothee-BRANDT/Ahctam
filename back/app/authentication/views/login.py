@@ -122,13 +122,14 @@ VALUES (%s, %s, %s)
                 'user_id': user_id
             })
         )
-        # TODO: samesite and secure to change when nginx is configured
+        print('The firstrefresh token:', refresh_token)
         first_login_response.set_cookie(
             key='refresh_token',
             value=refresh_token,
             httponly=True,
-            samesite='None',
-            secure=False
+            samesite='Lax',  # TODO: change to None when nginx is configured
+            secure=False,  # TODO: change to True when nginx is configured
+            max_age=timedelta(days=30)
         )
 
         gender = cur.fetchone()[0]
@@ -150,22 +151,18 @@ WHERE id = %s
                 'user_id': user_id
             })
         )
-        # TODO: samesite and secure to change when nginx is configured
         login_response.set_cookie(
-            'refresh_token',
-            refresh_token,
+            key='refresh_token',
+            value=refresh_token,
             httponly=True,
-            samesite='None',
-            secure=False
+            samesite='Lax',  # TODO: change to None when nginx is configured
+            secure=False,  # TODO: change to True when nginx is configured
+            max_age=timedelta(days=30)
         )
+        print("Response Headers:", dict(login_response.headers))
+        print("Set-Cookie:", login_response.headers.get('Set-Cookie'))
 
         return login_response, 200
-        # jsonify({
-        #     'message': 'Login successful',
-        #     'jwt_token': jwt_token,
-        #     'refresh_token': refresh_token,
-        #     'user_id': user_id
-        # }), 200
     finally:
         cur.close()
         conn.close()
@@ -248,11 +245,13 @@ def logout():
     conn = get_db_connection()
     cur = conn.cursor()
     try:
-        data = request.get_json()
-        refresh_token = data.get('refresh_token')
+        refresh_token = request.cookies.get('refresh_token', '')
+        print('The refresh token from logout:', refresh_token)
+        if not refresh_token:
+            raise Exception('No refresh token provided')
         decoded_refresh_token = jwt.decode(
-            refresh_token,
-            current_app.config['SECRET_KEY'],
+            jwt=refresh_token,
+            key=current_app.config['SECRET_KEY'],
             algorithms=['HS256']
         )
         user_id = decoded_refresh_token['id']
@@ -278,7 +277,6 @@ def refresh():
     """
     If 401, we must logout the user
     """
-    data = request.get_json()
     refresh_token = request.cookies.get('refresh_token')
     if not refresh_token:
         return jsonify({'error': 'No refresh token provided'}), 400

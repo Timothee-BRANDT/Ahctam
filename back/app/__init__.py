@@ -44,7 +44,11 @@ def create_app(test_config=False, production=False):
             r"/*": {
                 "origins": [
                     "http://localhost:3000",
-                ]
+                    "http://127.0.0.1:3000"
+                ],
+                "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+                "allow_headers": ["Content-Type", "Authorization"],
+                "expose_headers": ["Content-Range", "X-Content-Range"]
             }
         },
     )

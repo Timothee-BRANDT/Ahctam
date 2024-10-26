@@ -166,6 +166,7 @@ const FirstLoginPage: React.FC = () => {
     }
     const response = await fetch(`http://${serverIP}:5000/auth/first-login`, {
       method: "POST",
+      credentials: "include",
       headers: {
         "Content-Type": "application/json",
       },
