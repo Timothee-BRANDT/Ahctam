@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/carousel";
 
 import "./index.scss";
+import createRefreshClosure from "@/app/constants";
 import { serverIP } from "@/app/constants";
 import StarRating from "../core/rate/rate";
 import { User } from "@/app/types";
@@ -72,20 +73,23 @@ const ProfileView: React.FC<ProfileViewProps> = (idProps) => {
     try {
       if (idMatch) {
         const id = idMatch[1];
-        const token = getCookie("jwt_token");
-        const url = `http://${serverIP}:5000/api/getOtherUserInfo/${id}`;
-        const response = await fetch(url, {
+        const refreshClosure = createRefreshClosure();
+        const otherUserInfoUrl = `http://${serverIP}:5000/api/getOtherUserInfo/${id}`;
+        const otherUserInfoOptions = {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
           },
-        });
+        };
+
+        const response = await refreshClosure(
+          otherUserInfoUrl,
+          otherUserInfoOptions,
+        );
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
         const data = await response.json();
-        console.log("Server response:", data);
         setProfileViewed(data);
       }
     } catch (e) {
@@ -97,20 +101,19 @@ const ProfileView: React.FC<ProfileViewProps> = (idProps) => {
     try {
       if (idMatch) {
         const id = idMatch[1];
-        const token = getCookie("jwt_token");
+        const refreshClosure = createRefreshClosure();
         const url = `http://${serverIP}:5000/api/doILikeThisUser/${id}`;
-        const response = await fetch(url, {
+        const options = {
           method: "GET",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
           },
-        });
+        };
+        const response = await refreshClosure(url, options);
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
         const data = await response.json();
-        console.log("Server response:", data);
         setLiked(data.liked);
       }
     } catch (e) {
@@ -133,23 +136,21 @@ const ProfileView: React.FC<ProfileViewProps> = (idProps) => {
   }, [idMatch]);
 
   const addViewToWatchedUser = async () => {
-    const token = getCookie("jwt_token");
     try {
       if (idMatch) {
         const id = idMatch[1];
+        const refreshClosure = createRefreshClosure();
         const url = `http://${serverIP}:5000/viewUser/${id}`;
-        const response = await fetch(url, {
+        const infos = {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
           },
-        });
+        };
+        const response = await refreshClosure(url, infos);
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
-        const data = await response.json();
-        console.log("Server response:", data);
       }
     } catch (e) {
       console.log(e);
@@ -157,27 +158,28 @@ const ProfileView: React.FC<ProfileViewProps> = (idProps) => {
   };
 
   const handleLike = async () => {
-    const token = getCookie("jwt_token");
+    const refreshClosure = createRefreshClosure();
     if (liked) {
       try {
         if (idMatch) {
           const id = idMatch[1];
-          console.log("id from idMatch:", id);
-          const response = await fetch(`http://${serverIP}:5000/dislikeUser`, {
+          const dislikeUserUrl = `http://${serverIP}:5000/dislikeUser`;
+          const dislikeUserInfos = {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify({
               user_disliked_id: id,
             }),
-          });
+          };
+          const response = await refreshClosure(
+            dislikeUserUrl,
+            dislikeUserInfos,
+          );
           if (!response.ok) {
             throw new Error("Network response was not ok");
           }
-          const data = await response.json();
-          console.log("Server response:", data);
         }
       } catch (e) {
         console.log(e);
@@ -186,22 +188,20 @@ const ProfileView: React.FC<ProfileViewProps> = (idProps) => {
       try {
         if (idMatch) {
           const id = idMatch[1];
-          console.log("id from idMatch:", id);
-          const response = await fetch(`http://${serverIP}:5000/likeUser`, {
+          const likeUserUrl = `http://${serverIP}:5000/likeUser`;
+          const likeUserInfos = {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${token}`,
             },
             body: JSON.stringify({
               user_liked_id: id,
             }),
-          });
+          };
+          const response = await refreshClosure(likeUserUrl, likeUserInfos);
           if (!response.ok) {
             throw new Error("Network response was not ok");
           }
-          const data = await response.json();
-          console.log("Server response:", data);
         }
       } catch (e) {
         console.log(e);
@@ -211,23 +211,21 @@ const ProfileView: React.FC<ProfileViewProps> = (idProps) => {
   };
 
   const reportUser = async () => {
-    const token = getCookie("jwt_token");
+    const refreshClosure = createRefreshClosure();
     try {
       if (idMatch) {
         const id = idMatch[1];
         const url = `http://${serverIP}:5000/reportUser/${id}`;
-        const response = await fetch(url, {
+        const infos = {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
           },
-        });
+        };
+        const response = await refreshClosure(url, infos);
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
-        const data = await response.json();
-        console.log("Server response:", data);
         router.push("/browse");
       }
     } catch (e) {
@@ -236,23 +234,21 @@ const ProfileView: React.FC<ProfileViewProps> = (idProps) => {
   };
 
   const blockUser = async () => {
-    const token = getCookie("jwt_token");
+    const refreshClosure = createRefreshClosure();
     try {
       if (idMatch) {
         const id = idMatch[1];
         const url = `http://${serverIP}:5000/blockUser/${id}`;
-        const response = await fetch(url, {
+        const infos = {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
           },
-        });
+        };
+        const response = await refreshClosure(url, infos);
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
-        const data = await response.json();
-        console.log("Server response:", data);
         router.push("/browse");
       }
     } catch (e) {
