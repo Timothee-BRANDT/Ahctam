@@ -7,16 +7,11 @@ import { Button } from "@/components/ui/button";
 import { serverIP } from "@/app/constants";
 import createRefreshClosure from "@/app/constants";
 import { useAuth } from "@/app/authContext";
-import { initializeSocket } from "@/app/sockets";
-import { ProfileInformations } from "@/app/types";
 import AddressAutocomplete from "@/app/components/locationAutocomplete/locationAutocomplete";
 import { usePathname, useRouter } from "next/navigation";
-import data from "../../api.json";
 
 const CLASSNAME = "profile";
 const MAX_PHOTOS = 5;
-const BAN_URL =
-  "https://api-adresse.data.gouv.fr/search/?q=<recherche>&autocomplete=1";
 
 var localisationjpp: number[] = [];
 var townjpp: string = "";
@@ -83,21 +78,27 @@ const ProfilePage: React.FC = () => {
   );
 
   const getProfile = async () => {
-    const refreshClosure = createRefreshClosure();
-    const userInfoUrl = `http://${serverIP}:5000/api/getUserInfo`;
-    const userInfoOptions = {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    };
-    const response = await refreshClosure(userInfoUrl, userInfoOptions);
-    if (response.ok) {
-      const data_response = await response.json();
-      setUser(data_response);
-      setAllInterests(
-        initializeInterests(initInterests, data_response.interests),
-      );
+    try {
+      const refreshClosure = createRefreshClosure();
+      const userInfoUrl = `http://${serverIP}:5000/api/getUserInfo`;
+      const userInfoOptions = {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+      const response = await refreshClosure(userInfoUrl, userInfoOptions);
+      if (response.ok) {
+        const data_response = await response.json();
+        setUser(data_response);
+        setAllInterests(
+          initializeInterests(initInterests, data_response.interests),
+        );
+      } else {
+        throw new Error("Error fetching user profile");
+      }
+    } catch (error) {
+      console.log(error);
     }
   };
 

@@ -85,7 +85,7 @@ const FirstLoginPage: React.FC = () => {
       redirectLogin();
     } else {
       if (token) {
-        setCookie("jwt_token", token);
+        setCookie("jwt_token", token, 15);
       }
       setIsLoggedIn(true);
       if (!geolocationPermission) {

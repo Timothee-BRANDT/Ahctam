@@ -12,11 +12,11 @@ const getCookie = (name: string): string | undefined => {
   return undefined;
 };
 
-const setCookie = (name: string, value: string, days?: number) => {
+const setCookie = (name: string, value: string, minutes?: number) => {
   let expires = "";
-  if (days) {
+  if (minutes) {
     const date = new Date();
-    date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+    date.setTime(date.getTime() + minutes * 60 * 1000);
     expires = "; expires=" + date.toUTCString();
   }
   const sameSiteSecure =
@@ -37,7 +37,7 @@ const refreshToken = async (serverIP: string): Promise<string | null> => {
 
     const data = await response.json();
     const newToken = data.jwt_token;
-    setCookie("jwt_token", newToken);
+    setCookie("jwt_token", newToken, 15);
 
     return newToken;
   } catch (error) {

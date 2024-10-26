@@ -83,7 +83,7 @@ def login() -> tuple[Response, int]:
             payload={
                 'id': user_id,
                 'username': data['username'],
-                'exp': datetime.now(tz=timezone.utc) + timedelta(minutes=1)
+                'exp': datetime.now(tz=timezone.utc) + timedelta(minutes=15)
             },
             key=current_app.config['SECRET_KEY'],
             algorithm='HS256'
@@ -92,7 +92,7 @@ def login() -> tuple[Response, int]:
         refresh_token: str = jwt.encode(
             payload={
                 'id': user_id,
-                'exp': datetime.now(tz=timezone.utc) + timedelta(days=30)
+                'exp': datetime.now(tz=timezone.utc) + timedelta(days=15)
             },
             key=current_app.config['SECRET_KEY'],
             algorithm='HS256'
@@ -107,7 +107,7 @@ VALUES (%s, %s, %s)
             (
                 refresh_token,
                 user_id,
-                datetime.now(tz=timezone.utc) + timedelta(days=30)
+                datetime.now(tz=timezone.utc) + timedelta(days=15)
             )
         )
         conn.commit()
@@ -129,7 +129,7 @@ VALUES (%s, %s, %s)
             httponly=True,
             samesite='Lax',  # TODO: change to None when nginx is configured
             secure=False,  # TODO: change to True when nginx is configured
-            max_age=timedelta(days=30)
+            max_age=timedelta(days=15)
         )
 
         gender = cur.fetchone()[0]
@@ -159,8 +159,8 @@ WHERE id = %s
             secure=False,  # TODO: change to True when nginx is configured
             max_age=timedelta(days=30)
         )
-        print("Response Headers:", dict(login_response.headers))
-        print("Set-Cookie:", login_response.headers.get('Set-Cookie'))
+        # print("Response Headers:", dict(login_response.headers))
+        # print("Set-Cookie:", login_response.headers.get('Set-Cookie'))
 
         return login_response, 200
     finally:
@@ -211,8 +211,8 @@ def first_login():
         if token == '':
             raise Exception('No token provided')
         user: dict[str, Any] = jwt.decode(
-            token,
-            current_app.config['SECRET_KEY'],
+            jwt=token,
+            key=current_app.config['SECRET_KEY'],
             algorithms=['HS256']
         )
         user_id = user['id']
@@ -326,7 +326,7 @@ AND expiration_date > %s
         new_jwt_token = jwt.encode(
             {
                 'id': user_id,
-                'exp': datetime.now(tz=timezone.utc) + timedelta(minutes=1)
+                'exp': datetime.now(tz=timezone.utc) + timedelta(minutes=15)
             },
             current_app.config['SECRET_KEY'],
             algorithm='HS256'
@@ -396,7 +396,7 @@ WHERE username = %s
             {
                 'id': id,
                 'username': username,
-                'exp': datetime.now(tz=timezone.utc) + timedelta(days=30)
+                'exp': datetime.now(tz=timezone.utc) + timedelta(days=15)
             },
             current_app.config['SECRET_KEY'],
             algorithm='HS256'

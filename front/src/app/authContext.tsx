@@ -137,11 +137,11 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setOpen(false);
   };
 
-  const setCookie = (name: string, value: string, days?: number) => {
+  const setCookie = (name: string, value: string, minutes?: number) => {
     let expires = "";
-    if (days) {
+    if (minutes) {
       const date = new Date();
-      date.setTime(date.getTime() + days * 24 * 60 * 60 * 1000);
+      date.setTime(date.getTime() + minutes * 60 * 1000);
       expires = "; expires=" + date.toUTCString();
     }
     const sameSiteSecure =
@@ -185,7 +185,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const login = (token: string) => {
-    setCookie("jwt_token", token, 7);
+    setCookie("jwt_token", token, 15);
     const newSocket = initializeSocket(token);
     setSocket(newSocket);
     setupSocketListeners(newSocket);

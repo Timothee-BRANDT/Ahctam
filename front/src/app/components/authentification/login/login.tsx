@@ -64,7 +64,7 @@ const LoginPage: React.FC = () => {
         id: data.user_id,
       });
       login(data.jwt_token);
-      setCookie("refresh_token", data.refresh_token, 30);
+      setCookie("refresh_token", data.refresh_token, 21600); // 15 days
 
       if (data.message === "First login") {
         router.push("/first-login");
