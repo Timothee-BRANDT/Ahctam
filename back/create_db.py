@@ -182,7 +182,7 @@ def create_views_table(cursor):
             user_viewed INTEGER NOT NULL,
             viewer INTEGER NOT NULL,
             FOREIGN KEY (user_viewed) REFERENCES users(id) ON DELETE CASCADE,
-            FOREIGN KEY (viewer) REFERENCES users(id) ON DELETE CASCADE,
+            FOREIGN KEY (viewer) REFERENCES users(id) ON DELETE CASCADE
         );
     """)
 
