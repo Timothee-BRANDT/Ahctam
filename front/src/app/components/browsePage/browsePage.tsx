@@ -1,22 +1,20 @@
 "use client";
 
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { useAuth } from "@/app/authContext";
 import { User } from "@/app/types";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { UserCard } from "@/components/ui/carousel";
 import { Button } from "@/components/ui/button";
 
-import { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 import "./browsePage.scss";
 import { Slider } from "@/components/ui/slider";
 import { serverIP } from "@/app/constants";
+import createRefreshClosure from "@/app/constants";
 
 const CLASSNAME = "browse";
-
-type Checked = DropdownMenuCheckboxItemProps["checked"];
 
 const browsePage: React.FC = () => {
   const [age, setAge] = useState(0);
@@ -26,7 +24,6 @@ const browsePage: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [profiles, setProfiles] = useState<User[]>([]);
   const [responsiveFilterButton, setResponsiveFilterButton] = useState(false);
-  const [isFetched, setIsFetched] = useState(false);
   const [offset, setOffset] = useState(0);
   const [totalProfiles, setTotalProfiles] = useState(0);
   const [putFilters, setPutFilters] = useState(false);
@@ -47,17 +44,15 @@ const browsePage: React.FC = () => {
     setIsLoggedIn(isJwtInCookie());
   }, [offset, putFilters]);
 
-  // WARNING: only 1 display "[]" because infinite loop with [profiles]
-  // I replaced it with offset to rerender every pagination changes
-
   const redirect = (id: number) => {
     router.push(`/profile/${id}`);
   };
 
   const getProfiles = async () => {
-    const cookie = getCookie("jwt_token");
-    const response = await fetch(
-      `http://${serverIP}:5000/browse?` +
+    try {
+      const refreshClosure = createRefreshClosure();
+      const browseUrl =
+        `http://${serverIP}:5000/browse?` +
         new URLSearchParams({
           age: String(age),
           fame: String(fame),
@@ -65,22 +60,24 @@ const browsePage: React.FC = () => {
           tags: String(tags),
           offset: offset.toString(),
           limit: (offset + limit).toString(),
-        }),
-      {
+        });
+      const browseInfos = {
         method: "GET",
-        credentials: "include",
+        credentials: "include" as RequestCredentials,
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${cookie}`,
         },
-      },
-    );
-    const data_response = await response.json();
-    if (response.ok) {
-      console.log("From browse:", data_response);
+      };
+      const response = await refreshClosure(browseUrl, browseInfos);
+      if (!response.ok) {
+        throw new Error("Error fetching profiles");
+      }
+      const data_response = await response.json();
       setProfiles(data_response.users);
       setTotalProfiles(data_response.total);
       setPutFilters(false);
+    } catch (error) {
+      console.error("Error fetching profiles:", error);
     }
   };
 
