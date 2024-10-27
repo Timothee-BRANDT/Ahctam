@@ -3,16 +3,13 @@ import React, { useEffect, useState, useRef } from "react";
 import "./index.scss";
 import { Button } from "@/components/ui/button";
 import { serverIP } from "@/app/constants";
+import createRefreshClosure from "@/app/constants";
 import { useAuth } from "@/app/authContext";
-import { initializeSocket } from "@/app/sockets";
-import { ProfileInformations } from "@/app/types";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 const CLASSNAME = "profile";
 const MAX_PHOTOS = 5;
-
 var localisationjpp: number[] = [];
-var townjpp: string = "";
 
 const ProfilePage: React.FC = () => {
   const { user, setUser, isJwtInCookie, getCookie } = useAuth();
@@ -63,7 +60,6 @@ const ProfilePage: React.FC = () => {
     filledPhotos.push("");
   }
 
-  // [MOCK]
   const [allInterests, setAllInterests] = useState<Record<string, boolean>>(
     initializeInterests(initInterests, []),
   );
@@ -73,8 +69,6 @@ const ProfilePage: React.FC = () => {
   };
 
   useEffect(() => {
-    console.log("editProfile useEffect is called");
-
     const fetchProfileAndLocation = async () => {
       if (!isJwtInCookie()) {
         redirectLogin();
@@ -83,7 +77,7 @@ const ProfilePage: React.FC = () => {
           hasFetchedProfile.current = true;
         }
       }
-
+      // TODO: When nginx is configured, insert logic for location not provided
       if (allowGeolocation && navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
           async (pos) => {
@@ -111,7 +105,6 @@ const ProfilePage: React.FC = () => {
   }, [allowGeolocation]);
 
   const handleUserChange = (e: any) => {
-    console.log("handleUserChange is called");
     const { name, value } = e.target;
     if (name && value !== undefined) {
       setUser({
@@ -122,7 +115,6 @@ const ProfilePage: React.FC = () => {
   };
 
   const handleImageChange = (index: any, e: any) => {
-    console.log("handleImageChange is called");
     const file = e.target.files[0];
     const reader = new FileReader();
     reader.onloadend = () => {
@@ -140,7 +132,6 @@ const ProfilePage: React.FC = () => {
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-    console.log("we clicked on the Save button");
     const payload = {
       token: getCookie("jwt_token"),
       age: user.age,
@@ -151,30 +142,31 @@ const ProfilePage: React.FC = () => {
       photos: user.photos,
       location: localisationjpp,
     };
-    console.log("payload we send:", payload);
     if (!payload.sexual_preferences) {
       payload.sexual_preferences = "both";
     }
-    const response = await fetch(
-      `http://${serverIP}:5000/auth/update-profile`,
-      {
+    try {
+      const refreshClosure = createRefreshClosure();
+      const url = `http://${serverIP}:5000/auth/update-profile`;
+      const infos = {
         method: "POST",
-        credentials: "include",
+        credentials: "include" as RequestCredentials,
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          payload,
-        }),
-      },
-    );
-    if (response.ok) {
+        body: JSON.stringify(payload),
+      };
+      const response = await refreshClosure(url, infos);
+      if (!response.ok) {
+        throw new Error("Error updating profile");
+      }
       router.push("/");
+    } catch (e) {
+      console.log(e);
     }
   };
 
   const getInterestsIndices = (record: Record<string, boolean>) => {
-    console.log("getInterestsIndices is called");
     return Object.entries(record).reduce(
       (acc: string[], [key, value], index) => {
         if (value) {
@@ -187,7 +179,6 @@ const ProfilePage: React.FC = () => {
   };
 
   const selectInterest = (interest: string) => {
-    console.log("selectInterest is called");
     const newInterests = { ...allInterests };
     newInterests[interest] = !newInterests[interest];
     setAllInterests(newInterests);
@@ -362,10 +353,11 @@ const ProfilePage: React.FC = () => {
                       />
                       {!photo && (
                         <div
-                          className={`upload-text ${index === 0
+                          className={`upload-text ${
+                            index === 0
                               ? `${CLASSNAME}__profile-picture-uploader`
                               : ""
-                            }`}
+                          }`}
                         >
                           {index === 0
                             ? "Upload a profile picture"
@@ -377,7 +369,7 @@ const ProfilePage: React.FC = () => {
                 </div>
               </div>
             </div>
-            <Button className="button-info" type="submit" onClick={() => { }}>
+            <Button className="button-info" type="submit" onClick={() => {}}>
               Save
             </Button>
           </form>
