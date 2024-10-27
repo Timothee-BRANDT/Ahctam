@@ -64,7 +64,7 @@ const LoginPage: React.FC = () => {
         id: data.user_id,
       });
       login(data.jwt_token);
-      setCookie("refresh_token", data.refresh_token, 21600); // 15 days
+      // setCookie("refresh_token", data.refresh_token, 21600); // 15 days
 
       if (data.message === "First login") {
         router.push("/first-login");
@@ -108,7 +108,7 @@ const LoginPage: React.FC = () => {
                 autoComplete="new-password"
               />
             </div>
-            <Button type="submit" onClick={() => { }}>
+            <Button type="submit" onClick={() => {}}>
               Log in
             </Button>
             <div className={`${CLASSNAME}__helper`}>

@@ -197,6 +197,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       const url = `http://${serverIP}:5000/auth/logout`;
       const infos = {
         method: "POST",
+        credentials: "include" as RequestCredentials,
         headers: {
           "Content-Type": "application/json",
         },

@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 
 const mainPage: React.FC = () => {
   const router = useRouter();
+  if (typeof window === "undefined") return null;
   const query = new URLSearchParams(location.search);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const { user, setUser, isJwtInCookie, setCookie } = useAuth();
@@ -19,7 +20,7 @@ const mainPage: React.FC = () => {
     if (!isJwtInCookie() && !token) {
       redirectLogin();
     } else if (token) {
-      setCookie("jwt_token", token, 7);
+      setCookie("jwt_token", token, 15);
     }
 
     setIsLoggedIn(isJwtInCookie());

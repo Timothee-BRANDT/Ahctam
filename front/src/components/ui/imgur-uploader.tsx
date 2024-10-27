@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { serverIP } from "@/app/constants";
+import createRefreshClosure from "@/app/constants";
 import { useAuth } from "@/app/authContext";
 
 interface ImgurImage {
@@ -16,7 +17,6 @@ const ImgurImageImporter: React.FC<{
   const [selectedImage, setSelectedImage] = useState<ImgurImage | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const { user, setUser, isJwtInCookie, getCookie, setCookie } = useAuth();
 
   const handleSearch = async () => {
     if (!searchTerm.trim()) {
@@ -28,21 +28,19 @@ const ImgurImageImporter: React.FC<{
     setError(null);
 
     try {
-      const token = getCookie("jwt_token");
-      const response = await fetch(
-        `http://${serverIP}:5000/imgur?search_term=${searchTerm}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            ContentType: "application/json",
-          },
+      const refreshClosure = createRefreshClosure();
+      const url = `http://${serverIP}:5000/imgur?search_term=${searchTerm}`;
+      const infos = {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
         },
-      );
+      };
+      const response = await refreshClosure(url, infos);
       if (!response.ok) {
         throw new Error("Error fetching images");
       }
       const data = await response.json();
-      // console.log("THE DATA:", data);
       const filteredImages = data.data
         .filter(
           (item: any) =>
@@ -76,10 +74,10 @@ const ImgurImageImporter: React.FC<{
         type="text"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
-        placeholder="Rechercher des images"
+        placeholder="Search for images"
       />
       <button onClick={handleSearch} disabled={isLoading}>
-        {isLoading ? "Recherche..." : "Rechercher"}
+        {isLoading ? "Searching..." : "Search"}
       </button>
 
       {error && <p style={{ color: "red" }}>{error}</p>}
