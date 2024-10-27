@@ -20,11 +20,6 @@ const setupSocketListeners = (): void => {
     socket.on("connect_error", (err) => {
       console.log("Socket connection error:", err);
     });
-
-    // socket.on("new_message", (data) => {
-    //   console.log("New message!!");
-    //   console.log(data.text);
-    // });
   }
 };
 

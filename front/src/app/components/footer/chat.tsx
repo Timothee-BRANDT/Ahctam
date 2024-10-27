@@ -39,6 +39,7 @@ export default function Component() {
   const messageInputRef = useRef<HTMLTextAreaElement>(null);
   const peerConnection = useRef<RTCPeerConnection | null>(null);
   const localStream = useRef<MediaStream | null>(null);
+  const remoteAudioRef = useRef<HTMLAudioElement>(null);
   const socket = getSocket();
 
   const [matchs, setMatchs] = useState<Match[]>([]);
@@ -314,6 +315,29 @@ export default function Component() {
           },
         ],
       });
+      peerConnection.current.ontrack = (event) => {
+        console.log("Received remote track");
+        if (remoteAudioRef.current) {
+          remoteAudioRef.current.srcObject = event.streams[0];
+        }
+      };
+      // NOTE: LOGS
+      peerConnection.current.oniceconnectionstatechange = () => {
+        console.log(
+          "ICE Connection State:",
+          peerConnection.current?.iceConnectionState,
+        );
+      };
+      peerConnection.current.onicegatheringstatechange = () => {
+        console.log(
+          "ICE Gathering State:",
+          peerConnection.current?.iceGatheringState,
+        );
+      };
+      peerConnection.current.onsignalingstatechange = () => {
+        console.log("Signaling State:", peerConnection.current?.signalingState);
+      };
+      //NOTE: END LOGS
 
       localStream.current.getTracks().forEach((track) => {
         peerConnection.current!.addTrack(track, localStream.current!);
@@ -357,6 +381,29 @@ export default function Component() {
       peerConnection.current = new RTCPeerConnection({
         iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
       });
+      peerConnection.current.ontrack = (event) => {
+        console.log("Received remote track");
+        if (remoteAudioRef.current) {
+          remoteAudioRef.current.srcObject = event.streams[0];
+        }
+      };
+      // NOTE: LOGS
+      peerConnection.current.oniceconnectionstatechange = () => {
+        console.log(
+          "ICE Connection State:",
+          peerConnection.current?.iceConnectionState,
+        );
+      };
+      peerConnection.current.onicegatheringstatechange = () => {
+        console.log(
+          "ICE Gathering State:",
+          peerConnection.current?.iceGatheringState,
+        );
+      };
+      peerConnection.current.onsignalingstatechange = () => {
+        console.log("Signaling State:", peerConnection.current?.signalingState);
+      };
+      //NOTE: END LOGS
 
       localStream.current?.getTracks().forEach((track) => {
         peerConnection.current?.addTrack(track, localStream.current!);
@@ -367,6 +414,7 @@ export default function Component() {
         if (event.candidate) {
           socket.emit("call_backend", {
             candidate: event.candidate,
+            sender_id: user.id,
             receiver_id: receiverId,
           });
         }
@@ -381,6 +429,7 @@ export default function Component() {
       await peerConnection.current.setLocalDescription(sdpAnswer);
       socket.emit("call_backend", {
         sdp: peerConnection.current.localDescription,
+        sender_id: user.id,
         receiver_id: receiverId,
       });
     } catch (error) {
@@ -492,6 +541,7 @@ export default function Component() {
                       onAnswerCall={handleAnswerCall}
                       onEndCall={handleEndCall}
                     />
+                    <audio ref={remoteAudioRef} autoPlay controls />
                   </div>
                   <Button
                     variant="ghost"
