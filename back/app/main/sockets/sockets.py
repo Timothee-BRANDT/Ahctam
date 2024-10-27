@@ -102,6 +102,23 @@ def handle_message_sent(data):
         )
 
 
+@socketio.on('call_backend')
+def handle_call(data):
+    socketio = current_app.extensions['socketio']
+    receiver_id = data['receiver_id']
+    logger.info(f"The data: {data}")
+    logger.info(f"Receiver ID from call: {receiver_id}")
+    redis_client = current_app.extensions['redis']
+    redis_receiver_key: str = f"socket:{receiver_id}"
+    receiver_sid = redis_client.get(redis_receiver_key).decode('utf-8')
+    if receiver_sid is not None:
+        socketio.emit(
+            'call_frontend',
+            data,
+            room=receiver_sid
+        )
+
+
 @socketio.on('hello')
 def handle_hello(data):
     sid = request.sid  # type: ignore

@@ -54,7 +54,13 @@ const AudioChatComponent: React.FC<AudioChatComponentProps> = ({
 
   return (
     <div>
-      <FaPhone onClick={handleCallClick} />
+      <FaPhone
+        onClick={handleCallClick}
+        style={{
+          cursor: "pointer",
+          color: "lightgreen",
+        }}
+      />
 
       {incomingCall && (
         <div className="incoming-call">

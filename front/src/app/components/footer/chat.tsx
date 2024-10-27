@@ -5,12 +5,10 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/app/authContext";
-import { useRouter } from "next/navigation";
-import { Truck } from "lucide-react";
-import { AppBuildManifestPlugin } from "next/dist/build/webpack/plugins/app-build-manifest-plugin";
 import createRefreshClosure from "@/app/constants";
 import { serverIP } from "@/app/constants";
 import { getSocket } from "@/app/sockets";
+import AudioChatComponent from "@/components/ui/audioCall";
 
 interface Match {
   id: number;
@@ -29,17 +27,8 @@ interface Message {
   timestamp: string;
 }
 
-// interface Notification {
-//     senderId: number;
-//     message: string;
-//     avatar: string;
-//     createdAt: new Date() | string;
-// };
-//
-
 export default function Component() {
-  const router = useRouter();
-  const { user, isJwtInCookie, getCookie } = useAuth();
+  const { user, isJwtInCookie } = useAuth();
   const [isMatchsListOpen, setIsMatchsListOpen] = useState(false);
   const [isChatWindowOpen, setIsChatWindowOpen] = useState(false);
   const [selectedMatch, setSelectedMatch] = useState<Match | null>(null);
@@ -48,12 +37,13 @@ export default function Component() {
   const matchListWindowRef = useRef<HTMLDivElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messageInputRef = useRef<HTMLTextAreaElement>(null);
+  const peerConnection = useRef<RTCPeerConnection | null>(null);
+  const localStream = useRef<MediaStream | null>(null);
+  const socket = getSocket();
 
   const [matchs, setMatchs] = useState<Match[]>([]);
 
   const openChatWindow = (match: Match) => {
-    console.log("Called openChatWindow for : ", match);
-    // call the endpoint that give me all the messages
     setSelectedMatch(match);
     setIsMatchsListOpen(false);
     setIsChatWindowOpen(true);
@@ -80,7 +70,6 @@ export default function Component() {
   };
 
   const handleNewMessage = useCallback((data: any) => {
-    console.log("New message received:", data);
     setMatchs((prevMatchs) =>
       prevMatchs.map((match) => {
         console.log("match.id:", match.id);
@@ -108,8 +97,6 @@ export default function Component() {
 
   useEffect(() => {
     console.log("Setting up message socket listener");
-    const socket = getSocket();
-    const token = getCookie("jwt_token");
     if (socket) {
       socket.on("new_message", handleNewMessage);
       return () => {
@@ -136,19 +123,19 @@ export default function Component() {
           message: data.message,
         }),
       };
+
       const response = await refreshClosure(
         notifMessageUrl,
         notifMessageOptions,
       );
-      if (response.ok) {
-        console.log("Notif message sent");
+      if (!response.ok) {
+        console.log("Error sending message");
       }
     }
   };
 
   useEffect(() => {
     console.log("Socket listener for messageReceived");
-    const socket = getSocket();
     if (socket) {
       socket.on("message_received", handleMessageReceived);
     }
@@ -168,7 +155,6 @@ export default function Component() {
 
   const sendMessage = (text: string) => {
     console.log("Called sendMessage with : ", text);
-    const socket = getSocket();
     if (!text) {
       return;
     }
@@ -285,6 +271,141 @@ export default function Component() {
     }
   }, [selectedMatch?.messages]);
 
+  useEffect(() => {
+    if (socket) {
+      socket.on("call_frontend", (data) => {
+        console.log("call_frontend data :", data);
+
+        if (data.sdp) {
+          const remoteDescription = new RTCSessionDescription(data.sdp);
+          peerConnection.current?.setRemoteDescription(remoteDescription);
+
+          if (remoteDescription.type === "offer") {
+            console.log("it's an offer");
+            handleAnswerCall(data.sdp, data.sender_id);
+          }
+        }
+
+        if (data.candidate) {
+          const candidate = new RTCIceCandidate(data.candidate);
+          peerConnection.current?.addIceCandidate(candidate);
+        }
+      });
+
+      return () => {
+        socket.off("call_frontend");
+      };
+    }
+  }, []);
+
+  const handleStartCall = async () => {
+    console.log("Called handleStartCall");
+    if (!socket) {
+      return;
+    }
+    try {
+      localStream.current = await navigator.mediaDevices.getUserMedia({
+        audio: true,
+      });
+      peerConnection.current = new RTCPeerConnection({
+        iceServers: [
+          {
+            urls: "stun:stun.l.google.com:19302",
+          },
+        ],
+      });
+
+      localStream.current.getTracks().forEach((track) => {
+        peerConnection.current!.addTrack(track, localStream.current!);
+      });
+      // Listening for ICE candidates
+      peerConnection.current.onicecandidate = (event) => {
+        if (event.candidate) {
+          socket.emit("call_backend", {
+            candidate: event.candidate,
+            sender_id: user.id,
+            receiver_id: selectedMatch?.matchedUseruuid,
+          });
+        }
+      };
+
+      // SDP offer
+      const sdpOffer = await peerConnection.current.createOffer();
+      await peerConnection.current.setLocalDescription(sdpOffer);
+      socket.emit("call_backend", {
+        sdp: peerConnection.current.localDescription,
+        sender_id: user.id,
+        receiver_id: selectedMatch?.matchedUseruuid,
+      });
+    } catch (error) {
+      console.error("Error starting call", error);
+    }
+  };
+
+  const handleAnswerCall = async (
+    remoteSDP: RTCSessionDescriptionInit,
+    receiverId: number,
+  ) => {
+    console.log("Called handleAnswerCall");
+    if (!socket) {
+      return;
+    }
+    try {
+      localStream.current = await navigator.mediaDevices.getUserMedia({
+        audio: true,
+      });
+      peerConnection.current = new RTCPeerConnection({
+        iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
+      });
+
+      localStream.current?.getTracks().forEach((track) => {
+        peerConnection.current?.addTrack(track, localStream.current!);
+      });
+
+      // Listening for ICE candidates
+      peerConnection.current.onicecandidate = (event) => {
+        if (event.candidate) {
+          socket.emit("call_backend", {
+            candidate: event.candidate,
+            receiver_id: receiverId,
+          });
+        }
+      };
+
+      // Configure session with received SDP
+      await peerConnection.current.setRemoteDescription(
+        new RTCSessionDescription(remoteSDP),
+      );
+      // Create answer
+      const sdpAnswer = await peerConnection.current.createAnswer();
+      await peerConnection.current.setLocalDescription(sdpAnswer);
+      socket.emit("call_backend", {
+        sdp: peerConnection.current.localDescription,
+        receiver_id: receiverId,
+      });
+    } catch (error) {
+      console.error("Error answering call :", error);
+    }
+  };
+
+  const handleEndCall = () => {
+    console.log("Called handleEndCall");
+    if (!socket) {
+      return;
+    }
+    if (peerConnection.current) {
+      peerConnection.current.close();
+      peerConnection.current = null;
+    }
+
+    if (localStream.current) {
+      localStream.current.getTracks().forEach((track) => track.stop());
+      localStream.current = null;
+    }
+
+    socket.emit("call", { type: "end" });
+  };
+
   return (
     <>
       {isLoggedIn && (
@@ -346,11 +467,10 @@ export default function Component() {
           )}
           {isChatWindowOpen && (
             <div
-              className={`fixed inset-0 z-20 flex items-end justify-end bg-black/50 transition-opacity duration-300 ${
-                isChatWindowOpen
+              className={`fixed inset-0 z-20 flex items-end justify-end bg-black/50 transition-opacity duration-300 ${isChatWindowOpen
                   ? "opacity-100"
                   : "pointer-events-none opacity-0"
-              }`}
+                }`}
             >
               <div
                 ref={chatWindowRef}
@@ -367,6 +487,11 @@ export default function Component() {
                       <AvatarFallback>{selectedMatch?.name[0]}</AvatarFallback>
                     </Avatar>
                     <div className="font-medium">{selectedMatch?.name}</div>
+                    <AudioChatComponent
+                      onStartCall={handleStartCall}
+                      onAnswerCall={handleAnswerCall}
+                      onEndCall={handleEndCall}
+                    />
                   </div>
                   <Button
                     variant="ghost"
@@ -385,11 +510,10 @@ export default function Component() {
                       className={`mb-2 flex items-end gap-2 ${message.isMe ? "justify-end" : "justify-start"}`}
                     >
                       <div
-                        className={`max-w-[70%] break-words rounded-lg px-4 py-2 ${
-                          message.isMe
+                        className={`max-w-[70%] break-words rounded-lg px-4 py-2 ${message.isMe
                             ? "bg-black text-primary-foreground"
                             : "bg-muted text-black"
-                        }`}
+                          }`}
                       >
                         <div>{message.text}</div>
                         <div
