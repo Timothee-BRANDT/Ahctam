@@ -1,24 +1,19 @@
 "use client";
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import "./index.scss";
 import { Button } from "@/components/ui/button";
 import { serverIP } from "@/app/constants";
 import { useAuth } from "@/app/authContext";
-import { initializeSocket } from "@/app/sockets";
-import { FirstLoginInformations } from "@/app/types";
-import { usePathname, useRouter } from "next/navigation";
+import { useRouter } from "next/navigation";
 
 const CLASSNAME = "profile";
 const MAX_PHOTOS = 5;
 
 var localisationjpp: number[] = [0, 0];
-var townjpp: string = "";
 
 const FirstLoginPage: React.FC = () => {
   const query = new URLSearchParams(location.search);
   const { user, setUser, isJwtInCookie, getCookie, setCookie } = useAuth();
-  const [allowGeolocation, setAllowGeolocation] = useState(false);
-  const hasFetchedFormular = useRef(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [geolocationPermission, setGeolocationPermission] = useState(false);
   const [loadingLocation, setLoadingLocation] = useState(true);
@@ -77,10 +72,7 @@ const FirstLoginPage: React.FC = () => {
   };
 
   useEffect(() => {
-    console.log("useEffect of FirstLoginPage is called");
-    console.log("quwey", query);
     const token = query.get("token");
-    console.log("token", token);
     if (!isJwtInCookie() && !token) {
       redirectLogin();
     } else {
@@ -103,7 +95,6 @@ const FirstLoginPage: React.FC = () => {
             position.coords.latitude,
             position.coords.longitude,
           ];
-          console.log("localisationjpp", localisationjpp);
           setLoadingLocation(false);
         },
         (error) => {
@@ -120,7 +111,6 @@ const FirstLoginPage: React.FC = () => {
   };
 
   const handleUserChange = (e: any) => {
-    console.log("handleUserChange is called");
     const { name, value } = e.target;
     if (name && value !== undefined) {
       setUser({
@@ -131,7 +121,6 @@ const FirstLoginPage: React.FC = () => {
   };
 
   const handleImageChange = (index: any, e: any) => {
-    console.log("handleImageChange is called");
     const file = e.target.files[0];
     const reader = new FileReader();
     reader.onloadend = () => {
@@ -149,7 +138,6 @@ const FirstLoginPage: React.FC = () => {
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-    console.log("we clicked on the Save button");
     const payload = {
       token: getCookie("jwt_token"),
       age: user.age,
@@ -160,7 +148,6 @@ const FirstLoginPage: React.FC = () => {
       photos: user.photos,
       location: localisationjpp,
     };
-    console.log("payload we send:", payload);
     if (!payload.sexual_preferences) {
       payload.sexual_preferences = "both";
     }
@@ -182,7 +169,6 @@ const FirstLoginPage: React.FC = () => {
   };
 
   const getInterestsIndices = (record: Record<string, boolean>) => {
-    console.log("getInterestsIndices is called");
     return Object.entries(record).reduce(
       (acc: string[], [key, value], index) => {
         if (value) {
@@ -195,7 +181,6 @@ const FirstLoginPage: React.FC = () => {
   };
 
   const selectInterest = (interest: string) => {
-    console.log("selectInterest is called");
     const newInterests = { ...allInterests };
     newInterests[interest] = !newInterests[interest];
     setAllInterests(newInterests);
@@ -357,10 +342,11 @@ const FirstLoginPage: React.FC = () => {
                       />
                       {!photo && (
                         <div
-                          className={`upload-text ${index === 0
+                          className={`upload-text ${
+                            index === 0
                               ? `${CLASSNAME}__profile-picture-uploader`
                               : ""
-                            }`}
+                          }`}
                         >
                           {index === 0
                             ? "Upload a profile picture"
@@ -376,7 +362,7 @@ const FirstLoginPage: React.FC = () => {
               className="button-info"
               type="submit"
               disabled={loadingLocation}
-              onClick={() => { }}
+              onClick={() => {}}
             >
               Save
             </Button>
