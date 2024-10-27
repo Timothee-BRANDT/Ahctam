@@ -13,6 +13,7 @@ import { getSocket, disconnectSocket } from "./sockets";
 import { serverIP } from "@/app/constants";
 import { Snackbar, Alert } from "@mui/material";
 import ReactDOM from "react-dom";
+import createRefreshClosure from "@/app/constants";
 
 const initialPig: User = {
   id: 1,
@@ -53,11 +54,11 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType>({
   user: initialPig,
-  login: (token: string) => { },
-  logout: () => { },
-  setUser: () => { },
-  setCookie: (name: string, value: string, days?: number) => { },
-  deleteCookie: (name: string) => { },
+  login: (token: string) => {},
+  logout: () => {},
+  setUser: () => {},
+  setCookie: (name: string, value: string, days?: number) => {},
+  deleteCookie: (name: string) => {},
   getCookie: (name: string) => "",
   isJwtInCookie: () => false,
 });
@@ -81,18 +82,17 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const fetchUserProfile = async () => {
       if (isJwtInCookie()) {
         try {
-          const token = getCookie("jwt_token");
-          const response = await fetch(
-            `http://${serverIP}:5000/api/getUserInfo`,
-            {
-              method: "GET",
-              headers: {
-                "Content-Type": "application/json",
-                Authorization: `Bearer ${token}`,
-              },
+          const refreshClosure = createRefreshClosure();
+          const url = `http://${serverIP}:5000/api/getUserInfo`;
+          const infos = {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
             },
-          );
+          };
+          const response = await refreshClosure(url, infos);
           const data_response = await response.json();
+          const token = getCookie("jwt_token");
 
           if (response.ok) {
             setUser({
@@ -191,21 +191,21 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setupSocketListeners(newSocket);
   };
 
-  const logout = () => {
-    // :TODO Here we need to pass the refresh token
-    // to the server to invalidate it, in a JSON payload
-    // Server is waiting for request.get_json()
-    //
+  const logout = async () => {
     try {
-      console.log("Front logout!!!");
-      const response = fetch(`http://${serverIP}:5000/auth/logout`, {
+      const refreshClosure = createRefreshClosure();
+      const url = `http://${serverIP}:5000/auth/logout`;
+      const infos = {
         method: "POST",
-        credentials: "include",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${getCookie("jwt_token")}`,
         },
-      });
+      };
+      const response = await refreshClosure(url, infos);
+      if (!response.ok) {
+        throw new Error("Error logging out");
+      }
+
       setUser(initialPig);
       deleteCookie("jwt_token");
       deleteCookie("refresh_token");
