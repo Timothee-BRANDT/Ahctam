@@ -1,8 +1,7 @@
 "use client";
 
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useAuth } from "../../authContext";
-import Link from "next/link";
 import "./header.scss";
 import { Button } from "@/components/ui/button";
 import { useRouter } from "next/navigation";
@@ -13,11 +12,12 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { serverIP } from "@/app/constants";
+import createRefreshClosure from "@/app/constants";
 import { Notification } from "@/app/types";
 
 const Header: React.FC = () => {
   const router = useRouter();
-  const { logout, user, isJwtInCookie, getCookie } = useAuth();
+  const { logout, isJwtInCookie } = useAuth();
   const [isOpen, setIsOpen] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [notifications, setNotifications] = useState<Notification[]>([]);
@@ -38,21 +38,29 @@ const Header: React.FC = () => {
   };
 
   const fetchNotifications = async () => {
-    const token = getCookie("jwt_token");
-    const response = await fetch(`http://${serverIP}:5000/api/getMyNotifs`, {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    const data_response = await response.json();
-    if (data_response.length) {
-      setNotifications(data_response);
-    }
-    const navLinks = document.querySelector(".navLinks");
-    if (navLinks) {
-      navLinks.classList.toggle("show");
+    try {
+      const refreshClosure = createRefreshClosure();
+      const url = `http://${serverIP}:5000/api/getMyNotifs`;
+      const infos = {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+      const response = await refreshClosure(url, infos);
+      if (!response.ok) {
+        throw new Error("Error fetching notifications");
+      }
+      const data_response = await response.json();
+      if (data_response.length) {
+        setNotifications(data_response);
+      }
+      const navLinks = document.querySelector(".navLinks");
+      if (navLinks) {
+        navLinks.classList.toggle("show");
+      }
+    } catch (error) {
+      console.error("Error fetching notifications:", error);
     }
   };
 
@@ -64,22 +72,22 @@ const Header: React.FC = () => {
   };
 
   const callAPIdeleteNotif = async (notifId: number) => {
-    const token = getCookie("jwt_token");
-    const response = await fetch(
-      `http://${serverIP}:5000/deleteNotif/${notifId}`,
-      {
+    try {
+      const refreshClosure = createRefreshClosure();
+      const url = `http://${serverIP}:5000/deleteNotif/${notifId}`;
+      const infos = {
         method: "DELETE",
         headers: {
           "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
         },
-      },
-    );
-    const data_response = await response.json();
-    if (response.ok) {
+      };
+      const response = await refreshClosure(url, infos);
+      if (!response.ok) {
+        throw new Error("Error deleting notification");
+      }
       setNotifications(notifications.filter((notif) => notif.id !== notifId));
-    } else {
-      console.error(data_response.error);
+    } catch (error) {
+      console.error("Error deleting notification:", error);
     }
   };
 
