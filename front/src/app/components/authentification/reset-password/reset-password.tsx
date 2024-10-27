@@ -18,7 +18,6 @@ const ResetPasswordPage: React.FC = () => {
   const [isTokenInURL, setIsTokenInURL] = useState(false);
   const [token, setToken] = useState("");
   const [updateMessage, setUpdateMessage] = useState(false);
-  const { user } = useAuth();
 
   useEffect(() => {
     const query = new URLSearchParams(location.search);
@@ -31,7 +30,6 @@ const ResetPasswordPage: React.FC = () => {
 
   const submitUsername = async (event: any) => {
     event.preventDefault();
-    // [MOCK]
     if (username === "1") {
       setIsValidUsername(true);
     }
@@ -46,13 +44,15 @@ const ResetPasswordPage: React.FC = () => {
           body: JSON.stringify(username),
         },
       );
-      if (response.ok) {
-        setIsValidUsername(true);
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
       }
+      setIsValidUsername(true);
     } catch (e) {
       console.log(e);
     }
   };
+
   const submitPassword = async (event: any) => {
     event.preventDefault();
     const payload = {
@@ -75,11 +75,12 @@ const ResetPasswordPage: React.FC = () => {
           body: JSON.stringify(payload),
         },
       );
-      if (response.ok) {
-        // remove jwt_token from localStorage
-        localStorage.removeItem("jwt_token");
-        setUpdateMessage(true);
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
       }
+      // TODO: Test this
+      localStorage.removeItem("jwt_token");
+      setUpdateMessage(true);
     } catch (e) {
       console.log(e);
     }

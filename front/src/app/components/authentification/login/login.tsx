@@ -4,9 +4,7 @@ import React, { useRef } from "react";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useAuth } from "@/app/authContext";
-import { State } from "@/app/types";
 import { Button } from "@/components/ui/button";
-import { initializeSocket } from "@/app/sockets";
 import { useRouter } from "next/navigation";
 
 import "./login.scss";
@@ -16,7 +14,7 @@ const CLASSNAME = "login";
 
 const LoginPage: React.FC = () => {
   const router = useRouter();
-  const { login, isJwtInCookie, user, setUser, setCookie } = useAuth();
+  const { login, isJwtInCookie, user, setUser } = useAuth();
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -64,12 +62,10 @@ const LoginPage: React.FC = () => {
         id: data.user_id,
       });
       login(data.jwt_token);
-      // setCookie("refresh_token", data.refresh_token, 21600); // 15 days
 
       if (data.message === "First login") {
         router.push("/first-login");
       } else {
-        // const socket = initializeSocket(data.jwt_token);
         router.push("/");
       }
     } catch (e) {

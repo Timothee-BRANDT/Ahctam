@@ -6,6 +6,7 @@ import { User } from "@/app/types";
 import { useEffect, useState } from "react";
 import { UserCard } from "@/components/ui/carousel";
 import { serverIP } from "@/app/constants";
+import createRefreshClosure from "@/app/constants";
 
 import "./fansPage.scss";
 
@@ -16,7 +17,7 @@ const fansPage: React.FC = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [profiles, setProfiles] = useState<User[]>([]);
 
-  const { isJwtInCookie, getCookie } = useAuth();
+  const { isJwtInCookie } = useAuth();
 
   const redirectLogin = () => {
     router.push("/login");
@@ -31,18 +32,26 @@ const fansPage: React.FC = () => {
   }, []);
 
   const getProfiles = async () => {
-    const token = getCookie("jwt_token");
-    const response = await fetch(`http://${serverIP}:5000/api/getMyMatches`, {
-      method: "GET",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    const data = await response.json();
-    if (response.ok) {
+    try {
+      const refreshClosure = createRefreshClosure();
+      const url = `http://${serverIP}:5000/api/getMyMatches`;
+      const infos = {
+        method: "GET",
+        credentials: "include" as RequestCredentials,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      };
+
+      const response = await refreshClosure(url, infos);
+      if (!response.ok) {
+        throw new Error("Error fetching profiles");
+      }
+      const data = await response.json();
+
       setProfiles(data);
+    } catch (error) {
+      console.error("Error fetching profiles:", error);
     }
   };
 

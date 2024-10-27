@@ -1,17 +1,16 @@
 "use client";
 
-import React, { useEffect } from "react";
+import React from "react";
 import { useState } from "react";
 import "./registerForm.scss";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { serverIP } from "@/app/constants";
+import createRefreshClosure from "@/app/constants";
 import { useRouter } from "next/navigation";
-import { useAuth } from "@/app/authContext";
 
 const RegisterForm: React.FC = () => {
   const router = useRouter();
-  const { setUser, user } = useAuth();
   const [payload, setPayload] = useState({
     email: "",
     username: "",
@@ -40,16 +39,12 @@ const RegisterForm: React.FC = () => {
         },
         body: JSON.stringify(payload),
       });
-      if (response.ok) {
-        console.log("User registered");
-        router.push("register-confirm");
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
       }
-      // si le token est expire, fait l'appel au endpoint qui le renouvelle
-      if (response.status === 401) {
-        // call endpoint
-      }
+      router.push("register-confirm");
     } catch (e) {
-      throw new Error("An error occured while attenmp to register");
+      console.log(e);
     }
   };
   return (
