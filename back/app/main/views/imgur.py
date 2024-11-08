@@ -23,7 +23,7 @@ def get_imgur_images() -> tuple[Response, int]:
         url: str = f"https://api.imgur.com/3/gallery/search/?q={search_term}"
         response = requests.get(
             url=url,
-            headers={"Authorization": f"{imgur_client_id}"},
+            headers={"Authorization": f"Client-ID {imgur_client_id}"},
         )
         if response.status_code != 200:
             raise Exception("Imgur error fetching images")
