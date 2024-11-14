@@ -1,6 +1,6 @@
-export const serverIP = "localhost";
+export const serverIP = "back";
 
-const getCookie = (name: string): string | undefined => {
+const getCookie = (name: string): any => {
   const value = `; ${document.cookie}`;
   const parts = value.split(`; ${name}=`);
   if (parts.length === 2) {

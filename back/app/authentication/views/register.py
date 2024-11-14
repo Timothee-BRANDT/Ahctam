@@ -16,6 +16,7 @@ from itsdangerous import (
 )
 from .utils import send_confirmation_email
 from ...database import get_db_connection
+from logger import logger
 
 
 @auth.route('/confirm_email/<token>', methods=['GET'])
@@ -52,6 +53,8 @@ UPDATE users SET is_active = TRUE WHERE email = %s
 def register():
     data = request.get_json()
     form = RegisterForm(data=data)
+    logger.info('REGISTEEEEEEEER')
+    print('REGISTEEEEEEEER')
     try:
         form.validate()
     except ValueError as e:

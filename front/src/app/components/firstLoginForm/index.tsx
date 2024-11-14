@@ -4,7 +4,7 @@ import "./index.scss";
 import { Button } from "@/components/ui/button";
 import { serverIP } from "@/app/constants";
 import { useAuth } from "@/app/authContext";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 const CLASSNAME = "profile";
 const MAX_PHOTOS = 5;
@@ -12,7 +12,6 @@ const MAX_PHOTOS = 5;
 var localisationjpp: number[] = [0, 0];
 
 const FirstLoginPage: React.FC = () => {
-  const query = new URLSearchParams(location.search);
   const { user, setUser, isJwtInCookie, getCookie, setCookie } = useAuth();
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [geolocationPermission, setGeolocationPermission] = useState(false);
@@ -72,7 +71,8 @@ const FirstLoginPage: React.FC = () => {
   };
 
   useEffect(() => {
-    const token = query.get("token");
+    const searchParams = useSearchParams();
+    const token = searchParams.get("token");
     if (!isJwtInCookie() && !token) {
       redirectLogin();
     } else {

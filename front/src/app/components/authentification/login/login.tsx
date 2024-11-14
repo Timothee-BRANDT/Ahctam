@@ -35,6 +35,7 @@ const LoginPage: React.FC = () => {
       password,
     };
     try {
+      console.error("Logging in");
       const response = await fetch(`http://${serverIP}:5000/auth/login`, {
         method: "POST",
         credentials: "include",
@@ -62,8 +63,10 @@ const LoginPage: React.FC = () => {
         id: data.user_id,
       });
       login(data.jwt_token);
+      console.error("User logged in");
 
       if (data.message === "First login") {
+        console.error("First login");
         router.push("/first-login");
       } else {
         router.push("/");

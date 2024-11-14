@@ -47,7 +47,7 @@ interface AuthContextType {
   deleteCookie: (name: string) => void;
   isJwtInCookie: () => boolean;
   // NOTE: getCookie was string | undefined
-  getCookie: (name: string) => string;
+  getCookie: (name: string) => any;
   user: User;
   setUser: React.Dispatch<React.SetStateAction<User>>;
 }
@@ -172,7 +172,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     return false;
   };
 
-  const getCookie = (name: string): string | undefined => {
+  const getCookie = (name: string): any => {
     const value = `; ${document.cookie}`;
     const parts = value.split(`; ${name}=`);
     if (parts.length === 2) {
@@ -232,7 +232,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     >
       {children}
 
-      {/* Utilisation de ReactDOM.createPortal pour rendre la Snackbar */}
       {typeof window !== "undefined" &&
         ReactDOM.createPortal(
           <Snackbar
@@ -261,7 +260,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               </p>
             </Alert>
           </Snackbar>,
-          document.body, // On rend le composant directement dans le body
+          document.body,
         )}
     </AuthContext.Provider>
   );

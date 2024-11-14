@@ -8,7 +8,7 @@ def get_db_connection() -> connection:
         'dbname': current_app.config['POSTGRES_DB'],
         'user': current_app.config['POSTGRES_USER'],
         'password': current_app.config['POSTGRES_PASSWORD'],
-        'host': 'localhost',
-        'port': '5433'
+        'host': 'db',
+        'port': '5432'
     }
     return psycopg2.connect(**config)  # pyright: ignore

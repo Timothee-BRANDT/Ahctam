@@ -451,7 +451,7 @@ def create_all_tables():
         create_messages_table(cursor)
         insert_interests(cursor)
 
-        insert_random_users(cursor, 700)
+        # insert_random_users(cursor, 700)
 
         conn.commit()
     except Exception as e:

@@ -44,7 +44,11 @@ def create_app(test_config=False, production=False):
             r"/*": {
                 "origins": [
                     "http://localhost:3000",
-                    "http://127.0.0.1:3000"
+                    "http://127.0.0.1:3000",
+                    "http://front:3000",
+                    "http://nginx:1111",
+                    "http://localhost:1111",
+
                 ],
                 "methods": ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
                 "allow_headers": ["Content-Type", "Authorization"],

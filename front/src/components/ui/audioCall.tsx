@@ -3,7 +3,10 @@ import { FaPhone } from "react-icons/fa";
 
 interface AudioChatComponentProps {
   onStartCall: () => void;
-  onAnswerCall: () => void;
+  onAnswerCall: (
+    remoteSDP: RTCSessionDescriptionInit,
+    receiverId: number,
+  ) => Promise<void>;
   onEndCall: () => void;
 }
 
@@ -44,7 +47,11 @@ const AudioChatComponent: React.FC<AudioChatComponentProps> = ({
 
   const answerCall = () => {
     setIncomingCall(false);
-    onAnswerCall();
+    // useless mock
+    const remoteSDP: any = {};
+    const receiverId = 123;
+
+    onAnswerCall(remoteSDP, receiverId);
   };
 
   const declineCall = () => {

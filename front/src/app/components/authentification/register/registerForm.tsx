@@ -31,6 +31,7 @@ const RegisterForm: React.FC = () => {
   const submit = async (event: any) => {
     event.preventDefault();
     try {
+      console.log("We are calling http://${serverIP}:5000/auth/register");
       const response = await fetch(`http://${serverIP}:5000/auth/register`, {
         method: "POST",
         credentials: "include",
