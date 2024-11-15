@@ -16,7 +16,6 @@ from logger import logger
 @main.route('/sendMessage', methods=['POST'])
 @jwt_required
 def send_new_message():
-    logger.info("Storing message")
     conn = get_db_connection()
     cursor = conn.cursor(cursor_factory=RealDictCursor)
     try:
@@ -25,8 +24,6 @@ def send_new_message():
         receiver_id: int = int(data['matchedUseruuid'])
         message: str = data['message']
         match_id: int = int(data['conversationId'])
-        logger.info(
-            f"Sender: {sender_id}, Receiver: {receiver_id}, Message: {message}, Match ID: {match_id}")
         new_message_id = store_message(
             cursor=cursor,
             sender_id=sender_id,
@@ -51,7 +48,6 @@ def send_new_message():
 @main.route('/getMyConversations', methods=['GET'])
 @jwt_required
 def get_user_matches():
-    logger.info("Getting user matches")
     conn = get_db_connection()
     cursor = conn.cursor(cursor_factory=RealDictCursor)
     matches_query = """
@@ -106,7 +102,6 @@ ORDER BY sent_at
                     ]
                 })
 
-        # logger.info(f"Matches and messages: {matches_and_messages}")
         return jsonify(matches_and_messages), 200
 
     except Exception as e:
@@ -127,7 +122,6 @@ WHERE id = %s
     """
     try:
         data = request.get_json()
-        logger.info(f"Data: {data}")
         match_id: int = data['match_id']
         message: str = data['message']
         user = jwt.decode(
@@ -156,7 +150,6 @@ WHERE id = %s
             notification_type='message'
         )
 
-        logger.info(f"Notification message sent: {message}")
         return jsonify({'message': 'Notif message sent'}), 200
 
     except Exception as e:

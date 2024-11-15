@@ -272,8 +272,8 @@ AND token = %s
             expires=0,
             max_age=0,
             httponly=True,
-            samesite='Lax',  # TODO: change to None when nginx is configured
-            secure=False  # TODO: change to True when nginx is configured
+            samesite='Lax',
+            secure=False
         )
 
         return logout_response, 200
@@ -349,7 +349,7 @@ AND expiration_date > %s
 
 @auth.route('/google/login')
 def google_login():
-    print('google login')
+    logger.info('google login')
     from app import oauth
     global_nonce = _generate_nonce()
     google = oauth.google

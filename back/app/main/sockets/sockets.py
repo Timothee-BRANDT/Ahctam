@@ -34,24 +34,15 @@ WHERE id = %s
 def handle_connect():
     try:
         token: str = request.args.get('token', '')
-        logger.info(f"Token from connect: {token}")
         if token:
             user = jwt.decode(
                 token, current_app.config['SECRET_KEY'], algorithms=['HS256'])
             user_id = user['id']
             redis_client = current_app.extensions['redis']
-            logger.info('the redis client')
             sid = request.sid  # type: ignore
             redis_user_key: str = f"socket:{user_id}"
-            logger.info(f"User ID from connect: {user_id}")
             redis_client.set(redis_user_key, sid)
-            logger.info(f'We set {sid} for {user_id}')
             update_status_and_connection_time(user_id, 'online')
-            # print(f'Client connected: {sid}')
-            logger.info(redis_client.get(redis_user_key))
-            logger.info(f'Client connected: {sid}')
-            logger.info(
-                '******************CONNECT*****************************')
         else:
             print('No token provided')
             return False

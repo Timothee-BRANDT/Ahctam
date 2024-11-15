@@ -16,9 +16,6 @@ from logger import logger
 
 from .. import main
 
-# TODO:
-#       - Reported and Blocked users must not appear in browse
-
 
 @main.route('/viewUser/<int:user_viewed_id>', methods=['POST'])
 @jwt_required
@@ -174,7 +171,6 @@ WHERE id = %s
         user_unliked_id: int = int(data.get('user_disliked_id', ''))
         if not user_unliked_id:
             raise ValueError('user_unliked_id is required')
-        logger.info(f'{user["id"]} unliked {user_unliked_id}')
 
         cursor.execute(unlike_query, (user_id, user_unliked_id))
         if cursor.rowcount > 0:
@@ -324,7 +320,6 @@ def _delete_user_from_redis(
     try:
         redis_client = current_app.extensions['redis']
         request_redis_key: str = f'matching:{request_user_id}'
-        logger.info(f'Deleting {targer_user_id} from {request_redis_key}')
         maching_users = json.loads(
             redis_client.get(request_redis_key).decode('utf-8')
         )

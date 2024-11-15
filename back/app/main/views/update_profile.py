@@ -24,9 +24,6 @@ def update_profile():
         form = ProfileForm(data=profile)
         form.validate()
 
-        logger.info(f'Updating profile for user {user_id}')
-        logger.info(f'The profile is {profile}')
-
         _update_profile_informations(
             form,
             profile,
@@ -68,7 +65,6 @@ WHERE id = %s
             form.email.data,
             user_id
         ))
-        logger.info(f'User informations updated for user {user_id}')
 
         # Pictures
         delete_pictures_query = """
@@ -90,7 +86,6 @@ WHERE url = %s AND owner = %s
         for photo in photos:
             cur.execute(new_pictures_query, (photo, user_id))
         cur.execute(profile_picture_query, (photos[0], user_id))
-        logger.info(f'Pictures updated for user {user_id}')
 
         # Interests
         actual_user_interests_query = """
@@ -104,10 +99,7 @@ WHERE ui.user_id = %s
         actual_user_interests_id_and_names: Dict = {
             interest['id']: interest['name'] for interest in result
         }
-        logger.info(
-            f'Actual user interests: {actual_user_interests_id_and_names}')
         new_user_interests: List[str] = form.interests.data
-        logger.info(f'New user interests: {new_user_interests}')
 
         for id, name in actual_user_interests_id_and_names.items():
             if name not in new_user_interests:
@@ -125,8 +117,6 @@ VALUES (%s, (SELECT id FROM interests WHERE name = %s))
             """
                 cur.execute(interest_query, (user_id, interest))
 
-        logger.info(f'Interests updated for user {user_id}')
-
         # Location
         new_address: str = profile.get('address', None)
         if not new_address:
@@ -139,7 +129,6 @@ WHERE located_user = %s
         cur.execute(old_address_query, (user_id,))
         old_address = cur.fetchone()['address']
         if old_address != new_address:
-            logger.info("Address changed, updating")
             _update_location_informations(
                 cur,
                 profile,
@@ -150,7 +139,6 @@ WHERE located_user = %s
             logger.info("Address didn't change")
 
         conn.commit()
-        logger.info(f'Profile informations updated for user {user_id}')
 
     except Exception as e:
         logger.error(f'Error while storing profile informations: {e}')
@@ -167,19 +155,10 @@ def _update_location_informations(
         address: str,
         user_id: int
 ):
-    logger.info(f'Updating LOCATION INFORMATIONS FOR User {user_id}')
     try:
         longitude = float(profile.get('longitude', None))
         latitude = float(profile.get('latitude', None))
         town = str(profile.get('town', None))
-        logger.info(f'Latitude: {longitude}')
-        logger.info(f'Longitude: {longitude}')
-        logger.info(f'Town: {town}')
-        logger.info(f'Address: {address}')
-        logger.info(type(longitude))
-        logger.info(type(latitude))
-        logger.info(type(town))
-        logger.info(type(address))
         location_query = """
 UPDATE locations
 SET city = %s, latitude = %s, longitude = %s, address = %s

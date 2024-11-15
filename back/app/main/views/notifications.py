@@ -39,7 +39,6 @@ def store_notification(
                 receiver_id,
             )
         )
-        logger.info(f"Notification stored for {receiver_id}")
 
     except Exception as e:
         raise e
@@ -72,7 +71,6 @@ def send_notification(
                 },
                 room=receiver_sid
             )
-            logger.info(f"Notification sent to {receiver_id}")
 
     except Exception as e:
         raise e

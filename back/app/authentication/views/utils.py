@@ -130,9 +130,7 @@ WHERE url = %s AND owner = %s
         photos: List = [photo for photo in raw_photos if photo]
         for photo in photos:
             cur.execute(picture_query, (photo, user_id))
-        logger.info("All pictures stored")
         cur.execute(profile_picture_query, (photos[0], user_id))
-        logger.info('Profile picture stored')
 
         # Interests
         interests: List = form.interests.data
@@ -159,11 +157,8 @@ ON CONFLICT DO NOTHING
         address: str = ''
         town: str
         if latitude != 0 and longitude != 0:
-            logger.info('Using location provided by user')
             town, address = _get_location_from_coordinates(latitude, longitude)
         else:
-            # NOTE: Implement it after nginx is set up
-            logger.info('No location provided, getting location from ip')
             longitude, latitude, town = _get_location_from_ip(
                 user_ip)  # type: ignore
             address = town
@@ -202,13 +197,9 @@ def _get_location_from_coordinates(
             raise ValueError('Error while getting location from coordinates')
 
         components: Dict = response.json()['results'][0]['components']
-        logger.info(f'{components=}')
         address: str = response.json()['results'][0]['formatted']
-        logger.info(f'{address=}')
         town: str = components.get('city', 'Unknown city')
-        logger.info(f'{town=}')
         address_without_number = re.sub(r'^\d+\s+', '', address)
-        logger.info(f'{address_without_number=}')
         return town, address_without_number
 
     except Exception as e:
@@ -218,14 +209,18 @@ def _get_location_from_coordinates(
 
 def _get_location_from_ip(user_ip: str) -> Tuple[float, float, str]:
     try:
-        response = requests.get(f'http://ipinfo.io/{user_ip}/json')
-        if response.status_code != 200:
-            raise ValueError('Error while getting location from ip')
-
-        data: Dict = response.json()
-        longitude, latitude = data['loc'].split(',')
-        town = data.get('city', 'Unknown city')
-        return float(longitude), float(latitude), town
+        response = requests.get(f'http://ip-api.com/json/{user_ip}')
+        if response.status_code == 200:
+            data = response.json()
+            latitude = data.get('lat', 0.0)
+            longitude = data.get('lon', 0.0)
+            city = data.get('city', 'Unknown city')
+            latitude = 43.700000
+            longitude = 7.250000
+            city = "Nice"
+            return latitude, longitude, city
+        else:
+            raise ValueError("API call failed")
     except Exception as e:
-        logger.error(f'{e}')
-        raise ValueError(e)
+        logger.error(f"Error: {e}")
+        return 0.0, 0.0, "Unknown location"
