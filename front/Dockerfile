@@ -1,8 +1,14 @@
 FROM node:23.1-alpine
+
 WORKDIR /app
+
 COPY package*.json ./
-COPY . .
 RUN npm install
-RUN npm run build
+
+COPY . .
+
 EXPOSE 3000
-CMD ["npm", "start"]
+
+ENV HOSTNAME="0.0.0.0"
+
+CMD ["npm", "run", "dev"]

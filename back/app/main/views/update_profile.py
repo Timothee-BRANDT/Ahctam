@@ -25,8 +25,11 @@ def update_profile():
         form.validate()
 
         logger.info(f'Updating profile for user {user_id}')
+        logger.info(f'The profile is {profile}')
+
         _update_profile_informations(
             form,
+            profile,
             user_id
         )
         return jsonify({'message': 'Profile updated'}), 200
@@ -36,7 +39,11 @@ def update_profile():
         return jsonify({'error': str(e)}), 400
 
 
-def _update_profile_informations(form, user_id):
+def _update_profile_informations(
+    form,
+    profile,
+    user_id,
+):
     conn = get_db_connection()
     cur = conn.cursor(cursor_factory=RealDictCursor)
     try:
@@ -121,7 +128,9 @@ VALUES (%s, (SELECT id FROM interests WHERE name = %s))
         logger.info(f'Interests updated for user {user_id}')
 
         # Location
-        new_address: str = form.address.data
+        new_address: str = profile.get('address', None)
+        if not new_address:
+            raise ValueError('Address is required')
         old_address_query = """
 SELECT address
 FROM locations
@@ -133,6 +142,7 @@ WHERE located_user = %s
             logger.info("Address changed, updating")
             _update_location_informations(
                 cur,
+                profile,
                 new_address,
                 user_id
             )
@@ -153,11 +163,23 @@ WHERE located_user = %s
 
 def _update_location_informations(
         cur,
+        profile: Dict,
         address: str,
         user_id: int
 ):
+    logger.info(f'Updating LOCATION INFORMATIONS FOR User {user_id}')
     try:
-        latitude, longitude, town = _get_location_from_address(address)
+        longitude = float(profile.get('longitude', None))
+        latitude = float(profile.get('latitude', None))
+        town = str(profile.get('town', None))
+        logger.info(f'Latitude: {longitude}')
+        logger.info(f'Longitude: {longitude}')
+        logger.info(f'Town: {town}')
+        logger.info(f'Address: {address}')
+        logger.info(type(longitude))
+        logger.info(type(latitude))
+        logger.info(type(town))
+        logger.info(type(address))
         location_query = """
 UPDATE locations
 SET city = %s, latitude = %s, longitude = %s, address = %s
@@ -176,30 +198,33 @@ WHERE located_user = %s
         raise ValueError(e)
 
 
-def _get_location_from_address(address: str) -> Tuple[float, float, str]:
-    """
-    Geolocation from IP
-    """
-    try:
-        geolocator = Nominatim(user_agent="geoapiExercises")
-        location = cast(Location, geolocator.geocode(address))
-
-        if location:
-            latitude = location.latitude
-            logger.info(f'Latitude: {latitude}')
-            longitude = location.longitude
-            logger.info(f'Longitude: {longitude}')
-            city = location.raw.get('address', {}).get('city', None)
-            if not city:
-                city = location.raw.get('address', {}).get('town', None)
-            if not city:
-                location.raw.get('address', {}).get('village', None)
-            if not city:
-                city = address.split(' ')[-1]
-            return (latitude, longitude, city)
-        else:
-            raise ValueError("Adresse introuvable.")
-
-    except Exception as e:
-        logger.error(f'Error while getting coordinates from address: {e}')
-        raise ValueError(e)
+# def _get_location_from_address(
+#     address: str,
+#     profile: Dict,
+# ) -> Tuple[float, float, str]:
+#     """
+#     Geolocation from IP
+#     """
+#     logger.info(f'gETTING COORDINATES FROM Address: {address}')
+#     logger.info(f'Profile: {profile}')
+#     try:
+#         # geolocator = Nominatim(user_agent="geoapiExercises")
+#         logger.info('Geolocator created')
+#         # location = cast(Location, geolocator.geocode(address))
+#
+#         latitude = location.latitude
+#         logger.info(f'Latitude: {latitude}')
+#         longitude = location.longitude
+#          logger.info(f'Longitude: {longitude}')
+#           city = location.raw.get('address', {}).get('city', None)
+#            if not city:
+#                 city = location.raw.get('address', {}).get('town', None)
+#             if not city:
+#                 location.raw.get('address', {}).get('village', None)
+#             if not city:
+#                 city = address.split(' ')[-1]
+#             return (latitude, longitude, city)
+#
+#     except Exception as e:
+#         logger.error(f'Error while getting coordinates from address: {e}')
+#         raise ValueError(e)

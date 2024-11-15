@@ -5,35 +5,39 @@ import { AddressSuggestion, AddressAutocompleteProps } from "@/app/types";
 const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
   value,
   onChange,
+  onChangeLoc,
+  onChangeTown,
 }) => {
   const [query, setQuery] = useState<string>(value || "");
-  const [suggestions, setSuggestions] = useState<AddressSuggestion[]>([]);
+  const [suggestions, setSuggestions] = useState<[]>([]);
 
   useEffect(() => {
     setQuery(value);
   }, [value]);
 
-  const handleInputChange = async (e: ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = async (e) => {
     const value = e.target.value;
     setQuery(value);
 
     if (value.length > 3) {
       const response = await fetch(
-        `https://api-adresse.data.gouv.fr/search/?q=${encodeURIComponent(value)}&autocomplete=1`,
+        `https://geocoding-api.open-meteo.com/v1/search?name=${query}`,
       );
       const data = await response.json();
-      setSuggestions(data.features);
+      setSuggestions(data.results);
+      console.log(data.results);
     } else {
       setSuggestions([]);
     }
   };
 
-  const handleSelectSuggestion = (suggestion: AddressSuggestion) => {
-    setQuery(suggestion.properties.label);
+  const handleSelectSuggestion = (suggestion: any) => {
+    setQuery(`${suggestion.name}, ${suggestion.country}, ${suggestion.admin1}`);
+    onChange(`${suggestion.name}, ${suggestion.country}, ${suggestion.admin1}`);
+    onChangeLoc(suggestion.latitude, suggestion.longitude);
+    onChangeTown(suggestion.name);
     setSuggestions([]);
-    onChange(suggestion.properties.label);
   };
-
   return (
     <div>
       <input
@@ -42,19 +46,18 @@ const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
         onChange={handleInputChange}
         placeholder="Entrez une adresse"
       />
-      {suggestions.length > 0 && (
-        <ul>
-          {suggestions.map((suggestion) => (
+      <ul>
+        {suggestions &&
+          suggestions.map((suggestion: any) => (
             <li
-              key={suggestion.properties.id}
+              key={suggestion.id}
               onClick={() => handleSelectSuggestion(suggestion)}
               style={{ cursor: "pointer" }}
             >
-              {suggestion.properties.label}
+              {`${suggestion.name}, ${suggestion.country}, ${suggestion.admin1}`}
             </li>
           ))}
-        </ul>
-      )}
+      </ul>
     </div>
   );
 };

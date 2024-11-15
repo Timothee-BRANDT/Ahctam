@@ -218,6 +218,9 @@ const ProfilePage: React.FC = () => {
       interests: user.interests,
       photos: user.photos,
       address: user.address,
+      longitude: localisationjpp[0],
+      latitude: localisationjpp[1],
+      town: townjpp,
     };
     if (!payload.sexual_preferences) {
       payload.sexual_preferences = "both";
@@ -239,6 +242,14 @@ const ProfilePage: React.FC = () => {
     if (response.ok) {
       router.push("/");
     }
+  };
+
+  const localisationjppChange = (lat: number, lon: number) => {
+    localisationjpp = [lat, lon];
+  };
+
+  const townChange = (town: string) => {
+    townjpp = town;
   };
 
   const getInterestsIndices = (record: Record<string, boolean>) => {
@@ -312,6 +323,8 @@ const ProfilePage: React.FC = () => {
                   <AddressAutocomplete
                     value={user.address}
                     onChange={handleAddressChange}
+                    onChangeLoc={localisationjppChange}
+                    onChangeTown={townChange}
                   />
                 </div>
                 <div className={`${CLASSNAME}__info-container`}>
@@ -445,7 +458,6 @@ const ProfilePage: React.FC = () => {
                           position: "relative", // Position relative pour gérer les icônes
                         }}
                       >
-                        {/* Remplacer la section existante par celle-ci */}
                         {!photo ? (
                           <div>
                             <FaCamera
@@ -501,10 +513,11 @@ const ProfilePage: React.FC = () => {
 
                         {!photo && (
                           <div
-                            className={`upload-text ${index === 0
+                            className={`upload-text ${
+                              index === 0
                                 ? `${CLASSNAME}__profile-picture-uploader`
                                 : ""
-                              }`}
+                            }`}
                           ></div>
                         )}
                       </div>
@@ -523,7 +536,7 @@ const ProfilePage: React.FC = () => {
                 </div>
               </div>
             </div>
-            <Button className="button-info" type="submit" onClick={() => { }}>
+            <Button className="button-info" type="submit" onClick={() => {}}>
               Save
             </Button>
           </form>

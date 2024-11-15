@@ -1,4 +1,4 @@
-export const serverIP = "back";
+export const serverIP = "localhost";
 
 const getCookie = (name: string): any => {
   const value = `; ${document.cookie}`;

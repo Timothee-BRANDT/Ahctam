@@ -18,6 +18,7 @@ const FirstLoginPage: React.FC = () => {
   const [loadingLocation, setLoadingLocation] = useState(true);
 
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const initInterests: Record<string, boolean> = {
     Tunnels: false,
@@ -71,7 +72,6 @@ const FirstLoginPage: React.FC = () => {
   };
 
   useEffect(() => {
-    const searchParams = useSearchParams();
     const token = searchParams.get("token");
     if (!isJwtInCookie() && !token) {
       redirectLogin();

@@ -369,7 +369,7 @@ export default function Component() {
   const handleAnswerCall = async (
     remoteSDP: RTCSessionDescriptionInit,
     receiverId: number,
-  ): Promise<void> => {
+  ) => {
     console.log("Called handleAnswerCall");
     if (!socket) {
       return;
