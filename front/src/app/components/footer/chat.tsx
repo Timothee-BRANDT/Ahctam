@@ -73,8 +73,8 @@ export default function Component() {
   const handleNewMessage = useCallback((data: any) => {
     setMatchs((prevMatchs) =>
       prevMatchs.map((match) => {
-        console.log("match.id:", match.id);
-        console.log("data.match_id:", data.match_id);
+        
+        
         if (match.id === data.match_id) {
           const newMessage: Message = {
             id: Date.now(),
@@ -97,7 +97,7 @@ export default function Component() {
   }, []);
 
   useEffect(() => {
-    console.log("Setting up message socket listener");
+    
     if (socket) {
       socket.on("new_message", handleNewMessage);
       return () => {
@@ -130,13 +130,13 @@ export default function Component() {
         notifMessageOptions,
       );
       if (!response.ok) {
-        console.log("Error sending message");
+        
       }
     }
   };
 
   useEffect(() => {
-    console.log("Socket listener for messageReceived");
+    
     if (socket) {
       socket.on("message_received", handleMessageReceived);
     }
@@ -155,7 +155,7 @@ export default function Component() {
   }, [matchs]);
 
   const sendMessage = (text: string) => {
-    console.log("Called sendMessage with : ", text);
+    
     if (!text) {
       return;
     }
@@ -196,7 +196,7 @@ export default function Component() {
   };
 
   const handleClickOutside = (event: MouseEvent) => {
-    console.log("Called handleClickOutside");
+    
     if (
       chatWindowRef.current &&
       !chatWindowRef.current.contains(event.target as Node)
@@ -219,7 +219,7 @@ export default function Component() {
     if (!isLoggedIn) {
       return;
     }
-    console.log("Called getConversations");
+    
     const refreshClosure = createRefreshClosure();
     const conversationUrl = `http://${serverIP}:5000/getMyConversations`;
     const conversationOptions = {
@@ -250,12 +250,12 @@ export default function Component() {
   };
 
   useEffect(() => {
-    console.log("useEffect openMatchList");
+    
     getConversations();
   }, [isMatchsListOpen, isChatWindowOpen]);
 
   useEffect(() => {
-    console.log("First useEffect");
+    
     document.addEventListener("mousedown", handleClickOutside);
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
@@ -275,14 +275,14 @@ export default function Component() {
   useEffect(() => {
     if (socket) {
       socket.on("call_frontend", (data) => {
-        console.log("call_frontend data :", data);
+        
 
         if (data.sdp) {
           const remoteDescription = new RTCSessionDescription(data.sdp);
           peerConnection.current?.setRemoteDescription(remoteDescription);
 
           if (remoteDescription.type === "offer") {
-            console.log("it's an offer");
+            
             handleAnswerCall(data.sdp, data.sender_id);
           }
         }
@@ -300,7 +300,7 @@ export default function Component() {
   }, []);
 
   const handleStartCall = async () => {
-    console.log("Called handleStartCall");
+    
     if (!socket) {
       return;
     }
@@ -316,26 +316,26 @@ export default function Component() {
         ],
       });
       peerConnection.current.ontrack = (event) => {
-        console.log("Received remote track");
+        
         if (remoteAudioRef.current) {
           remoteAudioRef.current.srcObject = event.streams[0];
         }
       };
       // NOTE: LOGS
       peerConnection.current.oniceconnectionstatechange = () => {
-        console.log(
+        
           "ICE Connection State:",
           peerConnection.current?.iceConnectionState,
         );
       };
       peerConnection.current.onicegatheringstatechange = () => {
-        console.log(
+        
           "ICE Gathering State:",
           peerConnection.current?.iceGatheringState,
         );
       };
       peerConnection.current.onsignalingstatechange = () => {
-        console.log("Signaling State:", peerConnection.current?.signalingState);
+        
       };
       //NOTE: END LOGS
 
@@ -370,7 +370,7 @@ export default function Component() {
     remoteSDP: RTCSessionDescriptionInit,
     receiverId: number,
   ) => {
-    console.log("Called handleAnswerCall");
+    
     if (!socket) {
       return;
     }
@@ -382,26 +382,26 @@ export default function Component() {
         iceServers: [{ urls: "stun:stun.l.google.com:19302" }],
       });
       peerConnection.current.ontrack = (event) => {
-        console.log("Received remote track");
+        
         if (remoteAudioRef.current) {
           remoteAudioRef.current.srcObject = event.streams[0];
         }
       };
       // NOTE: LOGS
       peerConnection.current.oniceconnectionstatechange = () => {
-        console.log(
+        
           "ICE Connection State:",
           peerConnection.current?.iceConnectionState,
         );
       };
       peerConnection.current.onicegatheringstatechange = () => {
-        console.log(
+        
           "ICE Gathering State:",
           peerConnection.current?.iceGatheringState,
         );
       };
       peerConnection.current.onsignalingstatechange = () => {
-        console.log("Signaling State:", peerConnection.current?.signalingState);
+        
       };
       //NOTE: END LOGS
 
@@ -438,7 +438,7 @@ export default function Component() {
   };
 
   const handleEndCall = () => {
-    console.log("Called handleEndCall");
+    
     if (!socket) {
       return;
     }

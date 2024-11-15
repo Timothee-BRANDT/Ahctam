@@ -28,7 +28,7 @@ const AudioChatComponent: React.FC<AudioChatComponentProps> = ({
       setIsMicrophoneGranted(true);
     } catch (error) {
       setIsMicrophoneGranted(false);
-      console.log("L'accès au micro est refusé.");
+      
     }
   };
 

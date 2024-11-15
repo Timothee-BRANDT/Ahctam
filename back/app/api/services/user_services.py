@@ -51,7 +51,6 @@ FROM Pictures
 WHERE owner = %s
 ORDER BY is_profile_picture DESC
     """
-    logger.info(f'Getting user info for user {user_id}')
     conn = get_db_connection()
     cursor = conn.cursor(cursor_factory=RealDictCursor)
     interests: List = []
@@ -144,7 +143,6 @@ ORDER BY date DESC;
     try:
         cur.execute(viewers_id_query, (user_id,))
         viewers: List = cur.fetchall()
-        logger.info(f'Viewers: {viewers}')
         for viewer in viewers:
             user: Tuple[Dict, int] = get_user_info(viewer['user_viewed'])
             if user[1] == 200:

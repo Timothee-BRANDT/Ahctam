@@ -106,7 +106,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
               login(token);
             }
           } else {
-            console.log(data_response.error);
+            
           }
         } catch (error) {
           console.error("Error fetching user profile:", error);
@@ -120,7 +120,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const setupSocketListeners = (socket: any) => {
     if (socket) {
       socket.on("notification", (data: any) => {
-        console.log("New notification:", data.message);
+        
         setNotification(data);
         setOpen(true);
       });
@@ -213,7 +213,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       disconnectSocket();
       router.push("/login");
     } catch (e) {
-      console.log(e);
+      
     }
   };
 

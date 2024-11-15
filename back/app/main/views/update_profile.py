@@ -176,34 +176,3 @@ WHERE located_user = %s
         logger.error(f'Error while updating location informations: {e}')
         raise ValueError(e)
 
-
-# def _get_location_from_address(
-#     address: str,
-#     profile: Dict,
-# ) -> Tuple[float, float, str]:
-#     """
-#     Geolocation from IP
-#     """
-#     logger.info(f'gETTING COORDINATES FROM Address: {address}')
-#     logger.info(f'Profile: {profile}')
-#     try:
-#         # geolocator = Nominatim(user_agent="geoapiExercises")
-#         logger.info('Geolocator created')
-#         # location = cast(Location, geolocator.geocode(address))
-#
-#         latitude = location.latitude
-#         logger.info(f'Latitude: {latitude}')
-#         longitude = location.longitude
-#          logger.info(f'Longitude: {longitude}')
-#           city = location.raw.get('address', {}).get('city', None)
-#            if not city:
-#                 city = location.raw.get('address', {}).get('town', None)
-#             if not city:
-#                 location.raw.get('address', {}).get('village', None)
-#             if not city:
-#                 city = address.split(' ')[-1]
-#             return (latitude, longitude, city)
-#
-#     except Exception as e:
-#         logger.error(f'Error while getting coordinates from address: {e}')
-#         raise ValueError(e)

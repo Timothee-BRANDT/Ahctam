@@ -1,6 +1,6 @@
-from flask import Blueprint
+from flask import Blue
 
-main = Blueprint('main', __name__)
+main = Blue
 
 from .views import (
     social,

@@ -72,7 +72,7 @@ const LoginPage: React.FC = () => {
         router.push("/");
       }
     } catch (e) {
-      console.log(e);
+      
     }
   };
 

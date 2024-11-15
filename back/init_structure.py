@@ -2,7 +2,7 @@ import os
 import sys
 
 if not os.path.exists('.env'):
-    print("""
+    
     No .env file found, create one with:
     POSTGRES_DB=<your_db_name>
     POSTGRES_USER=<your_db_user>
@@ -39,16 +39,16 @@ if __name__ == '__main__':
 content_init_py = """import os
 from flask import Flask
 from dotenv import load_dotenv
-from .main.views import main as main_blueprint
-from .api.views import api as api_blueprint
+from .main.views import main as main_blue
+from .api.views import api as api_blue
 
 load_dotenv()
 
 def create_app():
     app = Flask(__name__, template_folder='../templates')
 
-    app.register_blueprint(main_blueprint)
-    app.register_blueprint(api_blueprint, url_prefix='/api')
+    app.register_blue
+    app.register_blue
 
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY')
     app.config['WTF_CSRF_SECRET'] = os.getenv('SECRET_KEY')
@@ -86,7 +86,7 @@ os.makedirs('app/static/js', exist_ok=True)
 os.makedirs('app/templates', exist_ok=True)
 os.makedirs('app/tests', exist_ok=True)
 write_file('app/__init__.py', content_init_py)
-print('modular app directory created')
+
 
 write_file('app.py', content_app_py)
-print('app.py created')
+

@@ -122,7 +122,7 @@ VALUES (%s, %s, %s)
                 'user_id': user_id
             })
         )
-        print('The firstrefresh token:', refresh_token)
+        
         first_login_response.set_cookie(
             key='refresh_token',
             value=refresh_token,
@@ -159,8 +159,8 @@ WHERE id = %s
             secure=False,  # TODO: change to True when nginx is configured
             max_age=timedelta(days=30)
         )
-        # print("Response Headers:", dict(login_response.headers))
-        # print("Set-Cookie:", login_response.headers.get('Set-Cookie'))
+        # 
+        # 
 
         return login_response, 200
     finally:
@@ -217,8 +217,6 @@ def first_login():
         )
         user_id = user['id']
         user_ip = request.remote_addr
-        # logger.info(f'{user_ip=}')
-        # logger.info(f'{type(user_ip)=}')
         form: FirstLoginForm = FirstLoginForm(data=payload)
         form.validate()
 
@@ -241,12 +239,11 @@ def first_login():
 @auth.route('/logout', methods=['POST'])
 @jwt_required
 def logout():
-    logger.info('Logout is called')
     conn = get_db_connection()
     cur = conn.cursor()
     try:
         refresh_token = request.cookies.get('refresh_token', '')
-        print('The refresh token from logout:', refresh_token)
+        
         if not refresh_token:
             raise Exception('No refresh token provided')
         decoded_refresh_token = jwt.decode(
@@ -309,7 +306,7 @@ AND expiration_date > %s
             key=current_app.config['SECRET_KEY'],
             algorithms=['HS256']
         )
-        print('Hello refresh:', decoded_refresh_token)
+        
         user_id = decoded_refresh_token['id']
         cur.execute(
             refresh_token_query,
@@ -349,7 +346,6 @@ AND expiration_date > %s
 
 @auth.route('/google/login')
 def google_login():
-    logger.info('google login')
     from app import oauth
     global_nonce = _generate_nonce()
     google = oauth.google
@@ -429,7 +425,7 @@ INSERT INTO users (username, password, email, firstname, lastname, is_active)
 VALUES (%s, %s, %s, %s, %s, TRUE)
 RETURNING id
 """
-        print('coucou register google')
+        
         cursor.execute(
             register_query,
             (
@@ -443,7 +439,6 @@ RETURNING id
         )
         user_id = cursor.fetchone()[0]
         conn.commit()
-        logger.info(f'User {user_id} registered via google!')
         return user_id
 
     except Exception as e:

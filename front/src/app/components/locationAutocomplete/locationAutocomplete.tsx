@@ -25,7 +25,7 @@ const AddressAutocomplete: React.FC<AddressAutocompleteProps> = ({
       );
       const data = await response.json();
       setSuggestions(data.results);
-      console.log(data.results);
+      
     } else {
       setSuggestions([]);
     }

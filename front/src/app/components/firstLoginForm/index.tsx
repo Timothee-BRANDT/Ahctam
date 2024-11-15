@@ -164,7 +164,7 @@ const FirstLoginPage: React.FC = () => {
     if (response.ok) {
       router.push("/");
     } else {
-      console.log("Error while sending the formular");
+      
     }
   };
 

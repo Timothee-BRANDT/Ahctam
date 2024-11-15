@@ -1,6 +1,6 @@
-from flask import Blueprint
+from flask import Blue
 
-auth = Blueprint('auth', __name__)
+auth = Blue
 
 from .views import (
     register,

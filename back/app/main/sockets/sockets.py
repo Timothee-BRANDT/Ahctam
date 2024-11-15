@@ -44,17 +44,17 @@ def handle_connect():
             redis_client.set(redis_user_key, sid)
             update_status_and_connection_time(user_id, 'online')
         else:
-            print('No token provided')
+            
             return False
 
     except Exception as e:
-        print(f'An error occurred: {str(e)}')
+        
         return False
 
 
 @socketio.on('disconnect')
 def handle_disconnect():
-    print('##################DISCONNECT#########################')
+    
     try:
         token: str = request.args.get('token', '')
         if token:
@@ -66,14 +66,14 @@ def handle_disconnect():
             redis_user_key: str = f"socket:{user_id}"
             redis_client.delete(redis_user_key)
             update_status_and_connection_time(user_id, 'offline')
-            print(f'Client disconnected: {sid}')
-            print(redis_client.get(redis_user_key))
-            print('##################DISCONNECT#########################')
+            
+            
+            
         else:
-            print('No token provided')
+            
             return False
     except Exception as e:
-        print(f'An error occurred: {str(e)}')
+        
         return False
 
 
@@ -81,7 +81,6 @@ def handle_disconnect():
 def handle_message_sent(data):
     socketio = current_app.extensions['socketio']
     receiver_id = data['receiver_id']
-    logger.info(f"Receiver ID from message_sent: {receiver_id}")
     redis_client = current_app.extensions['redis']
     redis_receiver_key: str = f"socket:{receiver_id}"
     receiver_sid = redis_client.get(redis_receiver_key).decode('utf-8')
@@ -101,8 +100,6 @@ def handle_message_sent(data):
 def handle_call(data):
     socketio = current_app.extensions['socketio']
     receiver_id = data['receiver_id']
-    logger.info(f"The data: {data}")
-    logger.info(f"Receiver ID from call: {receiver_id}")
     redis_client = current_app.extensions['redis']
     redis_receiver_key: str = f"socket:{receiver_id}"
     receiver_sid = redis_client.get(redis_receiver_key).decode('utf-8')
@@ -117,12 +114,12 @@ def handle_call(data):
 @socketio.on('hello')
 def handle_hello(data):
     sid = request.sid  # type: ignore
-    print(f'Received hello from {sid}: {data}')
+    
     emit('server_message', {'response': 'Hello from server'})
 
 
 @socketio.on_error_default
 def default_error_handler(e):
-    print(f"An error occurred for sockets: {str(e)}")
-    print(f"Socket error type: {type(e).__name__}")
-    print(f"Socket error args: {e.args}")
+    
+    
+    

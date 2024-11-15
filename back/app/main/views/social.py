@@ -36,7 +36,7 @@ WHERE id = %s
     cursor = conn.cursor(cursor_factory=RealDictCursor)
     try:
         token = request.headers.get('Authorization', '').split(' ')[1]
-        print('token in viewUser', token)
+        
         user = jwt.decode(
             token,
             current_app.config['SECRET_KEY'],

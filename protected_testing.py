@@ -9,6 +9,6 @@ response = requests.get(
     headers={'Authorization': f'Bearer {token}'})
 
 if response.status_code == 200:
-    print('Protected route response:', response.json())
+    
 else:
-    print('Error:', response.json())
+    

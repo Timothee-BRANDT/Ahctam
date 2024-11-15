@@ -68,8 +68,8 @@ const ProfileView: React.FC<ProfileViewProps> = (idProps) => {
   }, []);
 
   const getOtherUserInfo = async () => {
-    console.log("we enter getOtherUserInfo");
-    console.log("idMatch", idMatch);
+    
+    
     try {
       if (idMatch) {
         const id = idMatch[1];
@@ -93,7 +93,7 @@ const ProfileView: React.FC<ProfileViewProps> = (idProps) => {
         setProfileViewed(data);
       }
     } catch (e) {
-      console.log(e);
+      
     }
   };
 
@@ -117,7 +117,7 @@ const ProfileView: React.FC<ProfileViewProps> = (idProps) => {
         setLiked(data.liked);
       }
     } catch (e) {
-      console.log(e);
+      
     }
   };
 
@@ -153,7 +153,7 @@ const ProfileView: React.FC<ProfileViewProps> = (idProps) => {
         }
       }
     } catch (e) {
-      console.log(e);
+      
     }
   };
 
@@ -182,7 +182,7 @@ const ProfileView: React.FC<ProfileViewProps> = (idProps) => {
           }
         }
       } catch (e) {
-        console.log(e);
+        
       }
     } else {
       try {
@@ -204,7 +204,7 @@ const ProfileView: React.FC<ProfileViewProps> = (idProps) => {
           }
         }
       } catch (e) {
-        console.log(e);
+        
       }
     }
     setLiked((prev) => !prev);
@@ -229,7 +229,7 @@ const ProfileView: React.FC<ProfileViewProps> = (idProps) => {
         router.push("/browse");
       }
     } catch (e) {
-      console.log(e);
+      
     }
   };
 
@@ -252,7 +252,7 @@ const ProfileView: React.FC<ProfileViewProps> = (idProps) => {
         router.push("/browse");
       }
     } catch (e) {
-      console.log(e);
+      
     }
   };
 

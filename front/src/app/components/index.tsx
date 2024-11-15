@@ -85,7 +85,7 @@ const ProfilePage: React.FC = () => {
             localisationjpp = array;
           },
           (e) => {
-            console.log("Geolocation error");
+            
             if (user.address === "") {
               setUser((prevUser) => ({
                 ...prevUser,
@@ -162,7 +162,7 @@ const ProfilePage: React.FC = () => {
       }
       router.push("/");
     } catch (e) {
-      console.log(e);
+      
     }
   };
 

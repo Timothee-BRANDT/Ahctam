@@ -5,20 +5,20 @@ let socket: Socket | null = null;
 
 const setupSocketListeners = (): void => {
   if (socket) {
-    console.log("Setting up general socket listeners");
+    
 
     socket.on("connect", () => {
-      console.log("Connected to socket server:", socket?.id);
+      
     });
 
     socket.on("disconnect", () => {
       socket?.disconnect();
       socket = null;
-      console.log("Disconnected from socket server");
+      
     });
 
     socket.on("connect_error", (err) => {
-      console.log("Socket connection error:", err);
+      
     });
   }
 };
@@ -38,7 +38,7 @@ export const getSocket = (): Socket | null => socket;
 
 export const disconnectSocket = (): void => {
   if (socket) {
-    console.log("disconnecting socket: ", socket.id);
+    
     socket.disconnect();
     socket = null;
   }

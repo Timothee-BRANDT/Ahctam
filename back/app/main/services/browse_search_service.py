@@ -266,14 +266,12 @@ GROUP BY
         user_data["longitude"] = float(user_data["longitude"])
         user_data["latitude"] = float(user_data["latitude"])
         if not redis_client.exists(redis_key):
-            logger.info("nothing in redis yet")
             matching_users = _get_matching_users(
                 user_data=user_data,
                 cursor=cur,
             )
             redis_client.set(redis_key, json.dumps(matching_users), ex=180)
         else:
-            logger.info("something in redis")
             matching_users = json.loads(
                 redis_client.get(redis_key).decode("utf-8")
             )

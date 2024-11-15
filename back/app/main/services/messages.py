@@ -35,7 +35,6 @@ def store_message(
                 match_id,
             )
         )
-        logger.info(f"Message stored for {match_id}")
         new_message_id = cursor.fetchone()['id']
         return new_message_id
 
@@ -59,7 +58,7 @@ def send_message(
         redis_client = current_app.extensions['redis']
         redis_receiver_key: str = f"socket:{receiver_id}"
         receiver_sid = redis_client.get(redis_receiver_key).decode('utf-8')
-        print(f"Receiver SID: {receiver_sid}")
+        
         if receiver_sid is not None:
             socketio.emit(
                 'new_message',
@@ -72,7 +71,6 @@ def send_message(
                 },
                 room=receiver_sid
             )
-            logger.info(f"message sent to {receiver_id}")
 
     except Exception as e:
         raise e

@@ -69,7 +69,6 @@ ON CONFLICT DO NOTHING
             (user_id, user_liked_id)
         )
         mutual_like_result = cursor.fetchone()
-        logger.info(f"Mutual like result: {mutual_like_result}")
         if not mutual_like_result:
             return
 

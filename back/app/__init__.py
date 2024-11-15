@@ -13,9 +13,9 @@ from config import (
     ProductionConfig
 )
 from authlib.integrations.flask_client import OAuth
-from app.main import main as main_blueprint
-from app.api import api as api_blueprint
-from app.authentication import auth as auth_blueprint
+from app.main import main as main_blue
+from app.api import api as api_blue
+from app.authentication import auth as auth_blue
 
 
 socketio = SocketIO()
@@ -32,9 +32,9 @@ def create_app(test_config=False, production=False):
     else:
         app.config.from_object(DevelopmentConfig)
 
-    app.register_blueprint(main_blueprint, url_prefix='/')
-    app.register_blueprint(auth_blueprint, url_prefix='/auth')
-    app.register_blueprint(api_blueprint, url_prefix='/api')
+    app.register_blue
+    app.register_blue
+    app.register_blue
 
     CORS(
         app,

@@ -109,7 +109,7 @@ WHERE id = %s
 @api.route('/getOtherUserInfo/<int:user_id>', methods=['GET'])
 @jwt_required
 def get_other_user_info_controller(user_id: int):
-    print('getOtherUserInfo')
+    
     if not user_id:
         return jsonify({'error': 'User id not provided'}), 400
 

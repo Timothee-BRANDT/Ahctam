@@ -53,8 +53,6 @@ UPDATE users SET is_active = TRUE WHERE email = %s
 def register():
     data = request.get_json()
     form = RegisterForm(data=data)
-    logger.info('REGISTEEEEEEEER')
-    print('REGISTEEEEEEEER')
     try:
         form.validate()
     except ValueError as e:

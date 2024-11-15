@@ -98,7 +98,7 @@ const ProfilePage: React.FC = () => {
         throw new Error("Error fetching user profile");
       }
     } catch (error) {
-      console.log(error);
+      
     }
   };
 
@@ -130,7 +130,7 @@ const ProfilePage: React.FC = () => {
   }
 
   const convertAdressIntoCoordonates = async () => {
-    console.log("convertAdressIntoCoordonates is called");
+    
     var requestOptions = {
       method: "GET",
     };
@@ -156,7 +156,7 @@ const ProfilePage: React.FC = () => {
           townjpp = capitalizeFirstLetter(result.query.parsed.city);
         }
       })
-      .catch((error) => console.log("error", error));
+      .catch((error) => 
   };
 
   const handleUserChange = (

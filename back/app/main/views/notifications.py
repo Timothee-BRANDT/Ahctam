@@ -60,7 +60,7 @@ def send_notification(
         redis_client = current_app.extensions['redis']
         redis_receiver_key: str = f"socket:{receiver_id}"
         receiver_sid = redis_client.get(redis_receiver_key).decode('utf-8')
-        print(f"Receiver SID: {receiver_sid}")
+        
         if receiver_sid is not None:
             socketio.emit(
                 'notification',

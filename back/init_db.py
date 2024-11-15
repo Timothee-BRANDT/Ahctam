@@ -25,11 +25,11 @@ def init_db():
             sql.Identifier(os.getenv('POSTGRES_DB'))))
         # cur.execute(sql.SQL('CREATE DATABASE {}').format(
         #    sql.Identifier(current_app.config['POSTGRES_DB'])))
-        print('Database created successfully')
+        
         cur.close()
         conn.close()
     except Exception as e:
-        print(e)
+        
 
 
 def create_user_table(config=None):
@@ -61,12 +61,12 @@ def create_user_table(config=None):
         );
         '''
         cur.execute(query)
-        print('Table users created successfully')
+        
         conn.commit()
         cur.close()
         conn.close()
     except Exception as e:
-        print(e)
+        
 
 
 if __name__ == '__main__':

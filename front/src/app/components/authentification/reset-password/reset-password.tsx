@@ -49,7 +49,7 @@ const ResetPasswordPage: React.FC = () => {
       }
       setIsValidUsername(true);
     } catch (e) {
-      console.log(e);
+      
     }
   };
 
@@ -82,7 +82,7 @@ const ResetPasswordPage: React.FC = () => {
       localStorage.removeItem("jwt_token");
       setUpdateMessage(true);
     } catch (e) {
-      console.log(e);
+      
     }
   };
   return (

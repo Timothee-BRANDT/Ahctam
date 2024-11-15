@@ -38,7 +38,7 @@ def _get_location_from_coordinates(
         else:
             city_from_address_without_number = address_elements[0]
         town: str = components.get('city', city_from_address_without_number)
-        print(f'{town=}')
+        
         return town, address
 
     except Exception as e:
@@ -54,7 +54,7 @@ def french_longitude():
 
 
 def create_database():
-    print('Creating database...')
+    
     conn = psycopg2.connect(
         dbname='postgres',
         # user=current_app.config['POSTGRES_USER'],
@@ -74,23 +74,23 @@ FROM pg_database
 WHERE datname = %s
         """, (os.getenv('POSTGRES_DB'),))
         if cur.fetchone():
-            print('Database already exists')
+            
             return
 
         cur.execute(sql.SQL('CREATE DATABASE {}').format(
             sql.Identifier(os.getenv('POSTGRES_DB'))))
         # cur.execute(sql.SQL('CREATE DATABASE {}').format(
         #    sql.Identifier(current_app.config['POSTGRES_DB'])))
-        print('Database created successfully')
+        
     except Exception as e:
-        print(e)
+        
     finally:
         cur.close()
         conn.close()
 
 
 def create_users_table(cursor):
-    print('Creating users table...')
+    
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS users (
             id SERIAL PRIMARY KEY,
@@ -113,7 +113,7 @@ def create_users_table(cursor):
 
 
 def create_conversations_table(cursor):
-    print('Creating conversations table...')
+    
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS conversations (
             id SERIAL PRIMARY KEY,
@@ -129,7 +129,7 @@ def create_conversations_table(cursor):
 
 
 def create_messages_table(cursor):
-    print('Creating messages table...')
+    
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS messages (
             id SERIAL PRIMARY KEY,
@@ -144,7 +144,7 @@ def create_messages_table(cursor):
 
 
 def create_matches_table(cursor):
-    print('Creating matches table...')
+    
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS matches (
             id SERIAL PRIMARY KEY,
@@ -158,7 +158,7 @@ def create_matches_table(cursor):
 
 
 def create_pictures_table(cursor):
-    print('Creating pictures table...')
+    
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS pictures (
             id SERIAL PRIMARY KEY,
@@ -174,7 +174,7 @@ def create_pictures_table(cursor):
 
 
 def create_views_table(cursor):
-    print('Creating views table...')
+    
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS views (
             id SERIAL PRIMARY KEY,
@@ -188,7 +188,7 @@ def create_views_table(cursor):
 
 
 def create_likes_table(cursor):
-    print('Creating likes table...')
+    
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS likes (
             id SERIAL PRIMARY KEY,
@@ -203,7 +203,7 @@ def create_likes_table(cursor):
 
 
 def create_locations_table(cursor):
-    print('Creating locations table...')
+    
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS locations (
             id SERIAL PRIMARY KEY,
@@ -218,7 +218,7 @@ def create_locations_table(cursor):
 
 
 def create_notifications_table(cursor):
-    print('Creating notifications table...')
+    
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS notifications (
             id SERIAL PRIMARY KEY,
@@ -234,7 +234,7 @@ def create_notifications_table(cursor):
 
 
 def create_blocks_table(cursor):
-    print('Creating blocks table...')
+    
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS blocks (
             id SERIAL PRIMARY KEY,
@@ -249,7 +249,7 @@ def create_blocks_table(cursor):
 
 
 def create_reports_table(cursor):
-    print('Creating reports table...')
+    
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS reports (
             id SERIAL PRIMARY KEY,
@@ -264,7 +264,7 @@ def create_reports_table(cursor):
 
 
 def create_interests_table(cursor):
-    print('Creating interests table...')
+    
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS interests (
             id SERIAL PRIMARY KEY,
@@ -274,7 +274,7 @@ def create_interests_table(cursor):
 
 
 def create_user_interests_table(cursor):
-    print('Creating user_interests table...')
+    
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS user_interests (
             user_id INTEGER NOT NULL,
@@ -288,7 +288,7 @@ def create_user_interests_table(cursor):
 
 
 def create_refresh_tokens_table(cursor):
-    print('Creating refresh_tokens table...')
+    
     cursor.execute("""
         CREATE TABLE IF NOT EXISTS refresh_tokens (
             id SERIAL PRIMARY KEY,
@@ -301,7 +301,7 @@ def create_refresh_tokens_table(cursor):
 
 
 def insert_interests(cursor):
-    print('Inserting interests...')
+    
     interests = [
         'Tunnels', 'Obstacle', 'Naps', 'Vegetable', 'Chewing', 'Rolling',
         'Baths', 'Hide', 'Collecting', 'Nests', 'Contests', 'Grooming',
@@ -333,12 +333,12 @@ def generate_random_image_string():
         return image_string
 
     except Exception as e:
-        print(f"An error occurred: {e}")
+        
         return None
 
 
 def insert_random_users(cursor, num_users=700):
-    print('Inserting random users...')
+    
     fake = Faker('fr_FR')
     genders = ['male', 'female']
     sexual_preferences = ['male', 'female', 'both']
@@ -422,7 +422,7 @@ INSERT INTO views (viewer, user_viewed)
 VALUES (%s, %s)
 ON CONFLICT DO NOTHING
                 """, (viewer, user_viewed))
-        print(f"User {gender}{user_id}: {firstname} {lastname} inserted")
+        
 
 
 def create_all_tables():
@@ -456,7 +456,7 @@ def create_all_tables():
         conn.commit()
     except Exception as e:
         conn.rollback()
-        print(f"An error occurred: {e}")
+        
     finally:
         cursor.close()
         conn.close()
